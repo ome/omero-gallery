@@ -7,9 +7,21 @@
 
 {% block body %}
 
-    <div>Logged in as: {{ userName }}</div>
+    <div>
+        Logged in as: {{ userName }}
+        |
+        Group: {{ defaultGroup }}
+
+    </div>
 
     <hr>
 
     <h2>Welcome to OMERO.web Gallery</h2>
+
+    <ul>
+        {% for p in projects %}
+            <li>{{ p.getId }}: {{ p.getName }} (owner: {{ p.getDetails.getOwner.getOmeName }})</li>
+        {% endfor %}
+    </ul>
+
 {% endblock %}

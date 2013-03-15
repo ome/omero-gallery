@@ -11,5 +11,8 @@ def index(request, conn=None, **kwargs):
     """
 
     userName = conn.getUser().getFullName()
+    defaultGroup = conn.getGroupFromContext().getName()   # this is the 'default' group
 
-    return render_to_response("webgallery/index.html", {'userName': userName})
+    projects = conn.listProjects()      # Will be from ALL groups, owned by ALL users (as perms allow)
+
+    return render_to_response("webgallery/index.html", {'userName': userName, 'defaultGroup': defaultGroup, 'projects': projects})
