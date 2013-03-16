@@ -7,16 +7,18 @@ from omeroweb.webclient.decorators import login_required, render_response
 @render_response()
 def index(request, conn=None, **kwargs):
     """
-    Just a place-holder while we get started
+    Home page shows a list of Projects from our current/active group.
+    Also gives us controls for switching active group.
     """
 
     groupId = conn.SERVICE_OPTS.getOmeroGroup()
-    active_group = conn.getObject("ExperimenterGroup", groupId).getName()
+    myGroups = list(conn.getGroupsMemberOf())
 
     projects = conn.listProjects()      # Will be from active group, owned by ALL users (as perms allow)
 
     context = {'template': "webgallery/index.html"}     # This is used by @render_response
-    context['active_group'] = active_group
+    context['myGroups'] = myGroups
+    context['active_group_id'] = groupId
     context['projects'] = projects
 
     return context

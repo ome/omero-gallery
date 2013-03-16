@@ -10,8 +10,14 @@
     <div>
         Logged in as: {{ ome.user.getFullName }}
         |
-        Group: {{ active_group }}
-
+        Group:
+        <select id="group_chooser">
+            {% for g in myGroups %}
+                <option value="{{ g.id }}" {% ifequal g.id active_group_id %}selected{% endifequal %}>
+                    {{ g.getName }}
+                </opiton>
+            {% endfor %}
+        </select>
     </div>
 
     <hr>
@@ -23,5 +29,19 @@
             <li>{{ p.getId }}: {{ p.getName }} (owner: {{ p.getDetails.getOwner.getOmeName }})</li>
         {% endfor %}
     </ul>
+
+    <!-- Adding Scripts - First we link to the 'current' jQuery used by OMERO.web -->
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    <script>
+        $(function(){
+            $("#group_chooser").change(function(){
+                // To swich group, we visit the webclient change_active_group, with groupId.
+                var groupId = $(this).val(),
+                    cg_url = "{% url change_active_group %}?active_group=" + groupId;
+                cg_url += "&url=" + document.URL;       // Redirects back to this page/url
+                window.location.href = cg_url;
+            });
+        });
+    </script>
 
 {% endblock %}
