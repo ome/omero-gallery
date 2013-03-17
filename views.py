@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import Http404
 
 from omeroweb.webclient.decorators import login_required, render_response
 
@@ -36,5 +36,23 @@ def index(request, conn=None, **kwargs):
     context['group_members'] =group_members
     context['active_group_id'] = int(groupId)
     context['projects'] = projects
+
+    return context
+
+
+@login_required()
+@render_response()
+def show_project(request, projectId, conn=None, **kwargs):
+    """
+    Show a project
+    """
+
+    project = conn.getObject("Project", projectId)
+
+    if project is None:
+        raise Http404
+
+    context = {'template': "webgallery/show_project.html"}
+    context['project'] = project
 
     return context

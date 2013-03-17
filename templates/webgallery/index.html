@@ -47,7 +47,13 @@
 
     <ul>
         {% for p in projects %}
-            <li>{{ p.getId }}: {{ p.getName }} (owner: {{ p.getDetails.getOwner.getOmeName }})</li>
+            <li>
+                {{ p.getId }}:
+                <a href="{% url webgallery_show_project p.getId %}">
+                    {{ p.getName }}
+                </a>
+                (owner: {{ p.getDetails.getOwner.getOmeName }})
+            </li>
         {% endfor %}
     </ul>
 

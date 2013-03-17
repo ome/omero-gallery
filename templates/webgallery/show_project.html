@@ -1,0 +1,22 @@
+{% extends "webgallery/base/base.html" %}
+
+{% block title %}
+    {{ project.getName }}
+{% endblock %}
+
+
+{% block body %}
+
+    <div>
+        <a href="{% url webgallery_index %}">Home</a>
+        Logged in as: {{ ome.user.getFullName }}
+    </div>
+
+    <hr>
+
+    <h2>{{ project.getName }}</h2>
+
+    <p>{{ project.getDescription }}</p>
+
+
+{% endblock %}
