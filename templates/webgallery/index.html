@@ -18,6 +18,26 @@
                 </opiton>
             {% endfor %}
         </select>
+        |
+        User:
+        <select id="users_chooser">
+            {% if group_owners %}
+                <optgroup label="Owners">
+                {% for user in group_owners %}
+                    <option value="{{ user.id }}" {% ifequal user.id ome.user_id %}selected{% endifequal %}>
+                        {{ user.getFullName }}
+                    </option>
+                {% endfor %}
+            {% endif %}
+            {% if group_members %}
+                <optgroup label="Members">
+                {% for user in group_members %}
+                    <option value="{{ user.id }}" {% ifequal user.id ome.user_id %}selected{% endifequal %}>
+                        {{ user.getFullName }}
+                    </option>
+                {% endfor %}
+            {% endif %}
+        </select>
     </div>
 
     <hr>
@@ -34,12 +54,20 @@
     {% include "webgateway/base/includes/script_src_jquery.html" %}
     <script>
         $(function(){
+            var current_url = document.URL.split("?")[0]    // remove query string
             $("#group_chooser").change(function(){
                 // To swich group, we visit the webclient change_active_group, with groupId.
                 var groupId = $(this).val(),
                     cg_url = "{% url change_active_group %}?active_group=" + groupId;
-                cg_url += "&url=" + document.URL;       // Redirects back to this page/url
+                cg_url += "&url=" + current_url;       // Redirects back to this page/url
                 window.location.href = cg_url;
+            });
+
+            $("#users_chooser").change(function(){
+                // To swich group, we visit the webclient change_active_group, with groupId.
+                var userId = $(this).val(),
+                    page_url = current_url + "?user_id=" + userId;
+                window.location.href = page_url;
             });
         });
     </script>
