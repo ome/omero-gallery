@@ -18,5 +18,12 @@
 
     <p>{{ project.getDescription }}</p>
 
+    <hr/>
+
+    <ul>
+        {% for d in project.listChildren %}
+            <li>{{ d.getName }}</li>
+        {% endfor %}
+    </ul>
 
 {% endblock %}
