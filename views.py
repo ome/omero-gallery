@@ -19,12 +19,15 @@ def index(request, conn=None, **kwargs):
     user_id = request.REQUEST.get('user_id', request.session.get('user_id', conn.getUserId()))
     userIds = [u.id for u in group_owners]
     userIds.extend([u.id for u in group_members])
-    if int(user_id) not in userIds:        # Check user is in group
+    user_id = int(user_id)
+    if user_id not in userIds and user_id is not -1:        # Check user is in group
         user_id = conn.getUserId()
     request.session['user_id'] = int(user_id)    # save it to session
     request.session.modified = True
     myGroups = list(conn.getGroupsMemberOf())
 
+    if user_id == -1:
+        user_id = None
     projects = conn.listProjects(eid=user_id)      # Will be from active group, owned by user_id (as perms allow)
 
     context = {'template': "webgallery/index.html"}     # This is used by @render_response
