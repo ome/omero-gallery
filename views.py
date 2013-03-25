@@ -1,5 +1,7 @@
 from django.http import Http404
 
+import omero
+from omero.rtypes import wrap
 from omeroweb.webclient.decorators import login_required, render_response
 
 
@@ -52,7 +54,21 @@ def show_project(request, projectId, conn=None, **kwargs):
     if project is None:
         raise Http404
 
+    # Set a limit to grab 5 images from each Dataset
+    params = omero.sys.Parameters()
+    params.theFilter = omero.sys.Filter()
+    params.theFilter.limit = wrap(5)
+
+    datasets = []
+    for ds in project.listChildren():
+        # want to display 5 images from each dataset
+        images = ds.listChildren(params=params)
+        datasets.append({"id": ds.getId(),
+                "name": ds.getName(),
+                "images": images})
+
     context = {'template': "webgallery/show_project.html"}
     context['project'] = project
+    context['datasets'] = datasets
 
     return context

@@ -21,8 +21,13 @@
     <hr/>
 
     <ul>
-        {% for d in project.listChildren %}
-            <li>{{ d.getName }}</li>
+        {% for d in datasets %}
+            <li>
+                {{ d.name }} </br>
+                {% for i in d.images %}
+                    <img title="{{ i.getName }}" src="{% url render_thumbnail i.id %}" />
+                {% endfor %}
+            </li>
         {% endfor %}
     </ul>
 
