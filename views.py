@@ -104,7 +104,14 @@ def show_image(request, imageId, conn=None, **kwargs):
     if image is None:
         raise Http404
 
+    tags = []
+    for ann in image.listAnnotations():
+        print ann, ann.__class__.__name__, type(ann)
+        if isinstance(ann, omero.gateway.TagAnnotationWrapper):
+            tags.append(ann)
+
     context = {'template': "webgallery/show_image.html"}
     context['image'] = image
+    context['tags'] = tags
 
     return context
