@@ -27,7 +27,9 @@
     <hr>
 
     {% for i in dataset.listChildren %}
-        <img title="{{ i.getName }}" src="{% url render_thumbnail i.id %}" />
+        <a href="{% url webgallery_show_image i.id %}">
+            <img title="{{ i.getName }}" src="{% url render_thumbnail i.id %}" />
+        </a>
     {% endfor %}
 
 {% endblock %}

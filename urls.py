@@ -13,4 +13,7 @@ urlpatterns = patterns('django.views.generic.simple',
     # dataset view
     url( r'show_dataset/(?P<datasetId>[0-9]+)/$', views.show_dataset, name='webgallery_show_dataset' ),
 
+    # image view
+    url( r'show_image/(?P<imageId>[0-9]+)/$', views.show_image, name='webgallery_show_image' ),
+
 )

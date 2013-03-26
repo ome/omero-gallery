@@ -1,0 +1,31 @@
+{% extends "webgallery/base/base.html" %}
+
+{% block title %}
+    {{ image.getName }}
+{% endblock %}
+
+
+{% block body %}
+
+    <div>
+        <a href="{% url webgallery_index %}">Home</a>
+        Logged in as: {{ ome.user.getFullName }}
+    </div>
+
+    <hr>
+
+    {% if image.getParent %}
+    {% with p=image.getParent %}
+        Back to: <a href="{% url webgallery_show_dataset p.id %}">{{ p.getName }}</a>
+    {% endwith %}
+    {% endif %}
+
+    <h2>{{ image.getName }}</h2>
+
+    <p>{{ image.getDescription }}</p>
+
+    <hr>
+
+    <img src="{% url webgateway.views.render_image image.id %}" />
+
+{% endblock %}

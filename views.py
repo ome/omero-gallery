@@ -90,3 +90,21 @@ def show_dataset(request, datasetId, conn=None, **kwargs):
     context['dataset'] = dataset
 
     return context
+
+
+@login_required()
+@render_response()
+def show_image(request, imageId, conn=None, **kwargs):
+    """
+    Show an image
+    """
+
+    image = conn.getObject("Image", imageId)
+
+    if image is None:
+        raise Http404
+
+    context = {'template': "webgallery/show_image.html"}
+    context['image'] = image
+
+    return context
