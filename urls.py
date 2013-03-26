@@ -10,4 +10,7 @@ urlpatterns = patterns('django.views.generic.simple',
     # project view
     url( r'show_project/(?P<projectId>[0-9]+)/$', views.show_project, name='webgallery_show_project' ),
 
+    # dataset view
+    url( r'show_dataset/(?P<datasetId>[0-9]+)/$', views.show_dataset, name='webgallery_show_dataset' ),
+
 )

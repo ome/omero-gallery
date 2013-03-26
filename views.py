@@ -72,3 +72,21 @@ def show_project(request, projectId, conn=None, **kwargs):
     context['datasets'] = datasets
 
     return context
+
+
+@login_required()
+@render_response()
+def show_dataset(request, datasetId, conn=None, **kwargs):
+    """
+    Show a dataset
+    """
+
+    dataset = conn.getObject("Dataset", datasetId)
+
+    if dataset is None:
+        raise Http404
+
+    context = {'template': "webgallery/show_dataset.html"}
+    context['dataset'] = dataset
+
+    return context
