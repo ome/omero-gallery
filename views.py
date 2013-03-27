@@ -28,9 +28,30 @@ def index(request, conn=None, **kwargs):
     request.session.modified = True
     myGroups = list(conn.getGroupsMemberOf())
 
+    # Need a custom query to get 1 (random) image per Project
+    queryService = conn.getQueryService()
+    params = omero.sys.Parameters()
+    params.theFilter = omero.sys.Filter()
+    params.theFilter.limit = wrap(1)
+    params.map = {}
+    query = "select i from Image as i"\
+            " left outer join i.datasetLinks as dl join dl.parent as dataset"\
+            " left outer join dataset.projectLinks as pl join pl.parent as project"\
+            " where project.id = :pid"
+
     if user_id == -1:
         user_id = None
-    projects = conn.listProjects(eid=user_id)      # Will be from active group, owned by user_id (as perms allow)
+    projects = []
+    for p in conn.listProjects(eid=user_id):      # Will be from active group, owned by user_id (as perms allow)
+        pdata = {'id': p.getId(), 'name': p.getName()}
+        pdata['description'] = p.getDescription()
+        pdata['owner'] = p.getDetails().getOwner().getOmeName()
+        # Look-up a single image
+        params.map['pid'] = wrap(p.id)
+        img = queryService.findByQuery(query, params, conn.SERVICE_OPTS)
+        if img is not None:
+            pdata['image'] = {'id':img.id.val, 'name':img.name.val}
+        projects.append(pdata)
 
     context = {'template': "webgallery/index.html"}     # This is used by @render_response
     context['myGroups'] = myGroups

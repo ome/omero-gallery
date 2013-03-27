@@ -48,11 +48,15 @@
     <ul>
         {% for p in projects %}
             <li>
-                {{ p.getId }}:
-                <a href="{% url webgallery_show_project p.getId %}">
-                    {{ p.getName }}
+                {% if p.image %}
+                    <img title="{{ p.image.name }}" src="{% url render_thumbnail p.image.id %}" style="float:left"/>
+                {% endif %}
+                <a href="{% url webgallery_show_project p.id %}">
+                    {{ p.name }}
                 </a>
-                (owner: {{ p.getDetails.getOwner.getOmeName }})
+                (owner: {{ p.owner }})
+                <div>{{ p.description }}</div>
+                <div style="clear:both"></div>
             </li>
         {% endfor %}
     </ul>
