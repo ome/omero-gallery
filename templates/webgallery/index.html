@@ -49,7 +49,7 @@
         {% for p in projects %}
             <li>
                 {% if p.image %}
-                    <img title="{{ p.image.name }}" src="{% url render_thumbnail p.image.id %}" style="float:left"/>
+                    <img title="{{ p.image.name }}" src="{% url render_thumbnail_resize 96 p.image.id %}" style="float:left"/>
                 {% endif %}
                 <a href="{% url webgallery_show_project p.id %}">
                     {{ p.name }}

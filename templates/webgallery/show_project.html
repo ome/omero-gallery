@@ -25,7 +25,7 @@
             <li>
                 <a href="{% url  webgallery_show_dataset d.id %}">{{ d.name }}</a> </br>
                 {% for i in d.images %}
-                    <img title="{{ i.getName }}" src="{% url render_thumbnail i.id %}" />
+                    <img title="{{ i.getName }}" src="{% url render_thumbnail_resize 96 i.id %}" />
                 {% endfor %}
             </li>
         {% endfor %}
