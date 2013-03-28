@@ -5,30 +5,57 @@ from omero.rtypes import wrap
 from omeroweb.webclient.decorators import login_required, render_response
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def index(request, conn=None, **kwargs):
     """
-    Home page shows a list of Projects from our current/active group.
-    Also gives us controls for switching active group.
+    Home page shows a list of Projects from all of our groups
     """
 
-    groupId = conn.SERVICE_OPTS.getOmeroGroup()
+    myGroups = list(conn.getGroupsMemberOf())
+
+    # Need a custom query to get 1 (random) image per Project
+    queryService = conn.getQueryService()
+    params = omero.sys.Parameters()
+    params.theFilter = omero.sys.Filter()
+    params.theFilter.limit = wrap(5)
+
+    groups = []
+    for g in myGroups:
+        conn.SERVICE_OPTS.setOmeroGroup(g.id)
+        projects = []
+        images = list(conn.getObjects("Image", params=params))
+        groups.append({'id': g.getId(),
+                'name': g.getName(),
+                'description': g.getDescription(),
+                'images': images})
+
+    context = {'template': "webgallery/index.html"}     # This is used by @render_response
+    context['groups'] = groups
+
+    return context
+
+
+@login_required()
+@render_response()
+def show_group(request, groupId, conn=None, **kwargs):
+    conn.SERVICE_OPTS.setOmeroGroup(groupId)
+
     s = conn.groupSummary(groupId)
     group_owners = s["leaders"]
     group_members = s["colleagues"]
+    group = conn.getObject("ExperimenterGroup", groupId)
+
     # Get NEW user_id, OR current user_id from session OR 'All Members' (-1)
     user_id = request.REQUEST.get('user_id', request.session.get('user_id', -1))
     userIds = [u.id for u in group_owners]
     userIds.extend([u.id for u in group_members])
     user_id = int(user_id)
     if user_id not in userIds and user_id is not -1:        # Check user is in group
-        user_id = conn.getUserId()
+        user_id = -1
     request.session['user_id'] = int(user_id)    # save it to session
     request.session.modified = True
-    myGroups = list(conn.getGroupsMemberOf())
 
-    # Need a custom query to get 1 (random) image per Project
     queryService = conn.getQueryService()
     params = omero.sys.Parameters()
     params.theFilter = omero.sys.Filter()
@@ -53,11 +80,10 @@ def index(request, conn=None, **kwargs):
             pdata['image'] = {'id':img.id.val, 'name':img.name.val}
         projects.append(pdata)
 
-    context = {'template': "webgallery/index.html"}     # This is used by @render_response
-    context['myGroups'] = myGroups
+    context = {'template': "webgallery/show_group.html"}
+    context['group'] = group
     context['group_owners'] = group_owners
     context['group_members'] =group_members
-    context['active_group_id'] = int(groupId)
     context['projects'] = projects
 
     return context
