@@ -86,6 +86,7 @@ def show_project(request, projectId, conn=None, **kwargs):
         images = ds.listChildren(params=params)
         datasets.append({"id": ds.getId(),
                 "name": ds.getName(),
+                "description": ds.getDescription(),
                 "images": images})
 
     context = {'template': "webgallery/show_project.html"}
