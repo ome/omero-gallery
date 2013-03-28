@@ -21,8 +21,8 @@
         |
         User:
         <select id="users_chooser">
+            <option value="-1">All Members</option>
             {% if group_owners %}
-                <option value="-1">All Members</option>
                 <optgroup label="Owners">
                 {% for user in group_owners %}
                     <option value="{{ user.id }}" {% ifequal user.id ome.user_id %}selected{% endifequal %}>

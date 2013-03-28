@@ -17,8 +17,8 @@ def index(request, conn=None, **kwargs):
     s = conn.groupSummary(groupId)
     group_owners = s["leaders"]
     group_members = s["colleagues"]
-    # Get NEW user_id, OR current user_id from session OR id of logged-in user
-    user_id = request.REQUEST.get('user_id', request.session.get('user_id', conn.getUserId()))
+    # Get NEW user_id, OR current user_id from session OR 'All Members' (-1)
+    user_id = request.REQUEST.get('user_id', request.session.get('user_id', -1))
     userIds = [u.id for u in group_owners]
     userIds.extend([u.id for u in group_members])
     user_id = int(user_id)
