@@ -8,7 +8,7 @@
 {% block body %}
 
     <div>
-        <a href="{% url webgallery_index %}">Home</a>
+        <a href="{% url 'webgallery_index' %}">Home</a>
         Logged in as: {{ ome.user.getFullName }}
     </div>
 
@@ -23,8 +23,8 @@
     <ul>
         {% for d in datasets %}
             <li>
-                <a href="{% url  webgallery_show_dataset d.id %}">{{ d.name }}</a>
-                Load <a class="load_thumbs" href="{% url webgallery_dataset_thumbs d.id %}">All Images</a>
+                <a href="{% url  'webgallery_show_dataset' d.id %}">{{ d.name }}</a>
+                Load <a class="load_thumbs" href="{% url 'webgallery_dataset_thumbs' d.id %}">All Images</a>
             </br>
                 {% if d.description %}
                     <div>{{ d.description }}</div>
@@ -32,8 +32,8 @@
 
                 <div class="dataset_thumbs">
                 {% for i in d.images %}
-                    <a href="{% url webgallery_show_image i.id %}">
-                        <img title="{{ i.getName }}" src="{% url render_thumbnail_resize 96 i.id %}" />
+                    <a href="{% url 'webgallery_show_image' i.id %}">
+                        <img title="{{ i.getName }}" src="{% url 'render_thumbnail_resize' 96 i.id %}" />
                     </a>
                 {% endfor %}
                 </div>

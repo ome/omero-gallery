@@ -8,7 +8,7 @@
 {% block body %}
 
     <div>
-        <a href="{% url webgallery_index %}">Home</a>
+        <a href="{% url 'webgallery_index' %}">Home</a>
         Logged in as: {{ ome.user.getFullName }}
     </div>
 
@@ -16,7 +16,7 @@
 
     {% if image.getParent %}
     {% with p=image.getParent %}
-        Back to: <a href="{% url webgallery_show_dataset p.id %}">{{ p.getName }}</a>
+        Back to: <a href="{% url 'webgallery_show_dataset' p.id %}">{{ p.getName }}</a>
     {% endwith %}
     {% endif %}
 
@@ -26,7 +26,6 @@
 
     <hr>
 
-    <!--<img src="{% url webgateway.views.render_image image.id %}" style="float: left"/>-->
     <div id="img_viewer" style="width:512px; height:512px; float: left"></div>
 
     <table>
@@ -76,7 +75,7 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css" %}" type="text/css" media="screen"/>
 
     <script>
-        var viewport = $.WeblitzViewport("#img_viewer", "{% url webgateway %}", {'mediaroot': '{{ STATIC_URL }}' } );
+        var viewport = $.WeblitzViewport("#img_viewer", "{% url 'webgateway' %}", {'mediaroot': '{{ STATIC_URL }}' } );
         viewport.load({{ image.id }});
     </script>
 

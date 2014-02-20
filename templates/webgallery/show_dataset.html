@@ -8,7 +8,7 @@
 {% block body %}
 
     <div>
-        <a href="{% url webgallery_index %}">Home</a>
+        <a href="{% url 'webgallery_index' %}">Home</a>
         Logged in as: {{ ome.user.getFullName }}
     </div>
 
@@ -16,7 +16,7 @@
 
     {% if dataset.getParent %}
     {% with p=dataset.getParent %}
-        Back to: <a href="{% url webgallery_show_project p.id %}">{{ p.getName }}</a>
+        Back to: <a href="{% url 'webgallery_show_project' p.id %}">{{ p.getName }}</a>
     {% endwith %}
     {% endif %}
 
@@ -27,8 +27,8 @@
     <hr>
 
     {% for i in dataset.listChildren %}
-        <a href="{% url webgallery_show_image i.id %}">
-            <img title="{{ i.getName }}" src="{% url render_thumbnail_resize 96 i.id %}" />
+        <a href="{% url 'webgallery_show_image' i.id %}">
+            <img title="{{ i.getName }}" src="{% url 'render_thumbnail_resize' 96 i.id %}" />
         </a>
     {% endfor %}
 

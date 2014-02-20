@@ -1,6 +1,6 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 
-from omeroweb.webgallery import views
+from gallery import views
 
 urlpatterns = patterns('django.views.generic.simple',
 
