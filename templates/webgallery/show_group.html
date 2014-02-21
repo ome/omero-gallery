@@ -52,6 +52,23 @@
         {% endfor %}
     </ul>
 
+    <h2>Datasets</h2>
+    <ul>
+        {% for p in datasets %}
+            <li>
+                {% if p.image %}
+                    <img title="{{ p.image.name }}" src="{% url 'render_thumbnail_resize' 96 p.image.id %}" style="float:left"/>
+                {% endif %}
+                <a href="{% url 'webgallery_show_dataset' p.id %}">
+                    {{ p.name }}
+                </a>
+                (owner: {{ p.owner }})
+                <div>{{ p.description }}</div>
+                <div style="clear:both"></div>
+            </li>
+        {% endfor %}
+    </ul>
+
     <!-- Adding Scripts - First we link to the 'current' jQuery used by OMERO.web -->
     {% include "webgateway/base/includes/script_src_jquery.html" %}
     <script>

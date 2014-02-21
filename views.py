@@ -57,10 +57,10 @@ def show_group(request, groupId, conn=None, **kwargs):
     request.session.modified = True
 
     queryService = conn.getQueryService()
-    params = omero.sys.Parameters()
+    params = omero.sys.ParametersI()
     params.theFilter = omero.sys.Filter()
     params.theFilter.limit = wrap(1)
-    params.map = {}
+    # params.map = {}
     query = "select i from Image as i"\
             " left outer join i.datasetLinks as dl join dl.parent as dataset"\
             " left outer join dataset.projectLinks as pl join pl.parent as project"\
@@ -74,17 +74,36 @@ def show_group(request, groupId, conn=None, **kwargs):
         pdata['description'] = p.getDescription()
         pdata['owner'] = p.getDetails().getOwner().getOmeName()
         # Look-up a single image
-        params.map['pid'] = wrap(p.id)
+        # params.map['pid'] = wrap(p.id)
+        params.addLong('pid', p.id)
         img = queryService.findByQuery(query, params, conn.SERVICE_OPTS)
         if img is not None:
             pdata['image'] = {'id':img.id.val, 'name':img.name.val}
         projects.append(pdata)
+
+    query = "select i from Image as i"\
+        " left outer join i.datasetLinks as dl join dl.parent as dataset"\
+        " where dataset.id = :did"
+    datasets = []
+    for d in conn.listOrphans("Dataset", eid=user_id):
+        ddata = {'id': d.getId(), 'name': d.getName()}
+        ddata['description'] = d.getDescription()
+        ddata['owner'] = d.getDetails().getOwner().getOmeName()
+        # Look-up a single image
+        # params.map['did'] = wrap(d.id)
+        params.addLong('did', d.id)
+        img = queryService.findByQuery(query, params, conn.SERVICE_OPTS)
+        if img is not None:
+            ddata['image'] = {'id':img.id.val, 'name':img.name.val}
+        datasets.append(ddata)
+
 
     context = {'template': "webgallery/show_group.html"}
     context['group'] = group
     context['group_owners'] = group_owners
     context['group_members'] =group_members
     context['projects'] = projects
+    context['datasets'] = datasets
 
     return context
 
@@ -154,7 +173,6 @@ def show_image(request, imageId, conn=None, **kwargs):
 
     tags = []
     for ann in image.listAnnotations():
-        print ann, ann.__class__.__name__, type(ann)
         if isinstance(ann, omero.gateway.TagAnnotationWrapper):
             tags.append(ann)
 
