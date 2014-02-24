@@ -7,13 +7,6 @@
 
 {% block body %}
 
-    <div>
-        <a href="{% url 'webgallery_index' %}">Home</a>
-        Logged in as: {{ ome.user.getFullName }}
-    </div>
-
-    <hr>
-
     {% if dataset.getParent %}
     {% with p=dataset.getParent %}
         Back to: <a href="{% url 'webgallery_show_project' p.id %}">{{ p.getName }}</a>

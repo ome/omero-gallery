@@ -16,19 +16,29 @@ def index(request, conn=None, **kwargs):
 
     # Need a custom query to get 1 (random) image per Project
     queryService = conn.getQueryService()
-    params = omero.sys.Parameters()
+    params = omero.sys.ParametersI()
     params.theFilter = omero.sys.Filter()
-    params.theFilter.limit = wrap(5)
+    params.theFilter.limit = wrap(1)
+
+    query = "select count(obj.id) from %s as obj"
 
     groups = []
     for g in myGroups:
         conn.SERVICE_OPTS.setOmeroGroup(g.id)
         projects = []
         images = list(conn.getObjects("Image", params=params))
+        if len(images) == 0:
+            continue        # Don't display empty groups
+        pCount = queryService.projection(query % 'Project', None, conn.SERVICE_OPTS)
+        dCount = queryService.projection(query % 'Dataset', None, conn.SERVICE_OPTS)
+        iCount = queryService.projection(query % 'Image', None, conn.SERVICE_OPTS)
         groups.append({'id': g.getId(),
                 'name': g.getName(),
                 'description': g.getDescription(),
-                'images': images})
+                'projectCount': pCount[0][0]._val,
+                'datasetCount': dCount[0][0]._val,
+                'imageCount': iCount[0][0]._val,
+                'image': len(images) > 0 and images[0] or None})
 
     context = {'template': "webgallery/index.html"}     # This is used by @render_response
     context['groups'] = groups
@@ -65,6 +75,11 @@ def show_group(request, groupId, conn=None, **kwargs):
             " left outer join i.datasetLinks as dl join dl.parent as dataset"\
             " left outer join dataset.projectLinks as pl join pl.parent as project"\
             " where project.id = :pid"
+    paramAll = omero.sys.ParametersI()
+    countImages = "select count(i), count(distinct dataset) from Image as i"\
+            " left outer join i.datasetLinks as dl join dl.parent as dataset"\
+            " left outer join dataset.projectLinks as pl join pl.parent as project"\
+            " where project.id = :pid"
 
     if user_id == -1:
         user_id = None
@@ -74,14 +89,21 @@ def show_group(request, groupId, conn=None, **kwargs):
         pdata['description'] = p.getDescription()
         pdata['owner'] = p.getDetails().getOwner().getOmeName()
         # Look-up a single image
-        # params.map['pid'] = wrap(p.id)
         params.addLong('pid', p.id)
         img = queryService.findByQuery(query, params, conn.SERVICE_OPTS)
-        if img is not None:
-            pdata['image'] = {'id':img.id.val, 'name':img.name.val}
+        if img is None:
+            continue    # Ignore projects with no images
+        pdata['image'] = {'id':img.id.val, 'name':img.name.val}
+        paramAll.addLong('pid', p.id)
+        imageCount = queryService.projection(countImages, paramAll, conn.SERVICE_OPTS)
+        pdata['imageCount'] = imageCount[0][0].val
+        pdata['datasetCount'] = imageCount[0][1].val
         projects.append(pdata)
 
     query = "select i from Image as i"\
+        " left outer join i.datasetLinks as dl join dl.parent as dataset"\
+        " where dataset.id = :did"
+    countImages = "select count(i) from Image as i"\
         " left outer join i.datasetLinks as dl join dl.parent as dataset"\
         " where dataset.id = :did"
     datasets = []
@@ -93,8 +115,12 @@ def show_group(request, groupId, conn=None, **kwargs):
         # params.map['did'] = wrap(d.id)
         params.addLong('did', d.id)
         img = queryService.findByQuery(query, params, conn.SERVICE_OPTS)
-        if img is not None:
-            ddata['image'] = {'id':img.id.val, 'name':img.name.val}
+        if img is None:
+            continue    # ignore datasets with no images
+        ddata['image'] = {'id':img.id.val, 'name':img.name.val}
+        paramAll.addLong('did', d.id)
+        imageCount = queryService.projection(countImages, paramAll, conn.SERVICE_OPTS)
+        ddata['imageCount'] = imageCount[0][0].val
         datasets.append(ddata)
 
 
