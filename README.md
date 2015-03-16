@@ -29,3 +29,18 @@ location on your $PYTHONPATH. Then add it to your installed web apps.
 
 And you're done! Go to https://your-web-server/gallery
 
+
+
+OMERO.gallery overview
+======================
+
+This application is designed to support browsing of images via the hierarchy of
+Group > Project > Dataset > Image.
+
+Public access can be enabled [as described here]
+(http://www.openmicroscopy.org/site/support/omero5/developers/Web/PublicData.html), otherwise
+users will see the standard web login screen.
+
+The home page will display all the available groups that the user can access.
+
+<img src="http://will-moore.github.io/gallery/images/gallery.png" />
