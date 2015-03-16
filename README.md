@@ -41,6 +41,20 @@ Public access can be enabled [as described here]
 (http://www.openmicroscopy.org/site/support/omero5/developers/Web/PublicData.html), otherwise
 users will see the standard web login screen.
 
-The home page will display all the available groups that the user can access.
+The home page will display all the available groups that the user can access, with a random
+thumbnail from each group. The number of Projects, Datasets and Images within each group
+will also be displayed.
 
 <img src="http://will-moore.github.io/gallery/images/gallery.png" />
+
+On browsing into a group, the Projects and 'orphaned' Datasets will be shown in a similar layout.
+
+<img src="http://will-moore.github.io/gallery/images/show_group.png" />
+
+Projects are shown with 5 thumbnails from each Dataset. Clicking 'All Images' will load all the remaining thumbnails
+from a chosen Dataset. Clicking a thumbnail will take you
+directly to the full image viewer.
+Alternatively, you can browse to the Dataset itself by clicking the Dataset name link.
+
+<img src="http://will-moore.github.io/gallery/images/show_project.png" />
+
