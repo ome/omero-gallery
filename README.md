@@ -52,9 +52,11 @@ On browsing into a group, the Projects and 'orphaned' Datasets will be shown in 
 <img src="http://will-moore.github.io/gallery/images/show_group.png" />
 
 Projects are shown with 5 thumbnails from each Dataset. Clicking 'All Images' will load all the remaining thumbnails
-from a chosen Dataset. Clicking a thumbnail will take you
-directly to the full image viewer.
-Alternatively, you can browse to the Dataset itself by clicking the Dataset name link.
+from a chosen Dataset (or you can browse to the Dataset itself by clicking the Dataset name link).
 
 <img src="http://will-moore.github.io/gallery/images/show_project.png" />
+
+Clicking a thumbnail will take you directly to the full image viewer.
+
+<img src="http://will-moore.github.io/gallery/images/webgateway_viewer.png" />
 
