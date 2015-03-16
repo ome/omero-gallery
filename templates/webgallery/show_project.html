@@ -32,7 +32,7 @@
 
                 <div class="dataset_thumbs">
                 {% for i in d.images %}
-                    <a href="{% url 'webgallery_show_image' i.id %}">
+                    <a href="{% url 'webgateway_full_viewer' i.id %}">
                         <img title="{{ i.getName }}" src="{% url 'render_thumbnail_resize' 96 i.id %}" />
                     </a>
                 {% endfor %}
