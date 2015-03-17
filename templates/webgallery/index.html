@@ -23,7 +23,7 @@ OMERO.web Gallery
             {% if g.image %}
             <a href="{% url 'webgallery_show_group' g.id %}">
                 <img class="img-thumbnail" title="{{ g.image.name }}" style="width:96px; height:96px" 
-                src="{% url 'render_thumbnail_resize' 96 g.image.id %}"/>
+                src="{% url 'webgateway.views.render_thumbnail' g.image.id 96 %}"/>
             </a>
             {% endif %}
         </p>
