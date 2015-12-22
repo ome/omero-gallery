@@ -14,7 +14,7 @@ location on your $PYTHONPATH. Then add it to your installed web apps.
     $ cd folder/on/pythonpath/
 
     # clone into new 'gallery' directory
-    $ git clone git@github.com:ome/gallery.git
+    $ git clone https://github.com/ome/gallery.git
 
     # go to your OMERO install...
     $ cd OMERO
