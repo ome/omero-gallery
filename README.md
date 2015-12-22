@@ -14,7 +14,7 @@ location on your $PYTHONPATH. Then add it to your installed web apps.
     $ cd folder/on/pythonpath/
 
     # clone into new 'gallery' directory
-    $ git clone git@github.com:will-moore/gallery.git
+    $ git clone git@github.com:ome/gallery.git
 
     # go to your OMERO install...
     $ cd OMERO
@@ -45,18 +45,18 @@ The home page will display all the available groups that the user can access, wi
 thumbnail from each group. The number of Projects, Datasets and Images within each group
 will also be displayed.
 
-<img src="http://will-moore.github.io/gallery/images/gallery.png" />
+<img src="http://ome.github.io/gallery/images/gallery.png" />
 
 On browsing into a group, the Projects and 'orphaned' Datasets will be shown in a similar layout.
 
-<img src="http://will-moore.github.io/gallery/images/show_group.png" />
+<img src="http://ome.github.io/gallery/images/show_group.png" />
 
 Projects are shown with 5 thumbnails from each Dataset. Clicking 'All Images' will load all the remaining thumbnails
 from a chosen Dataset (or you can browse to the Dataset itself by clicking the Dataset name link).
 
-<img src="http://will-moore.github.io/gallery/images/show_project.png" />
+<img src="http://ome.github.io/gallery/images/show_project.png" />
 
 Clicking a thumbnail will take you directly to the full image viewer.
 
-<img src="http://will-moore.github.io/gallery/images/webgateway_viewer.png" />
+<img src="http://ome.github.io/gallery/images/webgateway_viewer.png" />
 
