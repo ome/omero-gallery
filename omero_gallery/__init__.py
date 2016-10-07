@@ -1,1 +1,1 @@
-default_app_config = 'omero_webtest.apps.WebTestAppConfig'
+default_app_config = 'omero_gallery.apps.WebTestAppConfig'

@@ -1,6 +1,6 @@
 from django.conf.urls import url, patterns
 
-from gallery import views
+from . import views
 
 urlpatterns = patterns(
     'django.views.generic.simple',
