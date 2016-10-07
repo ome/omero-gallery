@@ -20,7 +20,7 @@ location on your $PYTHONPATH. Then add it to your installed web apps.
     $ cd OMERO
 
     # Add "gallery" to web apps. NB: double quotes within single quotes
-    $ bin/omero config append omero.web.apps '"gallery"'
+    $ bin/omero config append omero.web.apps '"omero_gallery"'
 
     # Restart web
     $ bin/omero web stop
