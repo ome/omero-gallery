@@ -27,6 +27,6 @@
 from django.apps import AppConfig
 
 
-class WebErrorAppConfig(AppConfig):
+class GalleryAppConfig(AppConfig):
     name = "omero_gallery"
     label = "gallery"
