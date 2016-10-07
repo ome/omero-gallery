@@ -1,30 +1,33 @@
+.. image:: https://travis-ci.org/openmicroscopy/gallery.svg?branch=master
+    :target: https://travis-ci.org/openmicroscopy/gallery
+
+.. image:: https://badge.fury.io/py/gallery.svg
+    :target: https://badge.fury.io/py/gallery
+
 OMERO.gallery
 =============
 
 This is an OMERO.web plugin (Django app) that provides a 'gallery' view of images in OMERO, ideal for public browsing without editing.
 
 
-Developer Installation
-======================
+Installation
+============
 
+Install OMERO.web
 
-Place the contents of this repository (in a directory named 'gallery') within a
-location on your $PYTHONPATH. Then add it to your installed web apps.
+This app installs into the OMERO.web framework.
 
-    $ cd folder/on/pythonpath/
+::
 
-    # clone into new 'gallery' directory
-    $ git clone https://github.com/ome/gallery.git
+    $ pip install gallery
 
-    # go to your OMERO install...
-    $ cd OMERO
+Add gallery custom app to your installed web apps:
 
-    # Add "gallery" to web apps. NB: double quotes within single quotes
+::
+
     $ bin/omero config append omero.web.apps '"omero_gallery"'
 
-    # Restart web
-    $ bin/omero web stop
-    $ bin/omero web start
+Now restart OMERO.web as normal.
 
 
 And you're done! Go to https://your-web-server/gallery
@@ -59,4 +62,14 @@ from a chosen Dataset (or you can browse to the Dataset itself by clicking the D
 Clicking a thumbnail will take you directly to the full image viewer.
 
 <img src="http://ome.github.io/gallery/images/webgateway_viewer.png" />
+
+License
+-------
+
+OMERO.gallery is released under the AGPL.
+
+Copyright
+---------
+
+2016, The Open Microscopy Environment
 
