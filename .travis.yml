@@ -7,9 +7,11 @@ python: 2.7
 # http://docs.travis-ci.com/user/workers/container-based-infrastructure/
 sudo: false
 
-before_install: 
-  - pip install flake8
+before_install:
+ - pip install restructuredtext_lint
+ - pip install flake8
 
 script:
  - flake8 -v .
+ - rst-lint README.rst
  - python setup.py sdist install
