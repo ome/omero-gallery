@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/openmicroscopy/gallery.svg?branch=master
-    :target: https://travis-ci.org/openmicroscopy/gallery
+.. image:: https://travis-ci.org/ome/gallery.svg?branch=master
+    :target: https://travis-ci.org/ome/gallery
 
 .. image:: https://badge.fury.io/py/gallery.svg
     :target: https://badge.fury.io/py/gallery
