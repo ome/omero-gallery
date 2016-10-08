@@ -19,7 +19,7 @@ This app installs into the OMERO.web framework.
 
 ::
 
-    $ pip install gallery
+    $ pip install omero-gallery
 
 Add gallery custom app to your installed web apps:
 
