@@ -48,20 +48,21 @@ The home page will display all the available groups that the user can access, wi
 thumbnail from each group. The number of Projects, Datasets and Images within each group
 will also be displayed.
 
-<img src="http://ome.github.io/omero-gallery/images/gallery.png" />
+.. image:: http://ome.github.io/omero-gallery/images/gallery.png
+
 
 On browsing into a group, the Projects and 'orphaned' Datasets will be shown in a similar layout.
 
-<img src="http://ome.github.io/omero-gallery/images/show_group.png" />
+.. image:: http://ome.github.io/omero-gallery/images/show_group.png
 
 Projects are shown with 5 thumbnails from each Dataset. Clicking 'All Images' will load all the remaining thumbnails
 from a chosen Dataset (or you can browse to the Dataset itself by clicking the Dataset name link).
 
-<img src="http://ome.github.io/omero-gallery/images/show_project.png" />
+.. image:: http://ome.github.io/omero-gallery/images/show_project.png
 
 Clicking a thumbnail will take you directly to the full image viewer.
 
-<img src="http://ome.github.io/omero-gallery/images/webgateway_viewer.png" />
+.. image:: http://ome.github.io/omero-gallery/images/webgateway_viewer.png
 
 License
 -------
