@@ -1,11 +1,17 @@
-language: node_js
+language: python
+
+python: 2.7
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
 # which cache: is available
 # http://docs.travis-ci.com/user/workers/container-based-infrastructure/
 sudo: false
 
-before_install: pip install --user flake8
+before_install:
+ - pip install restructuredtext_lint
+ - pip install flake8
 
 script:
  - flake8 -v .
+ - rst-lint README.rst
+ - python setup.py sdist install

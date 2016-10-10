@@ -80,12 +80,15 @@ def show_group(request, groupId, conn=None, **kwargs):
     # params.map = {}
     query = "select i from Image as i"\
             " left outer join i.datasetLinks as dl join dl.parent as dataset"\
-            " left outer join dataset.projectLinks as pl join pl.parent as project"\
+            " left outer join dataset.projectLinks"\
+            " as pl join pl.parent as project"\
             " where project.id = :pid"
     paramAll = omero.sys.ParametersI()
     countImages = "select count(i), count(distinct dataset) from Image as i"\
-                  " left outer join i.datasetLinks as dl join dl.parent as dataset"\
-                  " left outer join dataset.projectLinks as pl join pl.parent as project"\
+                  " left outer join i.datasetLinks"\
+                  " as dl join dl.parent as dataset"\
+                  " left outer join dataset.projectLinks"\
+                  " as pl join pl.parent as project"\
                   " where project.id = :pid"
 
     if user_id == -1:
@@ -110,10 +113,12 @@ def show_group(request, groupId, conn=None, **kwargs):
         projects.append(pdata)
 
     query = "select i from Image as i"\
-            " left outer join i.datasetLinks as dl join dl.parent as dataset"\
+            " left outer join i.datasetLinks as dl"\
+            " join dl.parent as dataset"\
             " where dataset.id = :did"
     countImages = "select count(i) from Image as i"\
-                  " left outer join i.datasetLinks as dl join dl.parent as dataset"\
+                  " left outer join i.datasetLinks as dl "\
+                  "join dl.parent as dataset"\
                   " where dataset.id = :did"
     datasets = []
     for d in conn.listOrphans("Dataset", eid=user_id):
