@@ -1,8 +1,8 @@
-.. image:: https://travis-ci.org/ome/gallery.svg?branch=master
-    :target: https://travis-ci.org/ome/gallery
+.. image:: https://travis-ci.org/ome/omero-gallery.svg?branch=master
+    :target: https://travis-ci.org/ome/omero-gallery
 
-.. image:: https://badge.fury.io/py/gallery.svg
-    :target: https://badge.fury.io/py/gallery
+.. image:: https://badge.fury.io/py/omero-gallery.svg
+    :target: https://badge.fury.io/py/omero-gallery
 
 OMERO.gallery
 =============
