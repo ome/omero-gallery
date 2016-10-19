@@ -9,11 +9,15 @@ OMERO.gallery
 
 This is an OMERO.web plugin (Django app) that provides a 'gallery' view of images in OMERO, ideal for public browsing without editing.
 
+Requirements
+============
+
+* OMERO 5.1.0 or later.
 
 Installation
 ============
 
-Install OMERO.web
+Install OMERO.web.
 
 This app installs into the OMERO.web framework.
 
@@ -30,9 +34,11 @@ Add gallery custom app to your installed web apps:
 Now restart OMERO.web as normal.
 
 
-And you're done! Go to https://your-web-server/gallery
+**Warning**:
 
-
+if OMERO.gallery is installed with OMERO version prior to **5.2.6**,
+the url will be https://your-web-server/omero_gallery instead of https://your-web-server/gallery as previously. This is due to a package re-organization required to distribute the application using a package manager.
+If installed with OMERO **5.2.6 and older**, the url will be back to https://your-web-server/gallery.
 
 OMERO.gallery overview
 ======================
