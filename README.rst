@@ -17,9 +17,9 @@ Requirements
 Installation
 ============
 
-Install OMERO.web.
+This section assumes that an OMERO.server is already installed.
 
-This app installs into the OMERO.web framework.
+Install the app:
 
 ::
 
@@ -36,7 +36,9 @@ Now restart OMERO.web as normal.
 
 **Warning**:
 
-OMERO.weberror version 2.x or newer is meant to be installed into OMERO.web **5.2.6 or newer**. This is due to Django Framework compatibility and a package reorganization required to distribute the application using Python Package Manager PyPi.
+OMERO.gallery version 2.x requires OMERO.web **5.2.6 or newer**.
+This is due to Django Framework compatibility and to a required package reorganization in OMERO.gallery in version 2.0 so the application can be distributed using Python Package Manager PyPi.
+
 
 
 OMERO.gallery overview
