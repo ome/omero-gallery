@@ -14,7 +14,7 @@ Requirements
 
 * OMERO 5.2.6 or newer.
 
-Installing from Pypi
+Installing from PyPI
 ====================
 
 This section assumes that an OMERO.web is already installed.
@@ -37,7 +37,7 @@ Now restart OMERO.web as normal.
 **Warning**:
 
 OMERO.gallery version 2.x requires OMERO.web **5.2.6 or newer**.
-This is due to a Django Framework compatibility and to a required package reorganization in OMERO.gallery in version 2.0 so the application can be distributed from Python Package Index `PyPi <https://pypi.python.org/pypi>`_.
+This is due to a Django Framework compatibility and to a required package reorganization in OMERO.gallery in version 2.0 so the application can be distributed from Python Package Index `PyPI <https://pypi.python.org/pypi>`_.
 
 
 
