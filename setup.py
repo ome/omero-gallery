@@ -32,7 +32,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-VERSION = '2.0.0'
+VERSION = '2.0.1'
 
 
 setup(name="omero-gallery",
@@ -40,6 +40,27 @@ setup(name="omero-gallery",
       version=VERSION,
       description="A Python plugin for OMERO.web",
       long_description=read('README.rst'),
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Environment :: Web Environment',
+          'Framework :: Django',
+          'Intended Audience :: End Users/Desktop',
+          'Intended Audience :: Science/Research',
+          'License :: OSI Approved :: GNU Affero General Public License v3 '
+          'or later (AGPLv3+)',
+          'Natural Language :: English',
+          'Operating System :: OS Independent',
+          'Programming Language :: JavaScript',
+          'Programming Language :: Python :: 2',
+          'Topic :: Internet :: WWW/HTTP',
+          'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+          'Topic :: Internet :: WWW/HTTP :: WSGI',
+          'Topic :: Scientific/Engineering :: Visualization',
+          'Topic :: Software Development :: Libraries :: '
+          'Application Frameworks',
+          'Topic :: Text Processing :: Markup :: HTML'
+      ],  # Get strings from
+          # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       author='The Open Microscopy Team',
       author_email='ome-devel@lists.openmicroscopy.org.uk',
       license='AGPLv3',
