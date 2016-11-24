@@ -9,7 +9,7 @@ sudo: false
 
 before_install:
  - pip install restructuredtext_lint
- - pip install flake8
+ - pip install flake8 pycodestyle pep8-naming
 
 script:
  - flake8 -v .
