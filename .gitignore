@@ -1,2 +1,4 @@
 *.pyc
 *.DS_Store
+dist
+omero_gallery.egg-info
