@@ -1,4 +1,4 @@
-3.0.0 (April 2016)
+3.0.0 (April 2017)
 ------------------
 
 - flake8 and pep8 compatible
