@@ -11,6 +11,7 @@
 # 2.0.0 (October 2016)
 
     - Release the app from PyPI
+    - Re-organise and rename packages
 
 # 1.0.0 (August 2015)
 
