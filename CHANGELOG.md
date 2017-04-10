@@ -8,7 +8,7 @@
 2.0.1 (November 2016)
 ---------------------
 
-- Update Intructions and classifiers
+- Update intructions and classifiers
 
 2.0.0 (October 2016)
 --------------------
