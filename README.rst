@@ -36,7 +36,7 @@ Now restart OMERO.web as normal.
 
 **Warning**:
 
-OMERO.gallery version 2.x requires OMERO.web **5.2.6 or newer**.
+OMERO.gallery version 2.x or newer requires OMERO.web **5.2.6 or newer**.
 This is due to a Django Framework compatibility and to a required package reorganization in OMERO.gallery in version 2.0 so the application can be distributed from Python Package Index `PyPI <https://pypi.python.org/pypi>`_.
 
 
@@ -79,5 +79,5 @@ OMERO.gallery is released under the AGPL.
 Copyright
 ---------
 
-2016, The Open Microscopy Environment
+2016-2017, The Open Microscopy Environment
 

@@ -32,7 +32,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-VERSION = '2.0.1'
+VERSION = '3.0.0'
 
 
 setup(name="omero-gallery",
@@ -46,7 +46,6 @@ setup(name="omero-gallery",
           'Framework :: Django',
           'Intended Audience :: End Users/Desktop',
           'Intended Audience :: Science/Research',
-          'License :: OSI Approved :: GNU Affero General Public License v3.0',
           'Natural Language :: English',
           'Operating System :: OS Independent',
           'Programming Language :: JavaScript',
