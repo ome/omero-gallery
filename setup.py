@@ -33,7 +33,7 @@ def read(fname):
 
 
 VERSION = '3.0.0'
-
+HOMEPAGE = "https://github.com/ome/omero-gallery"
 
 setup(name="omero-gallery",
       packages=find_packages(exclude=['ez_setup']),
@@ -63,7 +63,7 @@ setup(name="omero-gallery",
       author_email='ome-devel@lists.openmicroscopy.org.uk',
       license='AGPL-3.0',
       url="https://github.com/ome/omero-gallery",
-      download_url='https://github.com/ome/omero-gallery/tarball/%s' % VERSION,  # NOQA
+      download_url='%s/archive/v%s.tar.gz' % (HOMEPAGE, VERSION),
       keywords=['OMERO.web', 'plugin'],
       include_package_data=True,
       zip_safe=False,

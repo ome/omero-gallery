@@ -1,0 +1,9 @@
+Third party libraries
+
+
+Managed manually
+----------------
+
+Library: bootstrap
+Site http://getbootstrap.com
+License: MIT
