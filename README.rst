@@ -48,7 +48,7 @@ This application is designed to support browsing of images via the hierarchy of
 Group > Project > Dataset > Image.
 
 Public access can be enabled [as described here]
-(http://www.openmicroscopy.org/site/support/omero5/developers/Web/PublicData.html), otherwise
+(https://docs.openmicroscopy.org/latest/omero/sysadmins/public.html), otherwise
 users will see the standard web login screen.
 
 The home page will display all the available groups that the user can access, with a random
