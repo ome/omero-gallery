@@ -23,7 +23,7 @@ Install the app using `pip <https://pip.pypa.io/en/stable/>`_:
 
 ::
 
-    $ pip install omero-gallery
+    $ pip install -U omero-gallery
 
 Add gallery custom app to your installed web apps:
 
