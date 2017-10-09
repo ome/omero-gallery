@@ -47,29 +47,29 @@ OMERO.gallery overview
 This application is designed to support browsing of images via the hierarchy of
 Group > Project > Dataset > Image.
 
-Public access can be enabled [as described here]
-(https://docs.openmicroscopy.org/latest/omero/sysadmins/public.html), otherwise
+Public access can be enabled `as described here
+<https://docs.openmicroscopy.org/latest/omero/sysadmins/public.html>`_, otherwise
 users will see the standard web login screen.
 
 The home page will display all the available groups that the user can access, with a random
 thumbnail from each group. The number of Projects, Datasets and Images within each group
 will also be displayed.
 
-.. image:: http://ome.github.io/omero-gallery/images/gallery.png
+.. image:: https://ome.github.io/omero-gallery/images/gallery.png
 
 
 On browsing into a group, the Projects and 'orphaned' Datasets will be shown in a similar layout.
 
-.. image:: http://ome.github.io/omero-gallery/images/show_group.png
+.. image:: https://ome.github.io/omero-gallery/images/show_group.png
 
 Projects are shown with 5 thumbnails from each Dataset. Clicking 'All Images' will load all the remaining thumbnails
 from a chosen Dataset (or you can browse to the Dataset itself by clicking the Dataset name link).
 
-.. image:: http://ome.github.io/omero-gallery/images/show_project.png
+.. image:: https://ome.github.io/omero-gallery/images/show_project.png
 
 Clicking a thumbnail will take you directly to the full image viewer.
 
-.. image:: http://ome.github.io/omero-gallery/images/webgateway_viewer.png
+.. image:: https://ome.github.io/omero-gallery/images/webgateway_viewer.png
 
 License
 -------
