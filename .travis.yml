@@ -1,17 +1,15 @@
+sudo: required
+
 language: python
 
-python: 2.7
+python:
+  - "2.7"
 
-# This (sudo: false) is needed to "run on container-based infrastructure" on
-# which cache: is available
-# http://docs.travis-ci.com/user/workers/container-based-infrastructure/
-sudo: false
+services:
+  - docker
 
 before_install:
- - pip install restructuredtext_lint
- - pip install flake8 pycodestyle pep8-naming
+  - git clone git://github.com/openmicroscopy/omero-test-infra .omero
 
 script:
- - flake8 -v .
- - rst-lint README.rst
- - python setup.py sdist install
+  - .omero/app-docker
