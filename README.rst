@@ -9,7 +9,7 @@ OMERO.gallery
 
 This is an OMERO.web plugin (Django app) that provides a 'gallery' view of images in OMERO, ideal for public browsing without editing.
 
-Also see `SUPPORT.md <./SUPPORT.md>`_
+Also see `SUPPORT.md <https://github.com/ome/omero-gallery/blob/master/SUPPORT.md>`_
 
 Requirements
 ============
