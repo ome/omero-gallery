@@ -9,7 +9,7 @@ OMERO.gallery
 
 This is an OMERO.web plugin (Django app) that provides a 'gallery' view of images in OMERO, ideal for public browsing without editing.
 
-Also see `SUPPORT.md <./SUPPORT.md>`_
+Also see `SUPPORT.md <https://github.com/ome/omero-gallery/blob/master/SUPPORT.md>`_
 
 Requirements
 ============
@@ -39,7 +39,7 @@ Now restart OMERO.web as normal.
 **Warning**:
 
 OMERO.gallery version 2.x or newer requires OMERO.web **5.2.6 or newer**.
-This is due to a Django Framework compatibility and to a required package reorganization in OMERO.gallery in version 2.0 so the application can be distributed from Python Package Index `PyPI <https://pypi.python.org/pypi>`_.
+This is due to a Django Framework compatibility and to a required package reorganization in OMERO.gallery in version 2.0 so the application can be distributed from Python Package Index `PyPI <https://pypi.org>`_.
 
 
 
@@ -49,8 +49,7 @@ OMERO.gallery overview
 This application is designed to support browsing of images via the hierarchy of
 Group > Project > Dataset > Image.
 
-Public access can be enabled `as described here
-<https://docs.openmicroscopy.org/latest/omero/sysadmins/public.html>`_, otherwise
+Public access can be enabled `as described here <https://docs.openmicroscopy.org/latest/omero/sysadmins/public.html>`_, otherwise
 users will see the standard web login screen.
 
 The home page will display all the available groups that the user can access, with a random
