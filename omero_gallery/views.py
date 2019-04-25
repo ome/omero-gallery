@@ -3,6 +3,7 @@ from django.http import Http404
 import omero
 from omero.rtypes import wrap
 from omeroweb.webclient.decorators import login_required, render_response
+from omeroweb.webgateway.views import render_thumbnail
 
 from omero_mapr.mapr_settings import mapr_settings
 
@@ -236,3 +237,42 @@ def idr(request, conn=None, **kwargs):
     context = {'template': "webgallery/idr/index.html"}
     context['mapr_settings'] = mapr_settings.CONFIG
     return context
+
+
+@login_required()
+def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
+
+    img_id = None
+    query_service = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    params.addId(obj_id)
+    params.theFilter = omero.sys.Filter()
+    params.theFilter.limit = wrap(1)
+
+    if obj_type == "project":
+        query = "select i from Image as i"\
+                " left outer join i.datasetLinks as dl join dl.parent as dataset"\
+                " left outer join dataset.projectLinks"\
+                " as pl join pl.parent as project"\
+                " where project.id = :id"
+
+    elif obj_type == "screen":
+        query = ("select well from Well as well "
+                 "join fetch well.plate as pt "
+                 "left outer join pt.screenLinks as sl join sl.parent as screen "
+                 "left outer join fetch well.wellSamples as ws "
+                 "left outer join fetch ws.image as img "
+                 "where screen.id = :id")
+
+    obj = query_service.findByQuery(query, params, conn.SERVICE_OPTS)
+
+    if obj is None:
+        raise Http404("No Image Found")
+
+    if obj_type == "screen":
+        img_ids = [ws.image.id.val for ws in obj.copyWellSamples()]
+        img_id = img_ids[0]
+    elif obj_type == "project":
+        img_id = obj.id.val
+
+    return render_thumbnail(request, img_id, conn=conn)
