@@ -218,6 +218,8 @@ function loadStudiesMapAnnotations() {
     })
 }
 
+// ------------ Render -------------------------
+
 function render(filterFunc) {
   document.getElementById('studies').innerHTML = "";
   let configId = document.getElementById("maprConfig").value;
@@ -254,6 +256,7 @@ function renderStudy(studyData, filterKey) {
   // let descRe = /Experiment Description\n(.+)[\n]?/
   let match = titleRe.exec(studyData.Description);
   let title = match ? match[1] : '';
+  let type = studyData['@type'].split('#')[1].toLowerCase();
 
   // save for later
   studyData.title = title;
@@ -264,21 +267,22 @@ function renderStudy(studyData, filterKey) {
   if (title.length >0) {
     desc = desc.split(title)[1];
   }
-  let descHtml = desc.split('\n')
-    .map(line => {
-      return line.length == 0 ? '' :
-             line.split(" ").length < 5 ? `<h3>${ line }</h3>` :
-             `<p>${ line }</p>`
-    })
-    .join("");
+  // First line is e.g. "Screen Description". Show NEXT line only.
+  let descHtml = `<p>${ desc.split('\n').filter(l => l.length > 0)[1] }</p>`;
 
   let html = `<hr/>
-  <h2>${ idrId }: ${ title }</h2>
-  ${ descHtml }
+  <div class="small-3 medium-3 large-3 columns">
+    <img src="gallery/study_thumbnail/${ type }/${ studyData['@id'] }/" />
+  </div>
+  <div class="small-9 medium-9 large-9 columns">
+    <h2>${ idrId }: ${ title }</h2>
+    ${ descHtml }
+  </div>
   `
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
+  div.class = "row";
   document.getElementById('studies').appendChild(div);
 }
 
