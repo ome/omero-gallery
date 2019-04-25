@@ -3,6 +3,15 @@
 
 {% block content %}
 
+<style>
+  .thumbnail {
+    border-radius: 10px;
+  }
+  .study {
+    margin-bottom: 15px;
+  }
+</style>
+
 <hr class="whitespace">
 
 <div class="row column text-center">
@@ -43,13 +52,11 @@
 
     <div id="filterCount" class="row horizontal">
     </div>
-
-    <div id="studies" class="row horizontal">
-      Loading Studies...
-    </div>
 </div>
 
-
+<div id="studies" class="row horizontal">
+  Loading Studies...
+</div>
 
 <script>
 
@@ -263,26 +270,22 @@ function renderStudy(studyData, filterKey) {
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
 
-  let desc = studyData.Description;
-  if (title.length >0) {
-    desc = desc.split(title)[1];
-  }
-  // First line is e.g. "Screen Description". Show NEXT line only.
-  let descHtml = `<p>${ desc.split('\n').filter(l => l.length > 0)[1] }</p>`;
-
-  let html = `<hr/>
-  <div class="small-3 medium-3 large-3 columns">
-    <img src="gallery/study_thumbnail/${ type }/${ studyData['@id'] }/" />
-  </div>
-  <div class="small-9 medium-9 large-9 columns">
-    <h2>${ idrId }: ${ title }</h2>
-    ${ descHtml }
-  </div>
-  `
+  let html = `
+  <div class="row study">
+    <div class="small-3 medium-3 large-3 columns" style="padding: 0">
+      <img class="thumbnail" src="gallery/study_thumbnail/${ type }/${ studyData['@id'] }/" />
+    </div>
+    <div class="small-9 medium-9 large-9 columns">
+      <p>
+        <span style='color:#1976d2'>${ idrId }</span>:
+        ${ title }
+      </p>
+    </div>
+  </div>`
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
-  div.class = "row";
+  div.className = "small-12 medium-6 large-4 columns";
   document.getElementById('studies').appendChild(div);
 }
 
