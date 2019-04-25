@@ -1,0 +1,65 @@
+.menu > li > a.logo { padding: 0 1rem; }
+
+.marketing-hero {
+    padding: 180px 0 200px;
+    background-color: rgba(240, 240, 240, 1);
+    background-repeat: repeat;
+    background-position: center center;
+    background-attachment: scroll;
+    background-size: cover;  
+}
+
+hr.whitespace {
+    border: none;
+    height: 1.875rem;
+}
+
+p.link {
+    /* Liza to add style */
+}
+
+.their-logo, .their-logo:hover {
+    border-width: 0px;
+    box-shadow: none;
+}
+
+.header {
+    background: #074E68;
+    background-size: cover;
+    overflow: visible;
+    padding-top: 2.5rem;
+    padding-bottom: 4.9rem;
+    position: relative;
+    text-align: center; }
+    .header .headline {
+        color: #ffe;
+}
+
+.header-subnav {
+    float: none;
+    position: absolute; bottom: 0;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%; }
+    .header-subnav li {
+    display: inline-block;
+    float: none; }
+    .header-subnav li a {
+    font-size: 0.75rem;
+    padding: 0.9rem 1rem;
+}
+
+.consortium-list div {
+    padding-bottom: 20px; }
+    span.institution  {
+    font-size: 90%;
+    padding-left: 5px;       
+}
+
+.contributors-list div {
+    padding-bottom: 20px; }
+    .contributors-list a {
+    font-size: 90%;
+    padding-left: 5px;       
+}
+    

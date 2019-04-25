@@ -33,4 +33,6 @@ urlpatterns = patterns(
     url(r'show_image/(?P<image_id>[0-9]+)/$',
         views.show_image, name='webgallery_show_image'),
 
+    url(r'idr/$', views.idr, name='webgallery_idr'),
+
 )

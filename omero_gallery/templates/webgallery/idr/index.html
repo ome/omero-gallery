@@ -1,0 +1,338 @@
+
+{% extends "webgallery/idr/base.html" %}
+
+{% block content %}
+
+<hr class="whitespace">
+
+<div class="row column text-center">
+  <h1>Welcome to IDR</h1>
+
+<div class="small-10 small-centered medium-10 medium-centered columns">
+    <div class="row horizontal">
+        <div class="small-12 medium-12 large-12 columns">
+          <form>
+            <label>
+              <input type="text" placeholder="search">
+            </label>
+          </form>
+        </div>
+    </div>
+
+
+    <div class="row horizontal">
+
+      <h2>Query by attribute</h2>
+
+      <div class="small-4 medium-4 large-4 columns">
+        <select id="maprConfig">
+          <optgroup id="studyKeys" label="Study Attributes">
+            <!-- Map-Annotation keys loaded here -->
+          </optgroup>
+          <optgroup label="Image Attributes">
+          {% for id, config in mapr_settings.items %}
+            <option value="mapr_{{ id }}">{{ config.label }}</option>
+          {% endfor %}
+          </optgroup>
+        </select>
+      </div>
+      <div class="small-8 medium-8 large-8 columns">
+        <input id="maprQuery" type="text" placeholder="Gene Symbol">
+      </div>
+    </div>
+
+    <div id="filterCount" class="row horizontal">
+    </div>
+
+    <div id="studies" class="row horizontal">
+      Loading Studies...
+    </div>
+</div>
+
+
+
+<script>
+
+// List of Projects and Screens in omero-marshal JSON format
+let studies = [];
+let studyKeys = [];
+
+
+
+// ------------ Handle MAPR searching or filtering --------------------- 
+
+function filterStudiesByMapr(value) {
+  let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
+  let url = `/mapr/api/${ configId }/?value=${ value }`;
+  $.getJSON(url, (data) => {
+    // TODO: filter studies...
+    console.log('filterStudiesByMapr', data);
+
+    // filter studies by 'screens' and 'projects'
+    let filteredIds = data.screens.map(s => `screen-${ s.id }`)
+        .concat(data.projects.map(p => `project-${ p.id }`));
+    console.log('filteredIds', filteredIds);
+    let filterFunc = study => {
+      let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+      return filteredIds.indexOf(studyId) > -1;
+    }
+
+    render(filterFunc);
+  })
+}
+
+// ----- event handling -----
+
+document.getElementById('maprConfig').onchange = (event) => {
+  document.getElementById('maprQuery').value = '';
+  render();
+}
+
+$("#maprQuery").autocomplete({
+    autoFocus: false,
+    delay: 1000,
+    source: function( request, response ) {
+
+        // Empty - clear filter
+        if (request.term.length === 0) {
+          render();
+          return;
+        }
+
+        // if configId is not from mapr, we filter on mapValues...
+        let configId = document.getElementById("maprConfig").value;
+        if (configId.indexOf('mapr_') != 0) {
+          // filter studies by Key-Value pairs
+          let filterFunc = study => {
+            let show = false;
+            study.mapValues.forEach(kv => {
+              if (kv[0] === configId && kv[1].indexOf(request.term) > -1) {
+                show = true;
+              }
+            });
+            return show;
+          }
+          render(filterFunc);
+          return;
+        }
+
+        // Auto-complete to filter by mapr...
+        configId = configId.replace('mapr_', '');
+        let url = `http://idr.openmicroscopy.org/mapr/api/autocomplete/${ configId }/`;
+        let case_sensitive = false;
+
+        $.ajax({
+            dataType: "json",
+            type : 'GET',
+            url: url,
+            data: {
+                value: case_sensitive ? request.term : request.term.toLowerCase(),
+                query: true,
+                case_sensitive: case_sensitive
+            },
+            success: function(data) {
+                if (data.length > 0) {
+                    response( $.map( data, function(item) {
+                        return item;
+                    }));
+                } else {
+                   response([{ label: 'No results found.', value: -1 }]);
+                }
+            },
+            error: function(data) {
+                response([{ label: 'Error occured.', value: -1 }]);
+            }
+        });
+    },
+    minLength: 0,
+    open: function() {},
+    close: function() {
+        // $(this).val('');
+        return false;
+    },
+    focus: function(event,ui) {},
+    select: function(event, ui) {
+        if (ui.item.value == -1) {
+            return false;
+        }
+        filterStudiesByMapr(ui.item.value);
+        $(this).val(ui.item.value);
+
+        console.log('mapr', ui.item.value);
+        return false;
+    }
+}).data("ui-autocomplete")._renderItem = function( ul, item ) {
+    return $( "<li>" )
+        .append( "<a>" + item.label + "</a>" )
+        .appendTo( ul );
+}
+
+
+// ----------- Load MapAnnotations --------------------
+
+function loadStudiesMapAnnotations() {
+  let url = "https://idr.openmicroscopy.org/webclient/api/annotations/?type=map";
+  let data = studies
+    .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
+    .join("&");
+  url += '&' + data;
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      // populate the studies array...
+      // dict of {'project-1' : key-values}
+      let annsByParentId = {};
+      data.annotations.forEach(ann => {
+        let key = ann.link.parent.class;  // 'ProjectI'
+        key = key.substr(0, key.length-1).toLowerCase();
+        key += '-' + ann.link.parent.id;  // project-1
+        if (!annsByParentId[key]) {
+          annsByParentId[key] = [];
+        }
+        annsByParentId[key] = annsByParentId[key].concat(ann.values);
+      });
+      // Add mapValues to studies...
+      studies = studies.map(study => {
+        let values = annsByParentId[`${ study['@type'].split('#')[1].toLowerCase() }-${ study['@id'] }`];
+        if (values) {
+          study.mapValues = values;
+          return study;
+        }
+      });
+
+      // Also list ALL keys...
+      let allKeys = {};
+      data.annotations.forEach(ann => {
+        // add keys to list
+        ann.values.forEach(kv => {allKeys[kv[0]] = true});
+      });
+
+      for (let key in allKeys) {
+        studyKeys.push(key);
+      }
+      studyKeys.sort();
+
+      renderStudyKeys();
+
+      render();
+    })
+}
+
+function render(filterFunc) {
+  document.getElementById('studies').innerHTML = "";
+  let configId = document.getElementById("maprConfig").value;
+  let filterKey;
+  if (!(configId.indexOf('mapr_') === 0)) {
+    filterKey = configId;
+  }
+  let studiesToRender = studies;
+  if (filterFunc) {
+    studiesToRender = studies.filter(filterFunc);
+  }
+
+  let filterMessage = "";
+  if (studiesToRender.length < studies.length) {
+    filterMessage = `Showing ${ studiesToRender.length } of ${ studies.length} studies`;
+  }
+  document.getElementById('filterCount').innerHTML = filterMessage;
+
+  studiesToRender.forEach(s => renderStudy(s, filterKey));
+}
+
+function renderStudyKeys() {
+  let html = studyKeys
+      .map(key => `<option value="${ key }">${ key }</option>`)
+      .join("\n");
+  document.getElementById('studyKeys').innerHTML = html;
+  document.getElementById('maprConfig').value = "Publication Authors";
+}
+
+function renderStudy(studyData, filterKey) {
+  // Add Project or Screen to the page
+  // If filterKey, try to render the Key: Value
+  let titleRe = /Publication Title\n(.+)[\n]?/
+  // let descRe = /Experiment Description\n(.+)[\n]?/
+  let match = titleRe.exec(studyData.Description);
+  let title = match ? match[1] : '';
+
+  // save for later
+  studyData.title = title;
+
+  let idrId = studyData.Name.split('-')[0];  // idr0001
+
+  let desc = studyData.Description;
+  if (title.length >0) {
+    desc = desc.split(title)[1];
+  }
+  let descHtml = desc.split('\n')
+    .map(line => {
+      return line.length == 0 ? '' :
+             line.split(" ").length < 5 ? `<h3>${ line }</h3>` :
+             `<p>${ line }</p>`
+    })
+    .join("");
+
+  let keyValue = '';
+  if (filterKey && studyData.mapValues) {
+    // Look for matching key...
+    let value = studyData.mapValues
+      .filter(kv => kv[0] === filterKey)
+      .map(kv => kv[1])
+      .join(" ");
+    if (value) {
+      keyValue = `<p>${ filterKey }: ${ value }</p>`;
+    }
+  }
+
+  let html = `<hr/>
+  <h2>${ idrId }: ${ title }</h2>
+  ${ descHtml }
+  ${ keyValue }
+  `
+
+  var div = document.createElement( "div" );
+  div.innerHTML = html;
+  document.getElementById('studies').appendChild(div);
+}
+
+// ----------- Load Studies --------------------
+
+// Load Projects AND Screens, sort them and render...
+Promise.all([
+  fetch("http://idr.openmicroscopy.org/api/v0/m/projects/"),
+  fetch("http://idr.openmicroscopy.org/api/v0/m/screens/"),
+]).then(responses =>
+    Promise.all(responses.map(res => res.json()))
+).then(([projects, screens]) => {
+
+    studies = projects.data;
+    studies = studies.concat(screens.data);
+
+    // sort by name, reverse
+    studies.sort(function(a, b) {
+      var nameA = a.Name.toUpperCase();
+      var nameB = b.Name.toUpperCase();
+      if (nameA < nameB) {
+        return 1;
+      }
+      if (nameA > nameB) {
+        return -1;
+      }
+
+      // names must be equal
+      return 0;
+    });
+
+    // render...
+    render();
+
+    // load Map Anns for Studies...
+    loadStudiesMapAnnotations();
+
+}).catch((err) => {
+});
+
+
+</script>
+
+{% endblock %}

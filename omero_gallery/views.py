@@ -4,6 +4,8 @@ import omero
 from omero.rtypes import wrap
 from omeroweb.webclient.decorators import login_required, render_response
 
+from omero_mapr.mapr_settings import mapr_settings
+
 
 @login_required()
 @render_response()
@@ -222,4 +224,15 @@ def show_image(request, image_id, conn=None, **kwargs):
     context['image'] = image
     context['tags'] = tags
 
+    return context
+
+
+@login_required()
+@render_response()
+def idr(request, conn=None, **kwargs):
+
+    print mapr_settings.CONFIG
+
+    context = {'template': "webgallery/idr/index.html"}
+    context['mapr_settings'] = mapr_settings.CONFIG
     return context
