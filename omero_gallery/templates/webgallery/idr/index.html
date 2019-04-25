@@ -272,22 +272,9 @@ function renderStudy(studyData, filterKey) {
     })
     .join("");
 
-  let keyValue = '';
-  if (filterKey && studyData.mapValues) {
-    // Look for matching key...
-    let value = studyData.mapValues
-      .filter(kv => kv[0] === filterKey)
-      .map(kv => kv[1])
-      .join(" ");
-    if (value) {
-      keyValue = `<p>${ filterKey }: ${ value }</p>`;
-    }
-  }
-
   let html = `<hr/>
   <h2>${ idrId }: ${ title }</h2>
   ${ descHtml }
-  ${ keyValue }
   `
 
   var div = document.createElement( "div" );
