@@ -10,6 +10,13 @@
   .study {
     margin-bottom: 15px;
   }
+  .study a {
+    color: inherit;
+    font-weight: inherit;
+  }
+  .study a:hover {
+    color: #1976d2;
+  }
 </style>
 
 <hr class="whitespace">
@@ -72,13 +79,9 @@ function filterStudiesByMapr(value) {
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
   let url = `/mapr/api/${ configId }/?value=${ value }`;
   $.getJSON(url, (data) => {
-    // TODO: filter studies...
-    console.log('filterStudiesByMapr', data);
-
     // filter studies by 'screens' and 'projects'
     let filteredIds = data.screens.map(s => `screen-${ s.id }`)
         .concat(data.projects.map(p => `project-${ p.id }`));
-    console.log('filteredIds', filteredIds);
     let filterFunc = study => {
       let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
       return filteredIds.indexOf(studyId) > -1;
@@ -113,7 +116,7 @@ $("#maprQuery").autocomplete({
           let filterFunc = study => {
             let show = false;
             study.mapValues.forEach(kv => {
-              if (kv[0] === configId && kv[1].indexOf(request.term) > -1) {
+              if (kv[0] === configId && kv[1].toLowerCase().indexOf(request.term.toLowerCase()) > -1) {
                 show = true;
               }
             });
@@ -272,15 +275,17 @@ function renderStudy(studyData, filterKey) {
 
   let html = `
   <div class="row study">
-    <div class="small-3 medium-3 large-3 columns" style="padding: 0">
-      <img class="thumbnail" src="gallery/study_thumbnail/${ type }/${ studyData['@id'] }/" />
-    </div>
-    <div class="small-9 medium-9 large-9 columns">
-      <p>
-        <span style='color:#1976d2'>${ idrId }</span>:
-        ${ title }
-      </p>
-    </div>
+    <a href="http://idr.openmicroscopy.org/webclient/?show=${ type }-${ studyData['@id'] }">
+      <div class="small-3 medium-3 large-3 columns" style="padding: 0">
+        <img class="thumbnail" src="gallery/study_thumbnail/${ type }/${ studyData['@id'] }/" />
+      </div>
+      <div class="small-9 medium-9 large-9 columns">
+        <p>
+          <span style='color:#1976d2'>${ idrId }</span>:
+          ${ title }
+        </p>
+      </div>
+    </a>
   </div>`
 
   var div = document.createElement( "div" );
