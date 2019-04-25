@@ -261,7 +261,7 @@ def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
                  "join fetch well.plate as pt "
                  "left outer join pt.screenLinks as sl join sl.parent as screen "
                  "left outer join fetch well.wellSamples as ws "
-                 "left outer join fetch ws.image as img "
+                 "join fetch ws.image as img "
                  "where screen.id = :id")
 
     obj = query_service.findByQuery(query, params, conn.SERVICE_OPTS)
