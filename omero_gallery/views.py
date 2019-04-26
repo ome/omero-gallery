@@ -232,16 +232,23 @@ def show_image(request, image_id, conn=None, **kwargs):
 @render_response()
 def idr(request, conn=None, **kwargs):
 
-    print mapr_settings.CONFIG
-
     context = {'template': "webgallery/idr/index.html"}
     context['mapr_settings'] = mapr_settings.CONFIG
     return context
 
 
 @login_required()
-def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
+@render_response()
+def idr_type(request, idr_type, conn=None, **kwargs):
 
+    context = {'template': "webgallery/idr/index.html"}
+    context['idr_type'] = idr_type
+    context['mapr_settings'] = mapr_settings.CONFIG
+    return context
+
+
+@login_required()
+def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
     img_id = None
     query_service = conn.getQueryService()
     params = omero.sys.ParametersI()

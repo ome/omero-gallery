@@ -35,6 +35,7 @@ urlpatterns = patterns(
 
     # IDR UI prototype
     url(r'idr/$', views.idr, name='webgallery_idr'),
+    url(r'idr/(?P<idr_type>[cells|tissue]+)/$', views.idr_type),
     url(r'study_thumbnail/(?P<obj_type>[screen|project]+)/(?P<obj_id>[0-9]+)/$',
         views.study_thumbnail, name='webgallery_study_thumbnail'),
 

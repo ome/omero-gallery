@@ -21,12 +21,23 @@
   .study a:hover {
     color: #1976d2;
   }
+  .img_overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 125px;
+  }
+  .overlay_text {
+    background: black;
+    padding: 10px;
+    color: white;
+  }
 </style>
 
-<hr class="whitespace">
+<hr class="whitespace" style="height: 0">
 
 <div class="row column text-center">
-  <h1>Welcome to IDR</h1>
+  <h1>Welcome to {{ idr_type|title }} IDR</h1>
 
 <div class="small-10 small-centered medium-10 medium-centered columns">
     <div class="row horizontal">
@@ -39,6 +50,26 @@
         </div>
     </div>
 
+    {% if not idr_type %}
+    <div class="row horizontal">
+      <a href="cells/">
+        <div class="small-6 medium-6 large-6 columns" style="position: relative;">
+          <img class="thumbnail" src="https://idr.openmicroscopy.org/webgateway/render_image/122770/0/0/" />
+          <div class="img_overlay">
+            <span class="overlay_text">Cells</span>
+          </div>
+        </div>
+      </a>
+      <a href="tissue/">
+        <div class="small-6 medium-6 large-6 columns" style="position: relative;">
+          <img class="thumbnail" src="https://idr.openmicroscopy.org/webgateway/render_image_region/5470164/0/0/?region=1024,1024,696,520" />
+          <div class="img_overlay">
+            <span class="overlay_text">Tissue</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endif %}
 
     <div class="row horizontal">
 
@@ -320,7 +351,32 @@ function renderStudy(studyData, filterKey, linkFunc) {
   document.getElementById('studies').appendChild(div);
 }
 
-// ----------- Load Studies --------------------
+// ----------- Load / Filter Studies --------------------
+
+{% if idr_type %}
+  
+  function filter_by_type(studies) {
+
+    let idr_type = "{{ idr_type }}";
+
+    // We hard-code filtering, but could use e.g. Tags on Studies to specify Cells/Tissue
+    let tissueStudies = ['idr0018', 'idr0032', 'idr0042', 'idr0043', 'idr0054']
+    let filtered = studies.filter(study => {
+      let isTissue = tissueStudies.indexOf(study.Name.substr(0, 7)) > -1;
+      return idr_type === "tissue" ? isTissue : !isTissue;
+    });
+
+    return filtered;
+  }
+
+{% else %}
+
+  function filter_by_type(studies) {
+    return studies;
+  }
+
+{% endif %}
+
 
 // Load Projects AND Screens, sort them and render...
 Promise.all([
@@ -331,6 +387,9 @@ Promise.all([
 ).then(([projects, screens]) => {
     studies = projects.data;
     studies = studies.concat(screens.data);
+
+    // Filter by tissues/cells
+    studies = filter_by_type(studies);
 
     // sort by name, reverse
     studies.sort(function(a, b) {
@@ -354,7 +413,7 @@ Promise.all([
     loadStudiesMapAnnotations();
 
 }).catch((err) => {
-  console.log(err);
+  console.error(err);
 });
 
 
