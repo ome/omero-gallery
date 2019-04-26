@@ -172,7 +172,6 @@ $("#maprQuery").autocomplete({
         filterStudiesByMapr(ui.item.value);
         $(this).val(ui.item.value);
 
-        console.log('mapr', ui.item.value);
         return false;
     }
 }).data("ui-autocomplete")._renderItem = function( ul, item ) {
@@ -252,7 +251,23 @@ function render(filterFunc) {
   }
   document.getElementById('filterCount').innerHTML = filterMessage;
 
-  studiesToRender.forEach(s => renderStudy(s, filterKey));
+  // By default, we link to the study itself in IDR...
+  let linkFunc = (studyData) => {
+    let type = studyData['@type'].split('#')[1].toLowerCase();
+    return `http://idr.openmicroscopy.org/webclient/?show=${ type }-${ studyData['@id'] }`;
+  }
+
+  //...but if we're filtering by MAPR
+  if (configId.indexOf('mapr_') == 0 && studiesToRender.length < studies.length) {
+    linkFunc = (studyData) => {
+      let type = studyData['@type'].split('#')[1].toLowerCase();
+      let maprKey = configId.replace('mapr_', '');
+      let maprValue = document.getElementById('maprQuery').value;
+      return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
+    }
+  }
+
+  studiesToRender.forEach(s => renderStudy(s, filterKey, linkFunc));
 }
 
 function renderStudyKeys() {
@@ -263,28 +278,35 @@ function renderStudyKeys() {
   document.getElementById('maprConfig').value = "Publication Authors";
 }
 
-function renderStudy(studyData, filterKey) {
+function renderStudy(studyData, filterKey, linkFunc) {
   // Add Project or Screen to the page
   // If filterKey, try to render the Key: Value
   let titleRe = /Publication Title\n(.+)[\n]?/
   // let descRe = /Experiment Description\n(.+)[\n]?/
-  let match = titleRe.exec(studyData.Description);
+  let desc = studyData.Description;
+  let match = titleRe.exec(desc);
   let title = match ? match[1] : '';
   let type = studyData['@type'].split('#')[1].toLowerCase();
-
+  let studyLink = linkFunc(studyData);
   // save for later
   studyData.title = title;
+
+  if (title.length >0) {
+     desc = desc.split(title)[1];
+   }
+  // First line is e.g. "Screen Description". Show NEXT line only.
+  let studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
 
   let html = `
   <div class="row study">
-    <a href="http://idr.openmicroscopy.org/webclient/?show=${ type }-${ studyData['@id'] }">
+    <a href="${ studyLink }">
       <div class="small-3 medium-3 large-3 columns" style="padding: 0">
         <img class="thumbnail" src="gallery/study_thumbnail/${ type }/${ studyData['@id'] }/" />
       </div>
       <div class="small-9 medium-9 large-9 columns">
-        <p>
+        <p title="${ studyDesc }">
           <span style='color:#1976d2'>${ idrId }</span>:
           ${ title }
         </p>
@@ -307,7 +329,6 @@ Promise.all([
 ]).then(responses =>
     Promise.all(responses.map(res => res.json()))
 ).then(([projects, screens]) => {
-
     studies = projects.data;
     studies = studies.concat(screens.data);
 
@@ -333,6 +354,7 @@ Promise.all([
     loadStudiesMapAnnotations();
 
 }).catch((err) => {
+  console.log(err);
 });
 
 
