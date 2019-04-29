@@ -233,6 +233,9 @@ def show_image(request, image_id, conn=None, **kwargs):
 def idr(request, conn=None, **kwargs):
 
     context = {'template': "webgallery/idr/index.html"}
+
+    # See https://github.com/IDR/deployment/blob/fe9ff00a800c2824bd453965fab3c1c09631515b/ansible/group_vars/omero-hosts.yml#L284
+    # for mapr config. Convert Yaml to JSON and $ bin/omero config set omero.web.mapr config '<paste JSON here>'
     context['mapr_settings'] = mapr_settings.CONFIG
     return context
 
