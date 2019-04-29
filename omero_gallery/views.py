@@ -251,6 +251,16 @@ def idr_type(request, idr_type, conn=None, **kwargs):
 
 
 @login_required()
+@render_response()
+def idr_categories(request, idr_type=None, conn=None, **kwargs):
+
+    context = {'template': "webgallery/idr/categories.html"}
+    context['idr_type'] = idr_type
+    context['mapr_settings'] = mapr_settings.CONFIG
+    return context
+
+
+@login_required()
 def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
     img_id = None
     query_service = conn.getQueryService()
