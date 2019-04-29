@@ -42,7 +42,7 @@
 <hr class="whitespace" style="height: 0">
 
 <div class="row column text-center">
-  <h1>Welcome to {{ idr_type|title }} IDR</h1>
+  <h1>Welcome to {% if idr_type %} {{ idr_type|title }} {% endif %}IDR</h1>
 
 <div class="small-10 small-centered medium-10 medium-centered columns">
     <div class="row horizontal">
