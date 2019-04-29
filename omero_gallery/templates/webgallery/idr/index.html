@@ -115,9 +115,10 @@ const THUMB_IDS = {'project-701': 5025553, 'project-504': 4495405, 'project-754'
            'screen-251': 171248, 'screen-206': 106450, 'screen-154': 35446, 'screen-201': 95412, 'screen-253': 352577,
            'screen-751': 928389, 'screen-597': 933573, 'screen-202': 692151, 'screen-51': 13852, 'screen-102':179694, 'screen-3': 1463}
 
+const FILTER_KEYS = ["Imaging Method", "Organism", "Publication Authors", "Publication Title",
+                     "Screen Technology Type", "Screen Type", "Study Type"]
 // List of Projects and Screens in omero-marshal JSON format
 let studies = [];
-let studyKeys = [];
 
 
 function study_thumbnail_url(obj_type, obj_id) {
@@ -148,11 +149,47 @@ function filterStudiesByMapr(value) {
   })
 }
 
-// ----- event handling -----
+// ----- event handling --------
 
 document.getElementById('maprConfig').onchange = (event) => {
   document.getElementById('maprQuery').value = '';
   render();
+}
+
+// ------ AUTO-COMPLETE -------------------
+
+function getKeyValueAutoComplete(key, inputText) {
+  // Get values for key from each study
+  let values = studies.map(study => {
+    for (let i=0; i<study.mapValues.length; i++){
+      let kv = study.mapValues[i];
+      if (kv[0] === key) {
+        return kv[1];
+      }
+    }
+    console.log("No value found for study for key", key, study);
+    return "";
+  });
+  // We want values that match inputText
+  // Except for "Publication Authors", where we want words
+  let matchCounts = values.reduce((prev, value) => {
+    let matches = [];
+    if (key == "Publication Authors") {
+      let names = value.match(/\b(\w+)\b/g) || [];
+      matches = names.filter(name => name.indexOf(inputText) > -1);
+    } else if (value.indexOf(inputText) > -1) {
+      matches.push(value);
+    }
+    matches.forEach(match => {
+      if (!prev[match]) prev[match] = 0;
+      prev[match]++;
+    });
+
+    return prev;
+  }, {});
+
+  console.log('matchCounts', matchCounts);
+  return Object.keys(matchCounts);
 }
 
 $("#maprQuery").autocomplete({
@@ -169,6 +206,10 @@ $("#maprQuery").autocomplete({
         // if configId is not from mapr, we filter on mapValues...
         let configId = document.getElementById("maprConfig").value;
         if (configId.indexOf('mapr_') != 0) {
+
+          let matches = getKeyValueAutoComplete(configId, request.term);
+          response(matches);
+
           // filter studies by Key-Value pairs
           let filterFunc = study => {
             let show = false;
@@ -219,11 +260,26 @@ $("#maprQuery").autocomplete({
     },
     focus: function(event,ui) {},
     select: function(event, ui) {
-        if (ui.item.value == -1) {
-            return false;
-        }
-        filterStudiesByMapr(ui.item.value);
         $(this).val(ui.item.value);
+        let configId = document.getElementById("maprConfig").value;
+        if (configId.indexOf('mapr_') != 0) {
+          // filter studies by Key-Value pairs
+          let filterFunc = study => {
+            let show = false;
+            study.mapValues.forEach(kv => {
+              if (kv[0] === configId && kv[1].toLowerCase().indexOf(ui.item.value.toLowerCase()) > -1) {
+                show = true;
+              }
+            });
+            return show;
+          }
+          render(filterFunc);
+        } else {
+          if (ui.item.value == -1) {
+              return false;
+          }
+          filterStudiesByMapr(ui.item.value);
+        }
 
         return false;
     }
@@ -267,16 +323,17 @@ function loadStudiesMapAnnotations() {
       });
 
       // Also list ALL keys...
-      let allKeys = {};
-      data.annotations.forEach(ann => {
-        // add keys to list
-        ann.values.forEach(kv => {allKeys[kv[0]] = true});
-      });
+      // Now hard-coded above in FILTER_KEYS
+      // let allKeys = {};
+      // data.annotations.forEach(ann => {
+      //   // add keys to list
+      //   ann.values.forEach(kv => {allKeys[kv[0]] = true});
+      // });
 
-      for (let key in allKeys) {
-        studyKeys.push(key);
-      }
-      studyKeys.sort();
+      // for (let key in allKeys) {
+      //   studyKeys.push(key);
+      // }
+      // studyKeys.sort();
 
       renderStudyKeys();
 
@@ -324,7 +381,7 @@ function render(filterFunc) {
 }
 
 function renderStudyKeys() {
-  let html = studyKeys
+  let html = FILTER_KEYS
       .map(key => `<option value="${ key }">${ key }</option>`)
       .join("\n");
   document.getElementById('studyKeys').innerHTML = html;
