@@ -88,7 +88,7 @@
         </select>
       </div>
       <div class="small-8 medium-8 large-8 columns">
-        <input id="maprQuery" type="text" placeholder="Gene Symbol">
+        <input id="maprQuery" type="text" placeholder="Publication Authors">
       </div>
     </div>
 
@@ -101,6 +101,12 @@
 </div>
 
 <script>
+
+const MAPR_SETTINGS = {
+  {% for id, config in mapr_settings.items %}
+            "mapr_{{ id }}": "{{ config.label }}",
+          {% endfor %}
+}
 
 const THUMB_IDS = {'project-701': 5025553, 'project-504': 4495405, 'project-754': 5514116, 'project-753': 5514054, 'project-752': 5514379,
            'project-552': 4007821, 'project-505': 4991000, 'project-503': 4496813, 'project-405': 3509516, 'project-502': 4007804,
@@ -153,6 +159,8 @@ function filterStudiesByMapr(value) {
 
 document.getElementById('maprConfig').onchange = (event) => {
   document.getElementById('maprQuery').value = '';
+  let placeholder = MAPR_SETTINGS[event.target.value] || event.target.value
+  document.getElementById('maprQuery').placeholder = placeholder;
   render();
 }
 
