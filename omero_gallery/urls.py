@@ -34,10 +34,13 @@ urlpatterns = patterns(
         views.show_image, name='webgallery_show_image'),
 
     # IDR UI prototype
-    url(r'^idr/$', views.idr, name='webgallery_idr'),
-    url(r'^idr/(?P<idr_type>[cells|tissue]+)/$', views.idr_type),
+    url(r'^idr/$', views.idr, {'idr_type': None}),
+    url(r'^idr/(?P<idr_type>[cells|tissue]+)/$', views.idr),
     url(r'^idr/search/$', views.idr_search, {'idr_type': None}),
     url(r'^idr/(?P<idr_type>[cells|tissue]+)/search/$', views.idr_search),
+
+    # Temp mapr config - until mapr PR 46 is merged
+    url(r'^idr/mapr/config/$', views.temp_mapr_config),
 
     url(r'^study_thumbnail/(?P<obj_type>[screen|project]+)/'
         r'(?P<obj_id>[0-9]+)/$',

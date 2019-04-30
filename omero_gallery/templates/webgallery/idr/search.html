@@ -51,10 +51,7 @@
           <optgroup id="studyKeys" label="Study Attributes">
             <!-- Map-Annotation keys loaded here -->
           </optgroup>
-          <optgroup label="Image Attributes">
-          {% for id, config in mapr_settings.items %}
-            <option value="mapr_{{ id }}">{{ config.label }}</option>
-          {% endfor %}
+          <optgroup id="maprKeys" label="Image Attributes">
           </optgroup>
         </select>
       </div>
@@ -108,23 +105,27 @@ renderStudyKeys();
 
 
 // FIRST, populate forms from query string
-let search = window.location.search.substr(1);
-let query = '';
-var searchParams = search.split('&');
-for (var i = 0; i < searchParams.length; i++) {
-  var paramSplit = searchParams[i].split('=');
-  if (paramSplit[0] === 'query') {
-      query = paramSplit[1].replace(/%20/g, " ");
+function populateInputsFromSearch() {
+  let search = window.location.search.substr(1);
+  let query = '';
+  var searchParams = search.split('&');
+  for (var i = 0; i < searchParams.length; i++) {
+    var paramSplit = searchParams[i].split('=');
+    if (paramSplit[0] === 'query') {
+        query = paramSplit[1].replace(/%20/g, " ");
+    }
+  }
+  if (query) {
+    let configId = query.split(":")[0];
+    let value = query.split(":")[1];
+    if (configId && value) {
+      document.getElementById("maprConfig").value = configId;
+      document.getElementById("maprQuery").value = value;
+    }
   }
 }
-if (query) {
-  let configId = query.split(":")[0];
-  let value = query.split(":")[1];
-  if (configId && value) {
-    document.getElementById("maprConfig").value = configId;
-    document.getElementById("maprQuery").value = value;
-  }
-}
+
+populateInputsFromSearch();
 
 
 function study_thumbnail_url(obj_type, obj_id) {
@@ -268,8 +269,7 @@ $("#maprQuery").autocomplete({
     },
     focus: function(event,ui) {},
     select: function(event, ui) {
-        $(this).val(ui.item.value);
-        render();
+        filterAndRender();
 
         return false;
     }
@@ -481,15 +481,28 @@ Promise.all([
       return 0;
     });
 
-    // render...
-    // render();
-
     // load Map Anns for Studies...
     loadStudiesMapAnnotations();
 
 }).catch((err) => {
   console.error(err);
 });
+
+// Load MAPR config
+fetch('/gallery/idr/mapr/config/')
+  .then(response => response.json())
+  .then(data => {
+    mapr_settings = data;
+
+    let html = "";
+    for (id in mapr_settings) {
+      let config = mapr_settings[id];
+      html = html + `<option value="mapr_${ id }">${ config.label }</option>`;
+    }
+    document.getElementById('maprKeys').innerHTML = html;
+
+    populateInputsFromSearch();
+  });
 
 
 </script>

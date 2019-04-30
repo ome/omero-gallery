@@ -5,8 +5,6 @@ from omero.rtypes import wrap
 from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.webgateway.views import render_thumbnail
 
-from omero_mapr.mapr_settings import mapr_settings
-
 
 @login_required()
 @render_response()
@@ -228,27 +226,10 @@ def show_image(request, image_id, conn=None, **kwargs):
     return context
 
 
-@login_required()
 @render_response()
-def idr(request, conn=None, **kwargs):
-
-    context = {'template': "webgallery/idr/index.html"}
-
-    # See https://github.com/IDR/deployment/blob/master/ansible/
-    # group_vars/omero-hosts.yml#L284#L284
-    # for mapr config. Convert Yaml to JSON and
-    # $ bin/omero config set omero.web.mapr config '<paste JSON here>'
-    context['mapr_settings'] = mapr_settings.CONFIG
-    return context
-
-
-@login_required()
-@render_response()
-def idr_type(request, idr_type, conn=None, **kwargs):
-
+def idr(request, idr_type=None, conn=None, **kwargs):
     context = {'template': "webgallery/idr/index.html"}
     context['idr_type'] = idr_type
-    context['mapr_settings'] = mapr_settings.CONFIG
     return context
 
 
@@ -258,7 +239,6 @@ def idr_search(request, idr_type=None, conn=None, **kwargs):
 
     context = {'template': "webgallery/idr/search.html"}
     context['idr_type'] = idr_type
-    context['mapr_settings'] = mapr_settings.CONFIG
     return context
 
 
@@ -300,3 +280,126 @@ def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
         img_id = obj.id.val
 
     return render_thumbnail(request, img_id, conn=conn)
+
+
+@render_response()
+def temp_mapr_config(request):
+    """
+    Temp mapr config.
+    until https://github.com/ome/omero-mapr/pull/46 is merged
+    """
+
+    return {
+          "antibody": {
+            "all": [
+              "Antibody Identifier"
+            ],
+            "case_sensitive": True,
+            "default": [
+              "Antibody Identifier"
+            ],
+            "label": "Antibody",
+            "ns": [
+              "openmicroscopy.org/mapr/antibody"
+            ]
+          },
+          "cellline": {
+            "all": [
+              "Cell Line"
+            ],
+            "default": [
+              "Cell Line"
+            ],
+            "label": "Cell Lines",
+            "ns": [
+              "openmicroscopy.org/mapr/cell_line"
+            ],
+            "wildcard": {
+              "enabled": True
+            }
+          },
+          "compound": {
+            "all": [
+              "Compound Name"
+            ],
+            "case_sensitive": True,
+            "default": [
+              "Compound Name"
+            ],
+            "label": "Compound",
+            "ns": [
+              "openmicroscopy.org/mapr/compound"
+            ]
+          },
+          "gene": {
+            "all": [
+              "Gene Symbol",
+              "Gene Identifier"
+            ],
+            "case_sensitive": True,
+            "default": [
+              "Gene Symbol"
+            ],
+            "label": "Gene",
+            "ns": [
+              "openmicroscopy.org/mapr/gene"
+            ]
+          },
+          "orf": {
+            "all": [
+              "ORF Identifier"
+            ],
+            "default": [
+              "ORF Identifier"
+            ],
+            "label": "ORF",
+            "ns": [
+              "openmicroscopy.org/mapr/orf"
+            ]
+          },
+          "organism": {
+            "all": [
+              "Organism"
+            ],
+            "default": [
+              "Organism"
+            ],
+            "label": "Organism",
+            "ns": [
+              "openmicroscopy.org/mapr/organism"
+            ],
+            "wildcard": {
+              "enabled": True
+            }
+          },
+          "phenotype": {
+            "all": [
+              "Phenotype",
+              "Phenotype Term Accession"
+            ],
+            "case_sensitive": True,
+            "default": [
+              "Phenotype"
+            ],
+            "label": "Phenotype",
+            "ns": [
+              "openmicroscopy.org/mapr/phenotype"
+            ],
+            "wildcard": {
+              "enabled": True
+            }
+          },
+          "sirna": {
+            "all": [
+              "siRNA Identifier",
+              "siRNA Pool Identifier"
+            ],
+            "default": [
+              "siRNA Identifier"
+            ],
+            "label": "siRNA",
+            "ns": [
+              "openmicroscopy.org/mapr/sirna"
+            ]
+          }
+        }

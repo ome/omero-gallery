@@ -56,10 +56,7 @@
           <optgroup id="studyKeys" label="Study Attributes">
             <!-- Map-Annotation keys loaded here -->
           </optgroup>
-          <optgroup label="Image Attributes">
-          {% for id, config in mapr_settings.items %}
-            <option value="mapr_{{ id }}">{{ config.label }}</option>
-          {% endfor %}
+          <optgroup id="maprKeys" label="Image Attributes">
           </optgroup>
         </select>
       </div>
@@ -99,11 +96,8 @@
 
 <script>
 
-const MAPR_SETTINGS = {
-  {% for id, config in mapr_settings.items %}
-            "mapr_{{ id }}": "{{ config.label }}",
-          {% endfor %}
-}
+// loaded below
+let mapr_settings = {};
 
 // queries are split first by ' OR ' clauses. Each may have an AND
 const CATEGORIES = [
@@ -166,7 +160,8 @@ function filterStudiesByMapr(value) {
 
 document.getElementById('maprConfig').onchange = (event) => {
   document.getElementById('maprQuery').value = '';
-  let placeholder = MAPR_SETTINGS[event.target.value] || event.target.value
+  let value = event.target.value.replace('mapr_', '');
+  let placeholder = mapr_settings[value] ? mapr_settings[value].default[0] : value;
   document.getElementById('maprQuery').placeholder = placeholder;
   render();
 }
@@ -491,6 +486,21 @@ Promise.all([
 }).catch((err) => {
   console.error(err);
 });
+
+// Load MAPR config
+fetch('/gallery/idr/mapr/config/')
+  .then(response => response.json())
+  .then(data => {
+    mapr_settings = data;
+    console.log('mapr_settings', mapr_settings);
+
+    let html = "";
+    for (id in mapr_settings) {
+      let config = mapr_settings[id];
+      html = html + `<option value="mapr_${ id }">${ config.label }</option>`;
+    }
+    document.getElementById('maprKeys').innerHTML = html;
+  });
 
 
 </script>
