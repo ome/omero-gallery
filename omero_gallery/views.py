@@ -234,8 +234,10 @@ def idr(request, conn=None, **kwargs):
 
     context = {'template': "webgallery/idr/index.html"}
 
-    # See https://github.com/IDR/deployment/blob/fe9ff00a800c2824bd453965fab3c1c09631515b/ansible/group_vars/omero-hosts.yml#L284
-    # for mapr config. Convert Yaml to JSON and $ bin/omero config set omero.web.mapr config '<paste JSON here>'
+    # See https://github.com/IDR/deployment/blob/master/ansible/
+    # group_vars/omero-hosts.yml#L284#L284
+    # for mapr config. Convert Yaml to JSON and
+    # $ bin/omero config set omero.web.mapr config '<paste JSON here>'
     context['mapr_settings'] = mapr_settings.CONFIG
     return context
 
@@ -271,7 +273,8 @@ def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
 
     if obj_type == "project":
         query = "select i from Image as i"\
-                " left outer join i.datasetLinks as dl join dl.parent as dataset"\
+                " left outer join i.datasetLinks as dl"\
+                " join dl.parent as dataset"\
                 " left outer join dataset.projectLinks"\
                 " as pl join pl.parent as project"\
                 " where project.id = :id"
@@ -279,7 +282,8 @@ def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
     elif obj_type == "screen":
         query = ("select well from Well as well "
                  "join fetch well.plate as pt "
-                 "left outer join pt.screenLinks as sl join sl.parent as screen "
+                 "left outer join pt.screenLinks as sl "
+                 "join sl.parent as screen "
                  "left outer join fetch well.wellSamples as ws "
                  "join fetch ws.image as img "
                  "where screen.id = :id")
