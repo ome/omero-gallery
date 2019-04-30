@@ -252,9 +252,9 @@ def idr_type(request, idr_type, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def idr_categories(request, idr_type=None, conn=None, **kwargs):
+def idr_search(request, idr_type=None, conn=None, **kwargs):
 
-    context = {'template': "webgallery/idr/categories.html"}
+    context = {'template': "webgallery/idr/search.html"}
     context['idr_type'] = idr_type
     context['mapr_settings'] = mapr_settings.CONFIG
     return context

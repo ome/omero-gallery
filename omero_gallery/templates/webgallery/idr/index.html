@@ -10,6 +10,11 @@
   .study {
     margin-bottom: 15px;
     min-height: 150px;
+    width: 300px;
+    float: left;
+  }
+  .row .study {
+    margin: 30px;
   }
   .study p {
     margin-bottom: 0;
@@ -100,6 +105,16 @@ const MAPR_SETTINGS = {
           {% endfor %}
 }
 
+// queries are split first by ' OR ' clauses. Each may have an AND
+const CATEGORIES = [
+  {"label": "Time-lapse", "query": "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},
+  {"label": "Light sheet", "query": "Study Type:light sheet"},
+  {"label": "Protein localization", "query": "Study Type:protein localization"},
+  {"label": "Histology", "query": "Study Type:histology"},
+  {"label": "Yeast", "query": "Organism:Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},
+  {"label": "Human Cell Screen", "query": "Organism:Homo sapiens AND Study Type:high content screen"},
+]
+
 const THUMB_IDS = {'project-701': 5025553, 'project-504': 4495405, 'project-754': 5514116, 'project-753': 5514054, 'project-752': 5514379,
            'project-552': 4007821, 'project-505': 4991000, 'project-503': 4496813, 'project-405': 3509516, 'project-502': 4007804,
            'project-501': 3899001, 'project-402': 3429220, 'project-404': 3500835, 'project-401': 3490890, 'project-353': 3414088,
@@ -188,7 +203,6 @@ function getKeyValueAutoComplete(key, inputText) {
     return prev;
   }, {});
 
-  console.log('matchCounts', matchCounts);
   return Object.keys(matchCounts);
 }
 
@@ -322,73 +336,69 @@ function loadStudiesMapAnnotations() {
         }
       });
 
-      // Also list ALL keys...
-      // Now hard-coded above in FILTER_KEYS
-      // let allKeys = {};
-      // data.annotations.forEach(ann => {
-      //   // add keys to list
-      //   ann.values.forEach(kv => {allKeys[kv[0]] = true});
-      // });
-
-      // for (let key in allKeys) {
-      //   studyKeys.push(key);
-      // }
-      // studyKeys.sort();
-
-      renderStudyKeys();
-
       render();
     })
 }
 
 // ------------ Render -------------------------
 
-function render(filterFunc) {
+function render() {
   document.getElementById('studies').innerHTML = "";
-  let configId = document.getElementById("maprConfig").value;
-  let filterKey;
-  if (!(configId.indexOf('mapr_') === 0)) {
-    filterKey = configId;
-  }
-  let studiesToRender = studies;
-  if (filterFunc) {
-    studiesToRender = studies.filter(filterFunc);
-  }
+  
+  CATEGORIES.forEach(cat => {
+    let query = cat.query;
+    // console.log('category', cat);
 
-  let filterMessage = "";
-  if (studiesToRender.length < studies.length) {
-    filterMessage = `Showing ${ studiesToRender.length } of ${ studies.length} studies`;
-  }
-  document.getElementById('filterCount').innerHTML = filterMessage;
+    // Find matching studies
+    let matches = studies.filter(study => {
+      let match = false;
+      // first split query by AND and OR
+      let ors = query.split(' OR ');
+      ors.forEach(term => {
+        let allAnds = true;
+        let ands = term.split(' AND ');
+        ands.forEach(mustMatch => {
+          let queryKeyValue = mustMatch.split(":");
+          let valueMatch = false;
+          // check all key-values (may be duplicate keys) for value that matches
+          for (let i=0; i<study.mapValues.length; i++){
+            let kv = study.mapValues[i];
+            if (kv[0] === queryKeyValue[0] && kv[1].indexOf(queryKeyValue[1]) > -1) {
+              valueMatch = true;
+            }
+          }
+          // if not found, then our AND term fails
+          if (!valueMatch) {
+            allAnds = false;
+          }
+        });
+        if (allAnds) {
+          match = true;
+        }
+      });
+      return match;
+    });
 
+    var div = document.createElement( "div" );
+    div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
+      <div style="width100%; overflow:auto; background: white">
+        <div id="${cat.label}" style="width: 5000px"></div>
+      </div>
+    `;
+    div.className = "row";
+    document.getElementById('studies').appendChild(div);
+
+    matches.forEach(study => renderStudy(study, cat.label));
+  });
+}
+
+
+function renderStudy(studyData, elementId) {
   // By default, we link to the study itself in IDR...
   let linkFunc = (studyData) => {
     let type = studyData['@type'].split('#')[1].toLowerCase();
     return `http://idr.openmicroscopy.org/webclient/?show=${ type }-${ studyData['@id'] }`;
   }
-
-  //...but if we're filtering by MAPR
-  if (configId.indexOf('mapr_') == 0 && studiesToRender.length < studies.length) {
-    linkFunc = (studyData) => {
-      let type = studyData['@type'].split('#')[1].toLowerCase();
-      let maprKey = configId.replace('mapr_', '');
-      let maprValue = document.getElementById('maprQuery').value;
-      return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
-    }
-  }
-
-  studiesToRender.forEach(s => renderStudy(s, filterKey, linkFunc));
-}
-
-function renderStudyKeys() {
-  let html = FILTER_KEYS
-      .map(key => `<option value="${ key }">${ key }</option>`)
-      .join("\n");
-  document.getElementById('studyKeys').innerHTML = html;
-  document.getElementById('maprConfig').value = "Publication Authors";
-}
-
-function renderStudy(studyData, filterKey, linkFunc) {
   // Add Project or Screen to the page
   // If filterKey, try to render the Key: Value
   let titleRe = /Publication Title\n(.+)[\n]?/
@@ -411,7 +421,6 @@ function renderStudy(studyData, filterKey, linkFunc) {
   let idrId = studyData.Name.split('-')[0];  // idr0001
 
   let html = `
-  <div class="row study">
     <a target="_blank" href="${ studyLink }">
       <div class="small-3 medium-3 large-3 columns" style="padding: 0">
         <img class="thumbnail" src="${ studyThumbUrl }" />
@@ -422,13 +431,12 @@ function renderStudy(studyData, filterKey, linkFunc) {
           ${ title }
         </p>
       </div>
-    </a>
-  </div>`
+    </a>`
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
-  div.className = "small-12 medium-6 large-4 columns";
-  document.getElementById('studies').appendChild(div);
+  div.className = "row study ";
+  document.getElementById(elementId).appendChild(div);
 }
 
 // ----------- Load / Filter Studies --------------------
@@ -485,9 +493,6 @@ Promise.all([
       // names must be equal
       return 0;
     });
-
-    // render...
-    render();
 
     // load Map Anns for Studies...
     loadStudiesMapAnnotations();
