@@ -40,14 +40,27 @@
   <h1>Welcome to {{ idr_type|title }} IDR</h1>
 
 <div class="small-10 small-centered medium-10 medium-centered columns">
+
     <div class="row horizontal">
-        <div class="small-12 medium-12 large-12 columns">
-          <form>
-            <label>
-              <input type="text" placeholder="search">
-            </label>
-          </form>
-        </div>
+
+      <div class="small-12 medium-12 large-2 columns">
+        <h2>Search by:</h2>
+      </div>
+      <div class="small-12 medium-4 large-3 columns">
+        <select id="maprConfig">
+          <optgroup id="studyKeys" label="Study Attributes">
+            <!-- Map-Annotation keys loaded here -->
+          </optgroup>
+          <optgroup label="Image Attributes">
+          {% for id, config in mapr_settings.items %}
+            <option value="mapr_{{ id }}">{{ config.label }}</option>
+          {% endfor %}
+          </optgroup>
+        </select>
+      </div>
+      <div class="small-12 medium-8 large-7 columns">
+        <input id="maprQuery" type="text" placeholder="Publication Authors">
+      </div>
     </div>
 
     {% if not idr_type %}
@@ -70,27 +83,6 @@
       </a>
     </div>
     {% endif %}
-
-    <div class="row horizontal">
-
-      <h2>Query by attribute</h2>
-
-      <div class="small-4 medium-4 large-4 columns">
-        <select id="maprConfig">
-          <optgroup id="studyKeys" label="Study Attributes">
-            <!-- Map-Annotation keys loaded here -->
-          </optgroup>
-          <optgroup label="Image Attributes">
-          {% for id, config in mapr_settings.items %}
-            <option value="mapr_{{ id }}">{{ config.label }}</option>
-          {% endfor %}
-          </optgroup>
-        </select>
-      </div>
-      <div class="small-8 medium-8 large-8 columns">
-        <input id="maprQuery" type="text" placeholder="Publication Authors">
-      </div>
-    </div>
 
     <div id="filterCount" class="row horizontal">
     </div>
