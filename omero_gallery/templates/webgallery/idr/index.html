@@ -283,7 +283,7 @@ $("#maprQuery").autocomplete({
 // ----------- Load MapAnnotations --------------------
 
 function loadStudiesMapAnnotations() {
-  let url = "https://idr.openmicroscopy.org/webclient/api/annotations/?type=map";
+  let url = "http://idr.openmicroscopy.org/webclient/api/annotations/?type=map";
   let data = studies
     .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
     .join("&");
@@ -492,7 +492,6 @@ fetch('/gallery/idr/mapr/config/')
   .then(response => response.json())
   .then(data => {
     mapr_settings = data;
-    console.log('mapr_settings', mapr_settings);
 
     let html = "";
     for (id in mapr_settings) {
