@@ -342,6 +342,8 @@ function loadStudiesMapAnnotations() {
     .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
     .join("&");
   url += '&' + data;
+  // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
+  url += '&_=' + Math.random();
   fetch(url)
     .then(response => response.json())
     .then(data => {
