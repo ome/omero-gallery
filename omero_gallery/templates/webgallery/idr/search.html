@@ -142,7 +142,9 @@ function study_thumbnail_url(obj_type, obj_id) {
 
 function filterStudiesByMapr(value) {
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  let url = `/mapr/api/${ configId }/?value=${ value }`;
+  let url = `http://idr.openmicroscopy.org/mapr/api/${ configId }/?value=${ value }`;
+  // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
+  url += '&_=' + Math.random();
   $.getJSON(url, (data) => {
     // filter studies by 'screens' and 'projects'
     let filteredIds = data.screens.map(s => `screen-${ s.id }`)
@@ -245,7 +247,8 @@ $("#maprQuery").autocomplete({
             data: {
                 value: case_sensitive ? request.term : request.term.toLowerCase(),
                 query: true,
-                case_sensitive: case_sensitive
+                case_sensitive: case_sensitive,
+                "_": Math.random()     // cache-buster
             },
             success: function(data) {
                 if (data.length > 0) {
@@ -288,6 +291,8 @@ function loadStudiesMapAnnotations() {
     .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
     .join("&");
   url += '&' + data;
+  // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
+  url += '&_=' + Math.random();
   fetch(url)
     .then(response => response.json())
     .then(data => {

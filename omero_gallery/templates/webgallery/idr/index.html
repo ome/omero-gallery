@@ -84,6 +84,19 @@
   .study:hover .studyAuthors {
     visibility: visible;
   }
+  .viewerLink {
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+  .study a.viewerLink {
+    color: white;
+    visibility: hidden;
+  }
+  .study:hover a.viewerLink {
+    visibility: visible;
+  }
 
 </style>
 
@@ -299,7 +312,8 @@ $("#maprQuery").autocomplete({
             data: {
                 value: case_sensitive ? request.term : request.term.toLowerCase(),
                 query: true,
-                case_sensitive: case_sensitive
+                case_sensitive: case_sensitive,
+                '_': Math.random,    // cache-buster
             },
             success: function(data) {
                 if (data.length > 0) {
@@ -452,6 +466,7 @@ function renderStudy(studyData, elementId) {
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
   let authors = getStudyValue(studyData, "Publication Authors") || "";
+  let imgId = THUMB_IDS[`${type}-${studyData['@id']}`];
 
   let html = `
     <a target="_blank" href="${ studyLink }">
@@ -467,7 +482,12 @@ function renderStudy(studyData, elementId) {
       <div class="studyAuthors">
         ${ authors }
       </div>
-    </a>`
+    </a>
+    <a class="viewerLink" title="Open image in viewer" target="_blank"
+       href="http://idr.openmicroscopy.org/webclient/img_detail/${ imgId }/">
+      <i class="fas fa-eye"></i>
+    </a>
+    `
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
