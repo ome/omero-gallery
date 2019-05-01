@@ -233,7 +233,6 @@ def idr(request, idr_type=None, conn=None, **kwargs):
     return context
 
 
-@login_required()
 @render_response()
 def idr_search(request, idr_type=None, conn=None, **kwargs):
 
