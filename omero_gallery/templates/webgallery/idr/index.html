@@ -8,7 +8,6 @@
     border-radius: 10px;
   }
   .study {
-    margin-bottom: 15px;
     height: 250px;
     width: 250px;
     float: left;
@@ -16,6 +15,8 @@
   }
   .row .study {
     margin: 10px;
+    margin-top: 5px;
+    margin-bottom: 60px;
   }
   .study p {
     margin-bottom: 0;
@@ -46,7 +47,21 @@
     overflow: hidden;
   }
   .studyImage {
-    height: 100%;
+    transition: all 2s ease-out;
+    min-height: 100%;
+    min-width: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+  }
+  .study:hover .studyImage {
+    min-height: 200%;
+    min-width: 200%;
+    left: -50%;
+    top: -50%;
+  }
+  .studyBackground, .studyText {
+    border-radius: 10px;
   }
   .studyText {
     position: absolute;
@@ -55,7 +70,21 @@
     font-size: 90%;
     bottom: 0;
     padding: 5px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
   }
+  .studyAuthors {
+    position: absolute;
+    top: 100%;
+    font-size: 80%;
+    width: 200%;
+    text-align: left;
+    visibility: hidden;
+  }
+  .study:hover .studyAuthors {
+    visibility: visible;
+  }
+
 </style>
 
 <hr class="whitespace" style="height: 0">
@@ -185,17 +214,23 @@ document.getElementById('maprConfig').onchange = (event) => {
   render();
 }
 
+function getStudyValue(study, key) {
+  if (!study.mapValues) return;
+  for (let i=0; i<study.mapValues.length; i++){
+    let kv = study.mapValues[i];
+    if (kv[0] === key) {
+      return kv[1];
+    }
+  }
+}
+
 // ------ AUTO-COMPLETE -------------------
 
 function getKeyValueAutoComplete(key, inputText) {
   // Get values for key from each study
   let values = studies.map(study => {
-    for (let i=0; i<study.mapValues.length; i++){
-      let kv = study.mapValues[i];
-      if (kv[0] === key) {
-        return kv[1];
-      }
-    }
+    let v = getStudyValue(study, key);
+    if (v) return v;
     console.log("No value found for study for key", key, study);
     return "";
   });
@@ -414,6 +449,7 @@ function renderStudy(studyData, elementId) {
   let studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
+  let authors = getStudyValue(studyData, "Publication Authors") || "";
 
   let html = `
     <a target="_blank" href="${ studyLink }">
@@ -425,6 +461,9 @@ function renderStudy(studyData, elementId) {
           <span style='color:#1976d2'>${ idrId }</span>:
           ${ title }
         </p>
+      </div>
+      <div class="studyAuthors">
+        ${ authors }
       </div>
     </a>`
 
