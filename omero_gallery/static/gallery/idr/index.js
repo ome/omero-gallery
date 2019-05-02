@@ -26,8 +26,10 @@ const THUMB_IDS = {'project-701': 5025553, 'project-504': 4495405, 'project-754'
 
 const FILTER_KEYS = ["Imaging Method", "Organism", "Publication Authors", "Publication Title",
                      "Screen Technology Type", "Screen Type", "Study Type"]
-// List of Projects and Screens in omero-marshal JSON format
-let studies = [];
+
+
+// Model for loading Projects, Screens and their Map Annotations
+let model = new StudiesModel();
 
 
 function studyThumbnailUrl(obj_type, obj_id) {
@@ -39,24 +41,6 @@ function studyThumbnailUrl(obj_type, obj_id) {
   return '';
 }
 
-
-// ------------ Handle MAPR searching or filtering --------------------- 
-
-function filterStudiesByMapr(value) {
-  let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  let url = `/mapr/api/${ configId }/?value=${ value }`;
-  $.getJSON(url, (data) => {
-    // filter studies by 'screens' and 'projects'
-    let filteredIds = data.screens.map(s => `screen-${ s.id }`)
-        .concat(data.projects.map(p => `project-${ p.id }`));
-    let filterFunc = study => {
-      let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
-      return filteredIds.indexOf(studyId) > -1;
-    }
-
-    render(filterFunc);
-  })
-}
 
 // ----- event handling --------
 
@@ -80,35 +64,6 @@ function getStudyValue(study, key) {
 
 // ------ AUTO-COMPLETE -------------------
 
-function getKeyValueAutoComplete(key, inputText) {
-  // Get values for key from each study
-  let values = studies.map(study => {
-    let v = getStudyValue(study, key);
-    if (v) return v;
-    console.log("No value found for study for key", key, study);
-    return "";
-  });
-  // We want values that match inputText
-  // Except for "Publication Authors", where we want words
-  let matchCounts = values.reduce((prev, value) => {
-    let matches = [];
-    if (key == "Publication Authors") {
-      let names = value.match(/\b(\w+)\b/g) || [];
-      matches = names.filter(name => name.indexOf(inputText) > -1);
-    } else if (value.indexOf(inputText) > -1) {
-      matches.push(value);
-    }
-    matches.forEach(match => {
-      if (!prev[match]) prev[match] = 0;
-      prev[match]++;
-    });
-
-    return prev;
-  }, {});
-
-  return Object.keys(matchCounts);
-}
-
 $("#maprQuery").autocomplete({
     autoFocus: false,
     delay: 1000,
@@ -124,7 +79,7 @@ $("#maprQuery").autocomplete({
         let configId = document.getElementById("maprConfig").value;
         if (configId.indexOf('mapr_') != 0) {
 
-          let matches = getKeyValueAutoComplete(configId, request.term);
+          let matches = getKeyValueAutoComplete(studies, configId, request.term);
           response(matches);
 
           // filter studies by Key-Value pairs
@@ -188,56 +143,17 @@ $("#maprQuery").autocomplete({
         .appendTo( ul );
 }
 
-
-// ----------- Load MapAnnotations --------------------
-
-function loadStudiesMapAnnotations() {
-  let url = "http://idr.openmicroscopy.org/webclient/api/annotations/?type=map";
-  let data = studies
-    .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
-    .join("&");
-  url += '&' + data;
-  // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
-  url += '&_=' + Math.random();
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      // populate the studies array...
-      // dict of {'project-1' : key-values}
-      let annsByParentId = {};
-      data.annotations.forEach(ann => {
-        let key = ann.link.parent.class;  // 'ProjectI'
-        key = key.substr(0, key.length-1).toLowerCase();
-        key += '-' + ann.link.parent.id;  // project-1
-        if (!annsByParentId[key]) {
-          annsByParentId[key] = [];
-        }
-        annsByParentId[key] = annsByParentId[key].concat(ann.values);
-      });
-      // Add mapValues to studies...
-      studies = studies.map(study => {
-        let values = annsByParentId[`${ study['@type'].split('#')[1].toLowerCase() }-${ study['@id'] }`];
-        if (values) {
-          study.mapValues = values;
-          return study;
-        }
-      });
-
-      render();
-    })
-}
-
 // ------------ Render -------------------------
 
 function render() {
   document.getElementById('studies').innerHTML = "";
-  
+  console.log('render', model.studies);
   CATEGORIES.forEach(cat => {
     let query = cat.query;
     // console.log('category', cat);
 
     // Find matching studies
-    let matches = studies.filter(study => {
+    let matches = model.studies.filter(study => {
       let match = false;
       // first split query by AND and OR
       let ors = query.split(' OR ');
@@ -364,40 +280,8 @@ function filter_by_type(studies) {
 }
 
 
-// Load Projects AND Screens, sort them and render...
-Promise.all([
-  fetch("http://idr.openmicroscopy.org/api/v0/m/projects/"),
-  fetch("http://idr.openmicroscopy.org/api/v0/m/screens/"),
-]).then(responses =>
-    Promise.all(responses.map(res => res.json()))
-).then(([projects, screens]) => {
-    studies = projects.data;
-    studies = studies.concat(screens.data);
-
-    // Filter by tissues/cells
-    studies = filter_by_type(studies);
-
-    // sort by name, reverse
-    studies.sort(function(a, b) {
-      var nameA = a.Name.toUpperCase();
-      var nameB = b.Name.toUpperCase();
-      if (nameA < nameB) {
-        return 1;
-      }
-      if (nameA > nameB) {
-        return -1;
-      }
-
-      // names must be equal
-      return 0;
-    });
-
-    // load Map Anns for Studies...
-    loadStudiesMapAnnotations();
-
-}).catch((err) => {
-  console.error(err);
-});
+console.log('created StudiesModel');
+model.loadStudies(render);
 
 // Load MAPR config
 fetch('/gallery/idr/mapr/config/')
