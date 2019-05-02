@@ -1,6 +1,6 @@
 const THUMB_IDS = {'project-701': 5025553, 'project-504': 4495405, 'project-754': 5514116, 'project-753': 5514054, 'project-752': 5514379,
            'project-552': 4007821, 'project-505': 4991000, 'project-503': 4496813, 'project-405': 3509516, 'project-502': 4007804,
-           'project-501': 3899001, 'project-402': 3429220, 'project-404': 3500835, 'project-401': 3490890, 'project-353': 3414088,
+           'project-501': 3899001, 'project-402': 3429220, 'project-404': 3430746, 'project-401': 3490890, 'project-353': 3414088,
            'project-352': 3414075, 'project-351': 3414020, 'screen-1654': 3002517, 'screen-1653': 2959817, 'screen-1901': 3261920,
            'screen-2001': 3414101, 'screen-1952': 1895788, 'project-201': 3125701, 'screen-1651': 2868079, 'project-151': 2858200,
            'screen-1652': 2892586, 'screen-1801': 3126552, 'screen-1751': 3191232, 'project-301': 3261651, 'screen-1851': 3260452,
@@ -13,3 +13,7 @@ const THUMB_IDS = {'project-701': 5025553, 'project-504': 4495405, 'project-754'
 
 const FILTER_KEYS = ["Imaging Method", "Organism", "Publication Authors", "Publication Title",
                      "Screen Technology Type", "Screen Type", "Study Type"]
+
+// We hard-code filtering, but could use e.g. Tags on Studies to specify Cells/Tissue
+let TISSUE_STUDIES = ['idr0018', 'idr0032', 'idr0042', 'idr0043', 'idr0054'];
+

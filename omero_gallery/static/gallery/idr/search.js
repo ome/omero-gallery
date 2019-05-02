@@ -36,10 +36,10 @@ function populateInputsFromSearch() {
 populateInputsFromSearch();
 
 
-function study_thumbnail_url(obj_type, obj_id) {
+function studyThumbnailUrl(obj_type, obj_id) {
   let key = `${obj_type}-${obj_id}`;
   if (THUMB_IDS[key]) {
-    return `http://idr.openmicroscopy.org/webgateway/render_thumbnail/${THUMB_IDS[key]}/`;
+    return `http://idr.openmicroscopy.org/webgateway/render_image/${THUMB_IDS[key]}/`;
   }
   // return `/gallery/study_thumbnail/${ obj_type }/${ obj_id }/`;
   return '';
@@ -222,11 +222,13 @@ function render(filterFunc) {
     }
   }
 
-  studiesToRender.forEach(s => renderStudy(s, filterKey, linkFunc));
+  studiesToRender.forEach(s => renderStudy(s, 'studies', linkFunc));
 }
 
 
-function renderStudy(studyData, filterKey, linkFunc) {
+
+function renderStudy(studyData, elementId, linkFunc) {
+
   // Add Project or Screen to the page
   // If filterKey, try to render the Key: Value
   let titleRe = /Publication Title\n(.+)[\n]?/
@@ -236,7 +238,7 @@ function renderStudy(studyData, filterKey, linkFunc) {
   let title = match ? match[1] : '';
   let type = studyData['@type'].split('#')[1].toLowerCase();
   let studyLink = linkFunc(studyData);
-  let studyThumbUrl = study_thumbnail_url(type, studyData['@id']);
+  let studyThumbUrl = studyThumbnailUrl(type, studyData['@id']);
   // save for later
   studyData.title = title;
 
@@ -247,27 +249,78 @@ function renderStudy(studyData, filterKey, linkFunc) {
   let studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
+  let authors = model.getStudyValue(studyData, "Publication Authors") || "";
+  let imgId = THUMB_IDS[`${type}-${studyData['@id']}`];
 
   let html = `
-  <div class="row study">
     <a target="_blank" href="${ studyLink }">
-      <div class="small-3 medium-3 large-3 columns" style="padding: 0">
-        <img class="thumbnail" src="${ studyThumbUrl }" />
+      <div class="studyBackground" style="padding: 0">
+        <img class="studyImage" src="${ studyThumbUrl }" />
       </div>
-      <div class="small-9 medium-9 large-9 columns">
+      <div class="studyText">
         <p title="${ studyDesc }">
           <span style='color:#1976d2'>${ idrId }</span>:
           ${ title }
         </p>
       </div>
+      <div class="studyAuthors">
+        ${ authors }
+      </div>
     </a>
-  </div>`
+    <a class="viewerLink" title="Open image in viewer" target="_blank"
+       href="http://idr.openmicroscopy.org/webclient/img_detail/${ imgId }/">
+      <i class="fas fa-eye"></i>
+    </a>
+    `
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
-  div.className = "small-12 medium-6 large-4 columns";
-  document.getElementById('studies').appendChild(div);
+  div.className = "row study ";
+  document.getElementById(elementId).appendChild(div);
 }
+
+
+// function renderStudy(studyData, linkFunc) {
+//   // Add Project or Screen to the page
+//   let titleRe = /Publication Title\n(.+)[\n]?/
+//   // let descRe = /Experiment Description\n(.+)[\n]?/
+//   let desc = studyData.Description;
+//   let match = titleRe.exec(desc);
+//   let title = match ? match[1] : '';
+//   let type = studyData['@type'].split('#')[1].toLowerCase();
+//   let studyLink = linkFunc(studyData);
+//   let studyThumbUrl = study_thumbnail_url(type, studyData['@id']);
+//   // save for later
+//   studyData.title = title;
+
+//   if (title.length >0) {
+//      desc = desc.split(title)[1];
+//    }
+//   // First line is e.g. "Screen Description". Show NEXT line only.
+//   let studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
+
+//   let idrId = studyData.Name.split('-')[0];  // idr0001
+
+//   let html = `
+//   <div class="row study">
+//     <a target="_blank" href="${ studyLink }">
+//       <div class="small-3 medium-3 large-3 columns" style="padding: 0">
+//         <img class="thumbnail" src="${ studyThumbUrl }" />
+//       </div>
+//       <div class="small-9 medium-9 large-9 columns">
+//         <p title="${ studyDesc }">
+//           <span style='color:#1976d2'>${ idrId }</span>:
+//           ${ title }
+//         </p>
+//       </div>
+//     </a>
+//   </div>`
+
+//   var div = document.createElement( "div" );
+//   div.innerHTML = html;
+//   div.className = "small-12 medium-6 large-4 columns";
+//   document.getElementById('studies').appendChild(div);
+// }
 
 // ----------- Load / Filter Studies --------------------
 

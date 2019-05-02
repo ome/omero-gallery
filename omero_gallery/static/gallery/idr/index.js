@@ -11,10 +11,6 @@ const CATEGORIES = [
   {"label": "Human Cell Screen", "query": "Organism:Homo sapiens AND Study Type:high content screen"},
 ]
 
-// We hard-code filtering, but could use e.g. Tags on Studies to specify Cells/Tissue
-let TISSUE_STUDIES = ['idr0018', 'idr0032', 'idr0042', 'idr0043', 'idr0054'];
-
-
 // Model for loading Projects, Screens and their Map Annotations
 let model = new StudiesModel();
 
@@ -156,17 +152,19 @@ function render() {
     div.className = "row";
     document.getElementById('studies').appendChild(div);
 
-    matches.forEach(study => renderStudy(study, cat.label));
+    // By default, we link to the study itself in IDR...
+    let linkFunc = (studyData) => {
+      let type = studyData['@type'].split('#')[1].toLowerCase();
+      return `http://idr.openmicroscopy.org/webclient/?show=${ type }-${ studyData['@id'] }`;
+    }
+
+    matches.forEach(study => renderStudy(study, cat.label, linkFunc));
   });
 }
 
 
-function renderStudy(studyData, elementId) {
-  // By default, we link to the study itself in IDR...
-  let linkFunc = (studyData) => {
-    let type = studyData['@type'].split('#')[1].toLowerCase();
-    return `http://idr.openmicroscopy.org/webclient/?show=${ type }-${ studyData['@id'] }`;
-  }
+function renderStudy(studyData, elementId, linkFunc) {
+
   // Add Project or Screen to the page
   // If filterKey, try to render the Key: Value
   let titleRe = /Publication Title\n(.+)[\n]?/
