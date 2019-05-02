@@ -4,7 +4,7 @@ var StudiesModel = function() {
 
   "use strict"
 
-  this.base_url = "http://idr.openmicroscopy.org/";
+  this.base_url = BASE_URL;
 
   this.studies = [];
 
@@ -57,8 +57,8 @@ StudiesModel.prototype.loadStudies = function loadStudies(filter, callback) {
 
   // Load Projects AND Screens, sort them and render...
   Promise.all([
-    fetch(this.base_url + "api/v0/m/projects/"),
-    fetch(this.base_url + "api/v0/m/screens/"),
+    fetch(this.base_url + "/api/v0/m/projects/"),
+    fetch(this.base_url + "/api/v0/m/screens/"),
   ]).then(responses =>
       Promise.all(responses.map(res => res.json()))
   ).then(([projects, screens]) => {
@@ -95,7 +95,7 @@ StudiesModel.prototype.loadStudies = function loadStudies(filter, callback) {
 
 
 StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnotations(callback) {
-  let url = this.base_url + "webclient/api/annotations/?type=map";
+  let url = this.base_url + "/webclient/api/annotations/?type=map";
   let data = this.studies
     .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
     .join("&");

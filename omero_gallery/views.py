@@ -1,10 +1,12 @@
 from django.http import Http404
+from django.core.urlresolvers import reverse
 
 import omero
 from omero.rtypes import wrap
 from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.webgateway.views import render_thumbnail
 
+from . import gallery_settings
 
 @login_required()
 @render_response()
@@ -230,6 +232,11 @@ def show_image(request, image_id, conn=None, **kwargs):
 def idr(request, idr_type=None, conn=None, **kwargs):
     context = {'template': "webgallery/idr/index.html"}
     context['idr_type'] = idr_type
+    base_url = reverse('webindex')
+    if gallery_settings.BASE_URL is not None:
+        base_url = gallery_settings.BASE_URL
+    print 'base_url', base_url
+    context['base_url'] = base_url
     return context
 
 

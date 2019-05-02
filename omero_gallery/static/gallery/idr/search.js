@@ -39,7 +39,7 @@ populateInputsFromSearch();
 function studyThumbnailUrl(obj_type, obj_id) {
   let key = `${obj_type}-${obj_id}`;
   if (THUMB_IDS[key]) {
-    return `http://idr.openmicroscopy.org/webgateway/render_image/${THUMB_IDS[key]}/`;
+    return `${ BASE_URL }/webgateway/render_image/${THUMB_IDS[key]}/`;
   }
   // return `/gallery/study_thumbnail/${ obj_type }/${ obj_id }/`;
   return '';
@@ -50,7 +50,7 @@ function studyThumbnailUrl(obj_type, obj_id) {
 
 function filterStudiesByMapr(value) {
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  let url = `http://idr.openmicroscopy.org/mapr/api/${ configId }/?value=${ value }`;
+  let url = `${ BASE_URL }/mapr/api/${ configId }/?value=${ value }`;
   // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
   url += '&_=' + Math.random();
   $.getJSON(url, (data) => {
@@ -112,7 +112,7 @@ $("#maprQuery").autocomplete({
 
         // Auto-complete to filter by mapr...
         configId = configId.replace('mapr_', '');
-        let url = `http://idr.openmicroscopy.org/mapr/api/autocomplete/${ configId }/`;
+        let url = `${ BASE_URL }/mapr/api/autocomplete/${ configId }/`;
         let case_sensitive = false;
 
         $.ajax({
@@ -209,7 +209,7 @@ function render(filterFunc) {
   // By default, we link to the study itself in IDR...
   let linkFunc = (studyData) => {
     let type = studyData['@type'].split('#')[1].toLowerCase();
-    return `http://idr.openmicroscopy.org/webclient/?show=${ type }-${ studyData['@id'] }`;
+    return `${ BASE_URL }/webclient/?show=${ type }-${ studyData['@id'] }`;
   }
 
   //...but if we're filtering by MAPR
@@ -268,7 +268,7 @@ function renderStudy(studyData, elementId, linkFunc) {
       </div>
     </a>
     <a class="viewerLink" title="Open image in viewer" target="_blank"
-       href="http://idr.openmicroscopy.org/webclient/img_detail/${ imgId }/">
+       href="${ BASE_URL }/webclient/img_detail/${ imgId }/">
       <i class="fas fa-eye"></i>
     </a>
     `
