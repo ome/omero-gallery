@@ -1,23 +1,70 @@
-// loaded below
-let mapr_settings = {};
-
-// queries are split first by ' OR ' clauses. Each may have an AND
-const CATEGORIES = [
-  {"label": "Time-lapse", "query": "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},
-  {"label": "Light sheet", "query": "Study Type:light sheet"},
-  {"label": "Protein localization", "query": "Study Type:protein localization"},
-  {"label": "Histology", "query": "Study Type:histology"},
-  {"label": "Yeast", "query": "Organism:Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},
-  {"label": "Human Cell Screen", "query": "Organism:Homo sapiens AND Study Type:high content screen"},
-]
-
-// We hard-code filtering, but could use e.g. Tags on Studies to specify Cells/Tissue
-let TISSUE_STUDIES = ['idr0018', 'idr0032', 'idr0042', 'idr0043', 'idr0054'];
 
 
 // Model for loading Projects, Screens and their Map Annotations
 let model = new StudiesModel();
 
+function renderStudyKeys() {
+  let html = FILTER_KEYS
+      .map(key => `<option value="${ key }">${ key }</option>`)
+      .join("\n");
+  document.getElementById('studyKeys').innerHTML = html;
+  document.getElementById('maprConfig').value = "Publication Authors";
+}
+renderStudyKeys();
+
+
+// FIRST, populate forms from query string
+function populateInputsFromSearch() {
+  let search = window.location.search.substr(1);
+  let query = '';
+  var searchParams = search.split('&');
+  for (var i = 0; i < searchParams.length; i++) {
+    var paramSplit = searchParams[i].split('=');
+    if (paramSplit[0] === 'query') {
+        query = paramSplit[1].replace(/%20/g, " ");
+    }
+  }
+  if (query) {
+    let configId = query.split(":")[0];
+    let value = query.split(":")[1];
+    if (configId && value) {
+      document.getElementById("maprConfig").value = configId;
+      document.getElementById("maprQuery").value = value;
+    }
+  }
+}
+populateInputsFromSearch();
+
+
+function study_thumbnail_url(obj_type, obj_id) {
+  let key = `${obj_type}-${obj_id}`;
+  if (THUMB_IDS[key]) {
+    return `http://idr.openmicroscopy.org/webgateway/render_thumbnail/${THUMB_IDS[key]}/`;
+  }
+  // return `/gallery/study_thumbnail/${ obj_type }/${ obj_id }/`;
+  return '';
+}
+
+
+// ------------ Handle MAPR searching or filtering --------------------- 
+
+function filterStudiesByMapr(value) {
+  let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
+  let url = `http://idr.openmicroscopy.org/mapr/api/${ configId }/?value=${ value }`;
+  // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
+  url += '&_=' + Math.random();
+  $.getJSON(url, (data) => {
+    // filter studies by 'screens' and 'projects'
+    let filteredIds = data.screens.map(s => `screen-${ s.id }`)
+        .concat(data.projects.map(p => `project-${ p.id }`));
+    let filterFunc = study => {
+      let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+      return filteredIds.indexOf(studyId) > -1;
+    }
+
+    render(filterFunc);
+  })
+}
 
 // ----- event handling --------
 
@@ -76,7 +123,7 @@ $("#maprQuery").autocomplete({
                 value: case_sensitive ? request.term : request.term.toLowerCase(),
                 query: true,
                 case_sensitive: case_sensitive,
-                '_': Math.random,    // cache-buster
+                "_": Math.random()     // cache-buster
             },
             success: function(data) {
                 if (data.length > 0) {
@@ -100,8 +147,9 @@ $("#maprQuery").autocomplete({
     },
     focus: function(event,ui) {},
     select: function(event, ui) {
-        let configId = document.getElementById("maprConfig").value;
-        document.location.href = `search/?query=${ configId }:${ ui.item.value }`;
+        $(this).val(ui.item.value);
+        filterAndRender();
+
         return false;
     }
 }).data("ui-autocomplete")._renderItem = function( ul, item ) {
@@ -110,63 +158,75 @@ $("#maprQuery").autocomplete({
         .appendTo( ul );
 }
 
+
 // ------------ Render -------------------------
 
-function render() {
-  document.getElementById('studies').innerHTML = "";
-  CATEGORIES.forEach(cat => {
-    let query = cat.query;
-
-    // Find matching studies
-    let matches = model.studies.filter(study => {
-      let match = false;
-      // first split query by AND and OR
-      let ors = query.split(' OR ');
-      ors.forEach(term => {
-        let allAnds = true;
-        let ands = term.split(' AND ');
-        ands.forEach(mustMatch => {
-          let queryKeyValue = mustMatch.split(":");
-          let valueMatch = false;
-          // check all key-values (may be duplicate keys) for value that matches
-          for (let i=0; i<study.mapValues.length; i++){
-            let kv = study.mapValues[i];
-            if (kv[0] === queryKeyValue[0] && kv[1].indexOf(queryKeyValue[1]) > -1) {
-              valueMatch = true;
-            }
-          }
-          // if not found, then our AND term fails
-          if (!valueMatch) {
-            allAnds = false;
-          }
-        });
-        if (allAnds) {
-          match = true;
+function filterAndRender() {
+  let configId = document.getElementById("maprConfig").value;
+  let value = document.getElementById("maprQuery").value;
+  if (!value) {
+    render();
+    return;
+  }
+  if (configId.indexOf('mapr_') != 0) {
+    // filter studies by Key-Value pairs
+    let filterFunc = study => {
+      let show = false;
+      study.mapValues.forEach(kv => {
+        if (kv[0] === configId && kv[1].toLowerCase().indexOf(value.toLowerCase()) > -1) {
+          show = true;
         }
       });
-      return match;
-    });
-
-    var div = document.createElement( "div" );
-    div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
-      <div style="width100%; overflow:auto; background: white">
-        <div id="${cat.label}" style="width: 5000px"></div>
-      </div>
-    `;
-    div.className = "row";
-    document.getElementById('studies').appendChild(div);
-
-    matches.forEach(study => renderStudy(study, cat.label));
-  });
+      return show;
+    }
+    render(filterFunc);
+  } else {
+    filterStudiesByMapr(value);
+  }
 }
 
+function render(filterFunc) {
+  document.getElementById('studies').innerHTML = "";
 
-function renderStudy(studyData, elementId) {
+  if (!filterFunc) return;
+
+  let configId = document.getElementById("maprConfig").value;
+  let filterKey;
+  if (!(configId.indexOf('mapr_') === 0)) {
+    filterKey = configId;
+  }
+  let studiesToRender = model.studies;
+  if (filterFunc) {
+    studiesToRender = model.studies.filter(filterFunc);
+  }
+
+  let filterMessage = "";
+  if (studiesToRender.length < studies.length) {
+    filterMessage = `Showing ${ studiesToRender.length } of ${ studies.length} studies`;
+  }
+  document.getElementById('filterCount').innerHTML = filterMessage;
+
   // By default, we link to the study itself in IDR...
   let linkFunc = (studyData) => {
     let type = studyData['@type'].split('#')[1].toLowerCase();
     return `http://idr.openmicroscopy.org/webclient/?show=${ type }-${ studyData['@id'] }`;
   }
+
+  //...but if we're filtering by MAPR
+  if (configId.indexOf('mapr_') == 0 && studiesToRender.length < model.studies.length) {
+    linkFunc = (studyData) => {
+      let type = studyData['@type'].split('#')[1].toLowerCase();
+      let maprKey = configId.replace('mapr_', '');
+      let maprValue = document.getElementById('maprQuery').value;
+      return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
+    }
+  }
+
+  studiesToRender.forEach(s => renderStudy(s, filterKey, linkFunc));
+}
+
+
+function renderStudy(studyData, filterKey, linkFunc) {
   // Add Project or Screen to the page
   // If filterKey, try to render the Key: Value
   let titleRe = /Publication Title\n(.+)[\n]?/
@@ -176,7 +236,7 @@ function renderStudy(studyData, elementId) {
   let title = match ? match[1] : '';
   let type = studyData['@type'].split('#')[1].toLowerCase();
   let studyLink = linkFunc(studyData);
-  let studyThumbUrl = studyThumbnailUrl(type, studyData['@id']);
+  let studyThumbUrl = study_thumbnail_url(type, studyData['@id']);
   // save for later
   studyData.title = title;
 
@@ -187,58 +247,29 @@ function renderStudy(studyData, elementId) {
   let studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
-  let authors = model.getStudyValue(studyData, "Publication Authors") || "";
-  let imgId = THUMB_IDS[`${type}-${studyData['@id']}`];
 
   let html = `
+  <div class="row study">
     <a target="_blank" href="${ studyLink }">
-      <div class="studyBackground" style="padding: 0">
-        <img class="studyImage" src="${ studyThumbUrl }" />
+      <div class="small-3 medium-3 large-3 columns" style="padding: 0">
+        <img class="thumbnail" src="${ studyThumbUrl }" />
       </div>
-      <div class="studyText">
+      <div class="small-9 medium-9 large-9 columns">
         <p title="${ studyDesc }">
           <span style='color:#1976d2'>${ idrId }</span>:
           ${ title }
         </p>
       </div>
-      <div class="studyAuthors">
-        ${ authors }
-      </div>
     </a>
-    <a class="viewerLink" title="Open image in viewer" target="_blank"
-       href="http://idr.openmicroscopy.org/webclient/img_detail/${ imgId }/">
-      <i class="fas fa-eye"></i>
-    </a>
-    `
+  </div>`
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
-  div.className = "row study ";
-  document.getElementById(elementId).appendChild(div);
+  div.className = "small-12 medium-6 large-4 columns";
+  document.getElementById('studies').appendChild(div);
 }
-
-// --------- Render utils -----------
-function studyThumbnailUrl(obj_type, obj_id) {
-  let key = `${obj_type}-${obj_id}`;
-  if (THUMB_IDS[key]) {
-    return `http://idr.openmicroscopy.org/webgateway/render_image/${THUMB_IDS[key]}/`;
-  }
-  // return `/gallery/study_thumbnail/${ obj_type }/${ obj_id }/`;
-  return '';
-}
-
-function renderStudyKeys() {
-  let html = FILTER_KEYS
-      .map(key => `<option value="${ key }">${ key }</option>`)
-      .join("\n");
-  document.getElementById('studyKeys').innerHTML = html;
-  document.getElementById('maprConfig').value = "Publication Authors";
-}
-renderStudyKeys();
-
 
 // ----------- Load / Filter Studies --------------------
-
 
 function filter_by_type(studies) {
 
@@ -254,7 +285,7 @@ function filter_by_type(studies) {
 }
 
 // Do the loading and render() when done...
-model.loadStudies(filter_by_type, render);
+model.loadStudies(filter_by_type, filterAndRender);
 
 
 // Load MAPR config
@@ -269,4 +300,6 @@ fetch('/gallery/idr/mapr/config/')
       html = html + `<option value="mapr_${ id }">${ config.label }</option>`;
     }
     document.getElementById('maprKeys').innerHTML = html;
+
+    populateInputsFromSearch();
   });

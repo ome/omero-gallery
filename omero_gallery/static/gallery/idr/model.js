@@ -13,8 +13,47 @@ var StudiesModel = function() {
   return this;
 }
 
+StudiesModel.prototype.getStudyValue = function getStudyValue(study, key) {
+  if (!study.mapValues) return;
+  for (let i=0; i<study.mapValues.length; i++){
+    let kv = study.mapValues[i];
+    if (kv[0] === key) {
+      return kv[1];
+    }
+  }
+}
 
-StudiesModel.prototype.loadStudies = function loadStudies(callback) {
+StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplete(key, inputText) {
+  // Get values for key from each study
+  let values = this.studies.map(study => {
+    let v = this.getStudyValue(study, key);
+    if (v) return v;
+    console.log("No value found for study for key", key, study);
+    return "";
+  });
+  // We want values that match inputText
+  // Except for "Publication Authors", where we want words
+  let matchCounts = values.reduce((prev, value) => {
+    let matches = [];
+    if (key == "Publication Authors") {
+      let names = value.match(/\b(\w+)\b/g) || [];
+      matches = names.filter(name => name.indexOf(inputText) > -1);
+    } else if (value.indexOf(inputText) > -1) {
+      matches.push(value);
+    }
+    matches.forEach(match => {
+      if (!prev[match]) prev[match] = 0;
+      prev[match]++;
+    });
+
+    return prev;
+  }, {});
+
+  return Object.keys(matchCounts);
+}
+
+
+StudiesModel.prototype.loadStudies = function loadStudies(filter, callback) {
 
   // Load Projects AND Screens, sort them and render...
   Promise.all([
@@ -23,12 +62,13 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
   ]).then(responses =>
       Promise.all(responses.map(res => res.json()))
   ).then(([projects, screens]) => {
-    console.log("loaded")
-      let studies = projects.data;
-      studies = studies.concat(screens.data);
+      this.studies = projects.data;
+      this.studies = this.studies.concat(screens.data);
 
       // Filter by tissues/cells
-      this.studies = filter_by_type(studies);
+      if (filter) {
+        this.studies = filter(this.studies);
+      }
 
       // sort by name, reverse
       this.studies.sort(function(a, b) {
