@@ -8,6 +8,7 @@ from omeroweb.webgateway.views import render_thumbnail
 
 from . import gallery_settings
 
+
 @login_required()
 @render_response()
 def index(request, conn=None, **kwargs):
@@ -235,7 +236,6 @@ def idr(request, idr_type=None, conn=None, **kwargs):
     base_url = reverse('webindex')
     if gallery_settings.BASE_URL is not None:
         base_url = gallery_settings.BASE_URL
-    print 'base_url', base_url
     context['base_url'] = base_url
     return context
 
