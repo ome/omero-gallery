@@ -63,6 +63,30 @@
 
 <div id="studies" class="row horizontal">
   Loading Studies...
+  <script>
+      function studyHtml(studyLink, studyThumbUrl, studyDesc, idrId, title, authors, BASE_URL, imgId) {
+    return `
+    <a target="_blank" href="${ studyLink }">
+      <div class="studyBackground" style="padding: 0">
+        <img class="studyImage" src="${ studyThumbUrl }" />
+      </div>
+      <div class="studyText">
+        <p title="${ studyDesc }">
+          <span style='color:#1976d2'>${ idrId }</span>:
+          ${ title }
+        </p>
+      </div>
+      <div class="studyAuthors">
+        ${ authors }
+      </div>
+    </a>
+    <a class="viewerLink" title="Open image in viewer" target="_blank"
+       href="${ BASE_URL }/webclient/img_detail/${ imgId }/">
+      <i class="fas fa-eye"></i>
+    </a>
+    `
+  }
+  </script>
 </div>
 
 <script src="{% static 'gallery/idr/index.js' %}"></script>

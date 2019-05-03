@@ -178,26 +178,8 @@ function renderStudy(studyData, elementId, linkFunc) {
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
   let imgId = THUMB_IDS[`${type}-${studyData['@id']}`];
 
-  let html = `
-    <a target="_blank" href="${ studyLink }">
-      <div class="studyBackground" style="padding: 0">
-        <img class="studyImage" src="${ studyThumbUrl }" />
-      </div>
-      <div class="studyText">
-        <p title="${ studyDesc }">
-          <span style='color:#1976d2'>${ idrId }</span>:
-          ${ title }
-        </p>
-      </div>
-      <div class="studyAuthors">
-        ${ authors }
-      </div>
-    </a>
-    <a class="viewerLink" title="Open image in viewer" target="_blank"
-       href="${ BASE_URL }/webclient/img_detail/${ imgId }/">
-      <i class="fas fa-eye"></i>
-    </a>
-    `
+  // Function (and template) are defined where used in index.html
+  let html = studyHtml(studyLink, studyThumbUrl, studyDesc, idrId, title, authors, BASE_URL, imgId)
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
