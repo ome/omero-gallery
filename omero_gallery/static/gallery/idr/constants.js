@@ -16,4 +16,3 @@ const FILTER_KEYS = ["Imaging Method", "Organism", "Publication Authors", "Publi
 
 // We hard-code filtering, but could use e.g. Tags on Studies to specify Cells/Tissue
 let TISSUE_STUDIES = ['idr0018', 'idr0032', 'idr0042', 'idr0043', 'idr0054'];
-

@@ -1,16 +1,6 @@
 // loaded below
 let mapr_settings = {};
 
-// queries are split first by ' OR ' clauses. Each may have an AND
-const CATEGORIES = [
-  {"label": "Time-lapse", "query": "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},
-  {"label": "Light sheet", "query": "Study Type:light sheet"},
-  {"label": "Protein localization", "query": "Study Type:protein localization"},
-  {"label": "Histology", "query": "Study Type:histology"},
-  {"label": "Yeast", "query": "Organism:Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},
-  {"label": "Human Cell Screen", "query": "Organism:Homo sapiens AND Study Type:high content screen"},
-]
-
 // Model for loading Projects, Screens and their Map Annotations
 let model = new StudiesModel();
 
@@ -110,7 +100,7 @@ $("#maprQuery").autocomplete({
 
 function render() {
   document.getElementById('studies').innerHTML = "";
-  CATEGORIES.forEach(cat => {
+  CATEGORY_QUERIES.forEach(cat => {
     let query = cat.query;
 
     // Find matching studies

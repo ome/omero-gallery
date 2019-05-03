@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.core.urlresolvers import reverse
+import json
 
 import omero
 from omero.rtypes import wrap
@@ -237,6 +238,7 @@ def idr(request, idr_type=None, conn=None, **kwargs):
     if gallery_settings.BASE_URL is not None:
         base_url = gallery_settings.BASE_URL
     context['base_url'] = base_url
+    context['category_queries'] = json.dumps(gallery_settings.CATEGORY_QUERIES)
     return context
 
 
