@@ -188,7 +188,10 @@ function filterAndRender() {
 function render(filterFunc) {
   document.getElementById('studies').innerHTML = "";
 
-  if (!filterFunc) return;
+  if (!filterFunc) {
+    document.getElementById('filterCount').innerHTML = "";
+    return;
+  }
 
   let configId = document.getElementById("maprConfig").value;
   let filterKey;
@@ -201,8 +204,8 @@ function render(filterFunc) {
   }
 
   let filterMessage = "";
-  if (studiesToRender.length < studies.length) {
-    filterMessage = `Showing ${ studiesToRender.length } of ${ studies.length} studies`;
+  if (studiesToRender.length < model.studies.length) {
+    filterMessage = `Showing ${ studiesToRender.length } of ${ model.studies.length} studies`;
   }
   document.getElementById('filterCount').innerHTML = filterMessage;
 
