@@ -247,6 +247,11 @@ def idr_search(request, idr_type=None, conn=None, **kwargs):
 
     context = {'template': "webgallery/idr/search.html"}
     context['idr_type'] = idr_type
+    base_url = reverse('webindex')
+    if gallery_settings.BASE_URL is not None:
+        base_url = gallery_settings.BASE_URL
+    context['base_url'] = base_url
+    context['category_queries'] = json.dumps(gallery_settings.CATEGORY_QUERIES)
     return context
 
 
