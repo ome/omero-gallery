@@ -37,13 +37,17 @@ GALLERY_SETTINGS_MAPPING = {
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
          ('['
-              '{"label": "Time-lapse", "query": "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},'
-              '{"label": "Light sheet", "query": "Study Type:light sheet"},'
-              '{"label": "Protein localization", "query": "Study Type:protein localization"},'
-              '{"label": "Histology", "query": "Study Type:histology"},'
-              '{"label": "Yeast", "query": "Organism:Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},'
-              '{"label": "Human Cell Screen", "query": "Organism:Homo sapiens AND Study Type:high content screen"}'
-            ']'),    # TODO: - should be []
+          '{"label": "Time-lapse", "query": "Study Type:time OR Study Type:5D'
+          ' OR Study Type:3D-tracking"},'
+          '{"label": "Light sheet", "query": "Study Type:light sheet"},'
+          '{"label": "Protein localization", "query": "Study Type:protein'
+          ' localization"},'
+          '{"label": "Histology", "query": "Study Type:histology"},'
+          '{"label": "Yeast", "query": "Organism:Saccharomyces cerevisiae OR'
+          ' Organism:Schizosaccharomyces pombe"},'
+          '{"label": "Human Cell Screen", "query": "Organism:Homo sapiens AND'
+          ' Study Type:high content screen"}'
+          ']'),    # TODO: - should be []
          json.loads,
          ("")],
 
