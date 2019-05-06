@@ -370,21 +370,6 @@ def temp_mapr_config(request):
               "openmicroscopy.org/mapr/orf"
             ]
           },
-          "organism": {
-            "all": [
-              "Organism"
-            ],
-            "default": [
-              "Organism"
-            ],
-            "label": "Organism",
-            "ns": [
-              "openmicroscopy.org/mapr/organism"
-            ],
-            "wildcard": {
-              "enabled": True
-            }
-          },
           "phenotype": {
             "all": [
               "Phenotype",
