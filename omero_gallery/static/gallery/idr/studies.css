@@ -90,6 +90,10 @@
   visibility: visible;
 }
 
+maprText {
+  width: 100%
+}
+
 /* Fix issues from combining foundation css with jquery-ui auto-complete */
 .ui-autocomplete a {
   font-weight: normal;

@@ -55,14 +55,23 @@ function filterStudiesByMapr(value) {
   url += '&_=' + Math.random();
   $.getJSON(url, (data) => {
     // filter studies by 'screens' and 'projects'
-    let filteredIds = data.screens.map(s => `screen-${ s.id }`)
-        .concat(data.projects.map(p => `project-${ p.id }`));
+    let imageCounts = {};
+    data.screens.forEach(s => {imageCounts[`screen-${ s.id }`] = s.extra.counter});
+    data.projects.forEach(s => {imageCounts[`project-${ s.id }`] = s.extra.counter});
+
     let filterFunc = study => {
       let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
-      return filteredIds.indexOf(studyId) > -1;
+      return imageCounts.hasOwnProperty(studyId);
     }
 
-    render(filterFunc);
+    let maprData = model.studies.filter(filterFunc).map(study => {
+      let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+      let studyData = Object.assign({}, study);
+      studyData.imageCount = imageCounts[studyId];
+      return studyData;
+    });
+
+    renderMapr(maprData);
   })
 }
 
@@ -185,6 +194,55 @@ function filterAndRender() {
   }
 }
 
+function renderMapr(maprData) {
+  document.getElementById('studies').innerHTML = "";
+
+  let configId = document.getElementById("maprConfig").value;
+  let linkFunc = (studyData) => {
+    let type = studyData['@type'].split('#')[1].toLowerCase();
+    let maprKey = configId.replace('mapr_', '');
+    let maprValue = document.getElementById('maprQuery').value;
+    return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
+  }
+  htmlFunc = maprHtml;
+
+  let totalCount = maprData.reduce((count, data) => count + data.imageCount, 0);
+  let filterMessage = `Found ${ totalCount } images in ${ maprData.length} studies`;
+  document.getElementById('filterCount').innerHTML = filterMessage;
+
+  maprData.forEach(s => renderStudy(s, 'studies', linkFunc, htmlFunc));
+
+  // load images for each study...
+  document.querySelectorAll(".maprText").forEach(element => {
+    // load children in MAPR jsTree query to get images
+    let studyId = element.id;
+    let objId = studyId.split("-")[1];
+    let objType = studyId.split("-")[0];
+    let childType = objType === "project" ? "datasets" : "plates";
+    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+    let maprValue = document.getElementById('maprQuery').value;
+    let url = `${ BASE_URL }/mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
+    url += '&_=' + Math.random();
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        let firstChild = data[childType][0];
+        let imagesUrl = `${ BASE_URL }/mapr/api/${ configId }/images/?value=${ maprValue }&id=${ firstChild.id }&node=${ firstChild.extra.node }`;
+        imagesUrl += '&_=' + Math.random();
+        return fetch(imagesUrl);
+      })
+      .then(response => response.json())
+      .then(data => {
+        let html = data.images.slice(0, 4).map(i => `
+          <a href="${ BASE_URL }/webclient/img_detail/${ i.id }/" target="_blank">
+            <img class="thumbnail" src="${ BASE_URL }/webgateway/render_thumbnail/${ i.id }/">
+          </a>`).join("");
+        // Find the container and add images html
+        $("#"+element.id).append(html);
+      });
+  });
+}
+
 function render(filterFunc) {
   document.getElementById('studies').innerHTML = "";
 
@@ -193,11 +251,6 @@ function render(filterFunc) {
     return;
   }
 
-  let configId = document.getElementById("maprConfig").value;
-  let filterKey;
-  if (!(configId.indexOf('mapr_') === 0)) {
-    filterKey = configId;
-  }
   let studiesToRender = model.studies;
   if (filterFunc) {
     studiesToRender = model.studies.filter(filterFunc);
@@ -214,23 +267,13 @@ function render(filterFunc) {
     let type = studyData['@type'].split('#')[1].toLowerCase();
     return `${ BASE_URL }/webclient/?show=${ type }-${ studyData['@id'] }`;
   }
+  let htmlFunc = studyHtml;
 
-  //...but if we're filtering by MAPR
-  if (configId.indexOf('mapr_') == 0 && studiesToRender.length < model.studies.length) {
-    linkFunc = (studyData) => {
-      let type = studyData['@type'].split('#')[1].toLowerCase();
-      let maprKey = configId.replace('mapr_', '');
-      let maprValue = document.getElementById('maprQuery').value;
-      return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
-    }
-  }
-
-  studiesToRender.forEach(s => renderStudy(s, 'studies', linkFunc));
+  studiesToRender.forEach(s => renderStudy(s, 'studies', linkFunc, htmlFunc));
 }
 
 
-
-function renderStudy(studyData, elementId, linkFunc) {
+function renderStudy(studyData, elementId, linkFunc, htmlFunc) {
 
   // Add Project or Screen to the page
   // If filterKey, try to render the Key: Value
@@ -255,75 +298,13 @@ function renderStudy(studyData, elementId, linkFunc) {
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
   let imgId = THUMB_IDS[`${type}-${studyData['@id']}`];
 
-  let html = `
-    <a target="_blank" href="${ studyLink }">
-      <div class="studyBackground" style="padding: 0">
-        <img class="studyImage" src="${ studyThumbUrl }" />
-      </div>
-      <div class="studyText">
-        <p title="${ studyDesc }">
-          <span style='color:#1976d2'>${ idrId }</span>:
-          ${ title }
-        </p>
-      </div>
-      <div class="studyAuthors">
-        ${ authors }
-      </div>
-    </a>
-    <a class="viewerLink" title="Open image in viewer" target="_blank"
-       href="${ BASE_URL }/webclient/img_detail/${ imgId }/">
-      <i class="fas fa-eye"></i>
-    </a>
-    `
+  let html = htmlFunc({studyLink, studyThumbUrl, studyDesc, idrId, title, authors, BASE_URL, imgId, type}, studyData);
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
   div.className = "row study ";
   document.getElementById(elementId).appendChild(div);
 }
-
-
-// function renderStudy(studyData, linkFunc) {
-//   // Add Project or Screen to the page
-//   let titleRe = /Publication Title\n(.+)[\n]?/
-//   // let descRe = /Experiment Description\n(.+)[\n]?/
-//   let desc = studyData.Description;
-//   let match = titleRe.exec(desc);
-//   let title = match ? match[1] : '';
-//   let type = studyData['@type'].split('#')[1].toLowerCase();
-//   let studyLink = linkFunc(studyData);
-//   let studyThumbUrl = study_thumbnail_url(type, studyData['@id']);
-//   // save for later
-//   studyData.title = title;
-
-//   if (title.length >0) {
-//      desc = desc.split(title)[1];
-//    }
-//   // First line is e.g. "Screen Description". Show NEXT line only.
-//   let studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
-
-//   let idrId = studyData.Name.split('-')[0];  // idr0001
-
-//   let html = `
-//   <div class="row study">
-//     <a target="_blank" href="${ studyLink }">
-//       <div class="small-3 medium-3 large-3 columns" style="padding: 0">
-//         <img class="thumbnail" src="${ studyThumbUrl }" />
-//       </div>
-//       <div class="small-9 medium-9 large-9 columns">
-//         <p title="${ studyDesc }">
-//           <span style='color:#1976d2'>${ idrId }</span>:
-//           ${ title }
-//         </p>
-//       </div>
-//     </a>
-//   </div>`
-
-//   var div = document.createElement( "div" );
-//   div.innerHTML = html;
-//   div.className = "small-12 medium-6 large-4 columns";
-//   document.getElementById('studies').appendChild(div);
-// }
 
 // ----------- Load / Filter Studies --------------------
 
