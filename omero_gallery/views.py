@@ -10,13 +10,44 @@ from omeroweb.webgateway.views import render_thumbnail
 from . import gallery_settings
 
 
-@login_required()
 @render_response()
-def index(request, conn=None, **kwargs):
+def index(request, super_category=None):
     """
-    Home page shows a list of Projects from all of our groups
+    Home page shows a list of groups OR a set of 'categories' from
+    user-configured queries.
     """
 
+    category_queries = gallery_settings.CATEGORY_QUERIES
+    if len(category_queries) > 0:
+        context = {'template': "webgallery/idr/index.html"}
+        context['super_categories'] = gallery_settings.SUPER_CATEGORIES
+        category = gallery_settings.SUPER_CATEGORIES.get(super_category)
+        if category is not None:
+            # If the sub-category is "other", populate list of all categories
+            # that are NOT in the other super categories
+            if category['categories'] == "other":
+                exclude = []
+                for c, value in gallery_settings.SUPER_CATEGORIES.items():
+                    if c is not super_category:
+                        exclude.extend(value['categories'])
+                include = [c for c in category_queries.keys()
+                           if c not in exclude]
+                category['categories'] = include
+
+            context['super_category'] = json.dumps(category)
+        base_url = reverse('webindex')
+        if gallery_settings.BASE_URL is not None:
+            base_url = gallery_settings.BASE_URL
+        context['base_url'] = base_url
+        context['category_queries'] = json.dumps(category_queries)
+        return context
+
+    return index_with_login(request)
+
+
+@login_required()
+@render_response()
+def index_with_login(request, conn=None, **kwargs):
     my_groups = list(conn.getGroupsMemberOf())
 
     # Need a custom query to get 1 (random) image per Project

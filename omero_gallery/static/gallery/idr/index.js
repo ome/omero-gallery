@@ -90,7 +90,8 @@ $("#maprQuery").autocomplete({
 
 function render() {
   document.getElementById('studies').innerHTML = "";
-  CATEGORY_QUERIES.forEach(cat => {
+  for (category in CATEGORY_QUERIES) {
+    let cat = CATEGORY_QUERIES[category];
     let query = cat.query;
 
     // Find matching studies
@@ -139,7 +140,7 @@ function render() {
     }
 
     matches.forEach(study => renderStudy(study, cat.label, linkFunc));
-  });
+  };
 }
 
 

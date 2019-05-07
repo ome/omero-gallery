@@ -8,6 +8,8 @@
   const IDR_TYPE = "{{ idr_type }}";
   const BASE_URL = "{{ base_url }}";
   const CATEGORY_QUERIES = {{ category_queries|escape|safe }};
+  var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
+  console.log(SUPER_CATEGORY);
 </script>
 
 <hr class="whitespace" style="height: 0">
@@ -36,25 +38,19 @@
       </div>
     </div>
 
-    {% if not idr_type %}
-    <div class="row horizontal">
-      <a href="cells/">
-        <div class="small-6 medium-6 large-6 columns" style="position: relative;">
-          <img class="thumbnail" src="https://idr.openmicroscopy.org/webgateway/render_image/122770/0/0/" />
-          <div class="img_overlay">
-            <span class="overlay_text">Cells</span>
+    {% if not super_category %}
+      <div class="row horizontal">
+      {% for category, data in super_categories.items %}
+        <a href="{{ category }}/">
+          <div class="small-6 medium-6 large-6 columns" style="position: relative;">
+            <img class="thumbnail" src="{{ data.image }}" />
+            <div class="img_overlay">
+              <span class="overlay_text">{{ data.label }}</span>
+            </div>
           </div>
-        </div>
-      </a>
-      <a href="tissue/">
-        <div class="small-6 medium-6 large-6 columns" style="position: relative;">
-          <img class="thumbnail" src="https://idr.openmicroscopy.org/webgateway/render_image_region/5470164/0/0/?region=1024,1024,696,520" />
-          <div class="img_overlay">
-            <span class="overlay_text">Tissue</span>
-          </div>
-        </div>
-      </a>
-    </div>
+        </a>
+      {% endfor %}
+      </div>
     {% endif %}
 
     <div id="filterCount" class="row horizontal">

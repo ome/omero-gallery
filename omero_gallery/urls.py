@@ -1,4 +1,5 @@
 from django.conf.urls import url, patterns
+from gallery_settings import SUPER_CATEGORIES
 
 from . import views
 
@@ -34,10 +35,10 @@ urlpatterns = patterns(
         views.show_image, name='webgallery_show_image'),
 
     # IDR UI prototype
-    url(r'^idr/$', views.idr, {'idr_type': None}),
-    url(r'^idr/(?P<idr_type>[cells|tissue]+)/$', views.idr),
-    url(r'^idr/search/$', views.idr_search, {'idr_type': None}),
-    url(r'^idr/(?P<idr_type>[cells|tissue]+)/search/$', views.idr_search),
+    # url(r'^idr/$', views.idr, {'idr_type': None}),
+    # url(r'^idr/(?P<idr_type>[cells|tissue]+)/$', views.idr),
+    # url(r'^idr/search/$', views.idr_search, {'idr_type': None}),
+    # url(r'^idr/(?P<idr_type>[cells|tissue]+)/search/$', views.idr_search),
 
     # Temp mapr config - until mapr PR 46 is merged
     url(r'^idr/mapr/config/$', views.temp_mapr_config),
@@ -45,5 +46,8 @@ urlpatterns = patterns(
     url(r'^study_thumbnail/(?P<obj_type>[screen|project]+)/'
         r'(?P<obj_id>[0-9]+)/$',
         views.study_thumbnail, name='webgallery_study_thumbnail'),
-
 )
+
+for c in SUPER_CATEGORIES:
+    urlpatterns += (url(r'^%s/$' % c,
+                        views.index, {'super_category': c}),)

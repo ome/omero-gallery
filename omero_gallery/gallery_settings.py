@@ -36,20 +36,39 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
-         ('['
-          '{"label": "Time-lapse", "query": "Study Type:time OR Study Type:5D'
-          ' OR Study Type:3D-tracking"},'
-          '{"label": "Light sheet", "query": "Study Type:light sheet"},'
-          '{"label": "Protein localization", "query": "Study Type:protein'
-          ' localization"},'
-          '{"label": "Histology", "query": "Study Type:histology"},'
-          '{"label": "Yeast", "query": "Organism:Saccharomyces cerevisiae OR'
-          ' Organism:Schizosaccharomyces pombe"},'
-          '{"label": "Human Cell Screen", "query": "Organism:Homo sapiens AND'
-          ' Study Type:high content screen"}'
-          ']'),    # TODO: - should be []
+         ('{'
+          '"timelapse": {"label": "Time-lapse", "query":'
+          ' "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},'
+          '"lightsheet": {"label": "Light sheet", "query":'
+          ' "Study Type:light sheet"},'
+          '"proteinlocalization": {"label": "Protein localization", "query":'
+          ' "Study Type:protein localization"},'
+          '"histology": {"label": "Histology", "query":'
+          ' "Study Type:histology"},'
+          '"yeast": {"label": "Yeast", "query": "Organism:Saccharomyces'
+          ' cerevisiae OR Organism:Schizosaccharomyces pombe"},'
+          '"humancellscreen": {"label": "Human Cell Screen", "query":'
+          ' "Organism:Homo sapiens AND Study Type:high content screen"}'
+          '}'),    # TODO: - should be {}
          json.loads,
-         ("")],
+         ("If this is configured then the gallery Home Page shows a list"
+          " of categories containing Projects and Screens that match the"
+          " relevant query. Query is by Key:Value on Map Annotations linked"
+          " to Projects and Screens")],
+
+    "omero.web.gallery.super_categories":
+        ["SUPER_CATEGORIES",
+         ('{'
+          '"cells": {"label": "Cells - IDR", "categories": "other", "image": '
+          '"https://idr.openmicroscopy.org/webgateway/'
+          'render_image/122770/0/0/"},'
+          '"tissue": {"label": "Tissue - IDR", "categories": ["histology"],'
+          ' "image": "https://idr.openmicroscopy.org/webgateway/'
+          'render_image_region/5470164/0/0/?region=1024,1024,696,520"}'
+          '}'),    # TODO: - should be {}
+         json.loads,
+         ("If category_queries has been set, we can create top-level"
+          "super-categories that contain them.")]
 
 }
 
