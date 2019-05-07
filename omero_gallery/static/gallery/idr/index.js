@@ -12,6 +12,9 @@ document.getElementById('maprConfig').onchange = (event) => {
   let value = event.target.value.replace('mapr_', '');
   let placeholder = mapr_settings[value] ? mapr_settings[value].default[0] : value;
   document.getElementById('maprQuery').placeholder = placeholder;
+  // Show all autocomplete options...
+  $("#maprQuery").autocomplete( "search", "" );
+  $("#maprQuery").focus();
   render();
 }
 
@@ -22,30 +25,17 @@ $("#maprQuery").autocomplete({
     delay: 1000,
     source: function( request, response ) {
 
-        // Empty - clear filter
-        if (request.term.length === 0) {
-          render();
-          return;
-        }
-
         // if configId is not from mapr, we filter on mapValues...
         let configId = document.getElementById("maprConfig").value;
         if (configId.indexOf('mapr_') != 0) {
 
           let matches = model.getKeyValueAutoComplete(configId, request.term);
           response(matches);
+          return;
+        }
 
-          // filter studies by Key-Value pairs
-          let filterFunc = study => {
-            let show = false;
-            study.mapValues.forEach(kv => {
-              if (kv[0] === configId && kv[1].toLowerCase().indexOf(request.term.toLowerCase()) > -1) {
-                show = true;
-              }
-            });
-            return show;
-          }
-          render(filterFunc);
+        // If empty, don't handle mapr...
+        if (request.term.length === 0) {
           return;
         }
 

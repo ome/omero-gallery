@@ -38,15 +38,19 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
   let matchCounts = values.reduce((prev, value) => {
     let matches = [];
     if (key == "Publication Authors") {
-      let names = value.match(/\b(\w+)\b/g) || [];
+      // Split surnames, ignoring AN initials.
+      let names = value.match(/\b([A-Z][a-z]\w+)\b/g) || [];
       matches = names.filter(name => name.toLowerCase().indexOf(inputText) > -1);
     } else if (value.toLowerCase().indexOf(inputText) > -1) {
       matches.push(value);
     }
     matches.forEach(match => {
       if (!prev[match.toLowerCase()]) {
-        prev[match.toLowerCase()] = match;
+        // key is lowercase, value is original case
+        prev[match.toLowerCase()] = {value: match, count: 0};
       }
+      // also keep count of matches
+      prev[match.toLowerCase()].count++;
     });
 
     return prev;
@@ -64,8 +68,10 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
       // next best if a WORD starts with inputText
       matchScore = 2;
     }
-    // Make a list of sort score and orig text (NOT lowercase keys)
-    matchList.push([matchScore, matchCounts[key]]);
+    // Make a list of sort score, orig text (NOT lowercase keys) and count
+    matchList.push([matchScore,
+                    matchCounts[key].value,
+                    matchCounts[key].count]);
   }
 
   // Sort by the matchScore
@@ -75,7 +81,12 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
   });
 
   // Return the matches
-  return matchList.map(m => m[1]);
+  return matchList
+    .map(m => {
+      // Auto-complete uses {label: 'X (n)', value: 'X'}
+      return {label: `${ m[1] } (${ m[2] })`, value: m[1]}
+    })
+    .filter(m => m.value.length > 0);
 }
 
 
