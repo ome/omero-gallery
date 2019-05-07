@@ -102,3 +102,34 @@ maprText {
   padding-left: 20px;
   text-indent: -10px;
 }
+
+/* Always show scrollbars https://gist.github.com/IceCreamYou/cd517596e5847a88e2bb0a091da43fb4 */
+::-webkit-scrollbar-track:vertical {
+    border-left: 1px solid #E7E7E7;
+    box-shadow: 1px 0 1px 0 #F6F6F6 inset, -1px 0 1px 0 #F6F6F6 inset;
+}
+
+::-webkit-scrollbar-track:horizontal {
+    border-top: 1px solid #E7E7E7;
+    box-shadow: 0 1px 1px 0 #F6F6F6 inset, 0 -1px 1px 0 #F6F6F6 inset;
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    background-color: #FAFAFA;
+    width: 16px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-clip: padding-box;
+    background-color: #C1C1C1;
+    border-color: transparent;
+    border-radius: 9px 8px 8px 9px;
+    border-style: solid;
+    border-width: 3px 3px 3px 4px; /* Workaround because margins aren't supported */
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
