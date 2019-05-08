@@ -43,6 +43,10 @@ urlpatterns = patterns(
     # Temp mapr config - until mapr PR 46 is merged
     url(r'^idr/mapr/config/$', views.temp_mapr_config),
 
+    url(r'^study_image/(?P<obj_type>[screen|project]+)/'
+        r'(?P<obj_id>[0-9]+)/$',
+        views.study_image, name='webgallery_study_image'),
+
     url(r'^study_thumbnail/(?P<obj_type>[screen|project]+)/'
         r'(?P<obj_id>[0-9]+)/$',
         views.study_thumbnail, name='webgallery_study_thumbnail'),

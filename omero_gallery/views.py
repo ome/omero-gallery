@@ -274,8 +274,7 @@ def search(request, super_category=None, conn=None, **kwargs):
     return context
 
 
-@login_required()
-def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
+def _get_study_image(conn, obj_type, obj_id):
     img_id = None
     query_service = conn.getQueryService()
     params = omero.sys.ParametersI()
@@ -310,7 +309,19 @@ def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
         img_id = img_ids[0]
     elif obj_type == "project":
         img_id = obj.id.val
+    return img_id
 
+
+@render_response()
+@login_required()
+def study_image(request, obj_type, obj_id, conn=None, **kwargs):
+    img_id = _get_study_image(conn, obj_type, obj_id)
+    return {'id': img_id}
+
+@login_required()
+def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
+    img_id = _get_study_image(conn, obj_type, obj_id)
+    print 'img_id', img_id
     return render_thumbnail(request, img_id, conn=conn)
 
 

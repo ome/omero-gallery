@@ -223,3 +223,26 @@ StudiesModel.prototype.loadImageId = function loadImageId(obj_type, obj_id, call
       })
   }
 }
+
+
+
+StudiesModel.prototype.getImageId = function getImageId(obj_type, obj_id, callback) {
+  // Get a sample image ID for 'screen' or 'project'
+  let key = `${obj_type}-${obj_id}`;
+
+  // check cache
+  if (this.imageIds[key]) {
+    callback(this.imageIds[key]);
+    return;
+  }
+
+  let url = `/gallery/study_image/${obj_type}/${ obj_id }/`
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      this.imageIds[key] = data.id;
+      callback(this.imageIds[key]);
+      return;
+    })
+  
+}
