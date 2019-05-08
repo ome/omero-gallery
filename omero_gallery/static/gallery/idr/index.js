@@ -90,7 +90,20 @@ $("#maprQuery").autocomplete({
 
 function render() {
   document.getElementById('studies').innerHTML = "";
-  for (category in CATEGORY_QUERIES) {
+
+  let categories = Object.keys(CATEGORY_QUERIES);
+   // Sort by index
+  categories.sort(function(a, b) {
+    let idxA = CATEGORY_QUERIES[a].index;
+    let idxB = CATEGORY_QUERIES[b].index;
+    return (idxA > idxB ? 1 : idxA < idxB ? -1 : 0);
+  });
+  // E.g. 'cells'
+  if (SUPER_CATEGORY) {
+    // Show a subset of all categories
+    categories = categories.filter(c => SUPER_CATEGORY.categories.indexOf(c) > -1);
+  }
+  categories.forEach(category => {
     let cat = CATEGORY_QUERIES[category];
     let query = cat.query;
 
@@ -140,7 +153,10 @@ function render() {
     }
 
     matches.forEach(study => renderStudy(study, cat.label, linkFunc));
-  };
+
+    // Now we iterate all Studies in DOM, loading image ID for link and thumbnail
+    loadStudyThumbnails();
+  });
 }
 
 
@@ -155,7 +171,6 @@ function renderStudy(studyData, elementId, linkFunc) {
   let title = match ? match[1] : '';
   let type = studyData['@type'].split('#')[1].toLowerCase();
   let studyLink = linkFunc(studyData);
-  let studyThumbUrl = studyThumbnailUrl(type, studyData['@id']);
   // save for later
   studyData.title = title;
 
@@ -167,25 +182,38 @@ function renderStudy(studyData, elementId, linkFunc) {
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
-  let imgId = THUMB_IDS[`${type}-${studyData['@id']}`];
 
   // Function (and template) are defined where used in index.html
-  let html = studyHtml(studyLink, studyThumbUrl, studyDesc, idrId, title, authors, BASE_URL, imgId)
+  let html = studyHtml(studyLink, studyDesc, idrId, title, authors, BASE_URL)
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
   div.className = "row study ";
+  div.dataset.obj_type = type;
+  div.dataset.obj_id = studyData['@id'];
   document.getElementById(elementId).appendChild(div);
 }
 
 // --------- Render utils -----------
-function studyThumbnailUrl(obj_type, obj_id) {
-  let key = `${obj_type}-${obj_id}`;
-  if (THUMB_IDS[key]) {
-    return `${ BASE_URL }/webgateway/render_image/${THUMB_IDS[key]}/`;
-  }
-  // return `/gallery/study_thumbnail/${ obj_type }/${ obj_id }/`;
-  return '';
+function loadStudyThumbnails() {
+
+  document.querySelectorAll('div.study').forEach(element => {
+    // Load image ID for study, then update DOM to load thumbnail
+    let obj_id = element.dataset.obj_id;
+    let obj_type = element.dataset.obj_type;
+    if (!obj_id || !obj_type) return;
+
+    model.loadImageId(obj_type, obj_id, (iid) => {
+      let thumbUrl = `${ BASE_URL }/webgateway/render_image/${ iid }/`;
+      // Find all studies matching the study ID and set src on image
+      let studyImage = element.querySelector('img.studyImage');
+      studyImage.src = thumbUrl;
+
+      // viewer link
+      let link = `${ BASE_URL }/webclient/img_detail/${ iid }/`;
+      element.querySelector('a.viewerLink').href = link;
+    });
+  });
 }
 
 function renderStudyKeys() {
@@ -200,22 +228,8 @@ renderStudyKeys();
 
 // ----------- Load / Filter Studies --------------------
 
-
-function filter_by_type(studies) {
-
-  let filtered = studies;
-  if (IDR_TYPE && IDR_TYPE != "None") {
-    // We hard-code filtering, but could use e.g. Tags on Studies to specify Cells/Tissue
-    filtered = studies.filter(study => {
-      let isTissue = TISSUE_STUDIES.indexOf(study.Name.substr(0, 7)) > -1;
-      return IDR_TYPE === "tissue" ? isTissue : !isTissue;
-    });
-  }
-  return filtered;
-}
-
 // Do the loading and render() when done...
-model.loadStudies(filter_by_type, render);
+model.loadStudies(render);
 
 
 // Load MAPR config

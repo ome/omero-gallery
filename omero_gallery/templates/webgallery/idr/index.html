@@ -9,7 +9,6 @@
   const BASE_URL = "{{ base_url }}";
   const CATEGORY_QUERIES = {{ category_queries|escape|safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
-  console.log(SUPER_CATEGORY);
 </script>
 
 <hr class="whitespace" style="height: 0">
@@ -60,11 +59,11 @@
 <div id="studies" class="row horizontal">
   Loading Studies...
   <script>
-      function studyHtml(studyLink, studyThumbUrl, studyDesc, idrId, title, authors, BASE_URL, imgId) {
+      function studyHtml(studyLink, studyDesc, idrId, title, authors, BASE_URL) {
     return `
     <a target="_blank" href="${ studyLink }">
       <div class="studyBackground" style="padding: 0">
-        <img class="studyImage" src="${ studyThumbUrl }" />
+        <img class="studyImage" src="" />
       </div>
       <div class="studyText">
         <p title="${ studyDesc }">
@@ -77,7 +76,7 @@
       </div>
     </a>
     <a class="viewerLink" title="Open image in viewer" target="_blank"
-       href="${ BASE_URL }/webclient/img_detail/${ imgId }/">
+       href="">
       <i class="fas fa-eye"></i>
     </a>
     `

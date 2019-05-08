@@ -37,17 +37,17 @@ GALLERY_SETTINGS_MAPPING = {
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
          ('{'
-          '"timelapse": {"label": "Time-lapse", "query":'
+          '"timelapse": {"label": "Time-lapse", "index": 0, "query":'
           ' "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},'
-          '"lightsheet": {"label": "Light sheet", "query":'
+          '"lightsheet": {"label": "Light sheet", "index": 1, "query":'
           ' "Study Type:light sheet"},'
-          '"proteinlocalization": {"label": "Protein localization", "query":'
+          '"proteinlocalization": {"label": "Protein localization", "index": 2, "query":'
           ' "Study Type:protein localization"},'
-          '"histology": {"label": "Histology", "query":'
+          '"histology": {"label": "Histology", "index": 3, "query":'
           ' "Study Type:histology"},'
-          '"yeast": {"label": "Yeast", "query": "Organism:Saccharomyces'
+          '"yeast": {"label": "Yeast", "index": 4, "query": "Organism:Saccharomyces'
           ' cerevisiae OR Organism:Schizosaccharomyces pombe"},'
-          '"humancellscreen": {"label": "Human Cell Screen", "query":'
+          '"humancellscreen": {"label": "Human Cell Screen", "index": 5, "query":'
           ' "Organism:Homo sapiens AND Study Type:high content screen"}'
           '}'),    # TODO: - should be {}
          json.loads,
@@ -68,7 +68,9 @@ GALLERY_SETTINGS_MAPPING = {
           '}'),    # TODO: - should be {}
          json.loads,
          ("If category_queries has been set, we can create top-level"
-          "super-categories that contain them.")]
+          " super-categories that contain them. The 'categories' is a list"
+          " of category IDs from the category_queries OR can be 'other'"
+          " to include all categories not listed in other super_categories")]
 
 }
 

@@ -8,7 +8,7 @@ var StudiesModel = function() {
 
   this.studies = [];
 
-
+  this.imageIds = {}
 
   return this;
 }
@@ -90,7 +90,7 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
 }
 
 
-StudiesModel.prototype.loadStudies = function loadStudies(filter, callback) {
+StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 
   // Load Projects AND Screens, sort them and render...
   Promise.all([
@@ -101,11 +101,6 @@ StudiesModel.prototype.loadStudies = function loadStudies(filter, callback) {
   ).then(([projects, screens]) => {
       this.studies = projects.data;
       this.studies = this.studies.concat(screens.data);
-
-      // Filter by tissues/cells
-      if (filter) {
-        this.studies = filter(this.studies);
-      }
 
       // sort by name, reverse
       this.studies.sort(function(a, b) {
@@ -167,4 +162,64 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
         callback();
       };
     })
+}
+
+
+StudiesModel.prototype.loadImageId = function loadImageId(obj_type, obj_id, callback) {
+  // Get a sample image ID for 'screen' or 'project'
+  let key = `${obj_type}-${obj_id}`;
+
+  // check cache
+  if (this.imageIds[key]) {
+    callback(this.imageIds[key]);
+    return;
+  }
+
+  if (obj_type == 'screen') {
+    let url = `${ this.base_url }/api/v0/m/screens/${ obj_id }/plates/`;
+    url += '?limit=1'   // just get first plate
+    url += '&_=' + Math.random();
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        obj = data.data[0];
+        let url = `${ this.base_url }/api/v0/m/plates/${ obj['@id'] }/wells/?limit=1`;
+        url += '&_=' + Math.random();
+        return fetch(url)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.data[0].WellSamples) {
+          console.log('No WellSamples in first Well!', data);
+          return;
+        }
+        let wellSample = data.data[0].WellSamples[0];
+        this.imageIds[key] = wellSample.Image['@id'];
+        callback(this.imageIds[key]);
+        return;
+      })
+  } else if (obj_type == 'project') {
+    let url = `${ this.base_url }/api/v0/m/projects/${ obj_id }/datasets/`;
+    url += '?limit=1'   // just get first plate
+    url += '&_=' + Math.random();
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        obj = data.data[0];
+        if (!obj) {
+          console.log('No Dataset in Project!', data);
+          return;
+        }
+        let url = `${ this.base_url }/api/v0/m/datasets/${ obj['@id'] }/images/?limit=1`;
+        url += '&_=' + Math.random();
+        return fetch(url)
+      })
+      .then(response => response.json())
+      .then(data => {
+        let imageId = data.data[0]['@id'];
+        this.imageIds[key] = imageId;
+        callback(this.imageIds[key]);
+        return;
+      })
+  }
 }

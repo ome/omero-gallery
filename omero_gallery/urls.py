@@ -37,7 +37,7 @@ urlpatterns = patterns(
     # IDR UI prototype
     # url(r'^idr/$', views.idr, {'idr_type': None}),
     # url(r'^idr/(?P<idr_type>[cells|tissue]+)/$', views.idr),
-    # url(r'^idr/search/$', views.idr_search, {'idr_type': None}),
+    url(r'^search/$', views.search, {'super_category': None}),
     # url(r'^idr/(?P<idr_type>[cells|tissue]+)/search/$', views.idr_search),
 
     # Temp mapr config - until mapr PR 46 is merged
@@ -49,5 +49,5 @@ urlpatterns = patterns(
 )
 
 for c in SUPER_CATEGORIES:
-    urlpatterns += (url(r'^%s/$' % c,
-                        views.index, {'super_category': c}),)
+    urlpatterns += (url(r'^%s/$' % c, views.index, {'super_category': c}),
+                    url(r'^%s/search/$' % c, views.search, {'super_category': c}),)
