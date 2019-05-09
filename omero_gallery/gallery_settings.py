@@ -57,6 +57,18 @@ GALLERY_SETTINGS_MAPPING = {
           " relevant query. Query is by Key:Value on Map Annotations linked"
           " to Projects and Screens")],
 
+    "omero.web.gallery.filter_keys":
+        ["FILTER_KEYS",
+         ('['
+          '"Imaging Method", "Organism", "Publication Authors",'
+          ' "Publication Title", "Screen Technology Type",'
+          ' "Screen Type", "Study Type"'
+          ']'),
+         json.loads,
+         ("If this is configured then we allow filtering of Screens and"
+          " Projects by Key:Value pairs linked to them. This list allows us"
+          " to specify which Keys the user can choose in the UI.")],
+
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
          ('{'
