@@ -41,14 +41,15 @@ GALLERY_SETTINGS_MAPPING = {
           ' "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},'
           '"lightsheet": {"label": "Light sheet", "index": 1, "query":'
           ' "Study Type:light sheet"},'
-          '"proteinlocalization": {"label": "Protein localization", "index": 2, "query":'
-          ' "Study Type:protein localization"},'
+          '"proteinlocalization": {"label": "Protein localization",'
+          '"index": 2, "query": "Study Type:protein localization"},'
           '"histology": {"label": "Histology", "index": 3, "query":'
           ' "Study Type:histology"},'
-          '"yeast": {"label": "Yeast", "index": 4, "query": "Organism:Saccharomyces'
-          ' cerevisiae OR Organism:Schizosaccharomyces pombe"},'
-          '"humancellscreen": {"label": "Human Cell Screen", "index": 5, "query":'
-          ' "Organism:Homo sapiens AND Study Type:high content screen"}'
+          '"yeast": {"label": "Yeast", "index": 4, "query": "Organism:'
+          'Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},'
+          '"humancellscreen": {"label": "Human Cell Screen", "index": 5, '
+          '"query": "Organism:Homo sapiens AND'
+          ' Study Type:high content screen"}'
           '}'),    # TODO: - should be {}
          json.loads,
          ("If this is configured then the gallery Home Page shows a list"
