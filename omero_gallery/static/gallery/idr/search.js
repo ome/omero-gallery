@@ -340,11 +340,14 @@ fetch('/gallery/idr/mapr/config/')
   .then(data => {
     mapr_settings = data;
 
-    let html = "";
-    for (id in mapr_settings) {
-      let config = mapr_settings[id];
-      html = html + `<option value="mapr_${ id }">${ config.label }</option>`;
-    }
+    let html = FILTER_MAPR_KEYS.map(key => {
+      let config = mapr_settings[key];
+      if (config) {
+        return `<option value="mapr_${ key }">${ config.label }</option>`;
+      } else {
+        return "";
+      }
+    }).join("\n");
     document.getElementById('maprKeys').innerHTML = html;
 
     populateInputsFromSearch();

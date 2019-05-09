@@ -21,6 +21,8 @@ def index(request, super_category=None):
     if len(category_queries) > 0:
         context = {'template': "webgallery/idr/index.html"}
         context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
+        context['filter_mapr_keys'] = json.dumps(
+            gallery_settings.FILTER_MAPR_KEYS)
         context['super_categories'] = gallery_settings.SUPER_CATEGORIES
         category = gallery_settings.SUPER_CATEGORIES.get(super_category)
         if category is not None:
@@ -256,6 +258,8 @@ def search(request, super_category=None, conn=None, **kwargs):
 
     context = {'template': "webgallery/idr/search.html"}
     context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
+    context['filter_mapr_keys'] = json.dumps(
+            gallery_settings.FILTER_MAPR_KEYS)
     context['super_category'] = super_category
     base_url = reverse('webindex')
     if gallery_settings.BASE_URL is not None:

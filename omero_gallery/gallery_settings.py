@@ -69,6 +69,17 @@ GALLERY_SETTINGS_MAPPING = {
           " Projects by Key:Value pairs linked to them. This list allows us"
           " to specify which Keys the user can choose in the UI.")],
 
+    "omero.web.gallery.filter_mapr_keys":
+        ["FILTER_MAPR_KEYS",
+         ('['
+          '"antibody", "cellline", "gene", "phenotype", "sirna"'
+          ']'),
+         json.loads,
+         ("If this is configured then we allow filtering of Screens and"
+          " Projects by OMERO.mapr. This is a list of mapr_config IDs, such"
+          " as 'gene', 'antibody' etc. which allows us"
+          " to specify which Keys the user can choose in the UI.")],
+
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
          ('{'
