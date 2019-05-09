@@ -98,44 +98,13 @@ function render() {
     let idxB = CATEGORY_QUERIES[b].index;
     return (idxA > idxB ? 1 : idxA < idxB ? -1 : 0);
   });
-  // E.g. 'cells'
-  if (SUPER_CATEGORY) {
-    // Show a subset of all categories
-    categories = categories.filter(c => SUPER_CATEGORY.categories.indexOf(c) > -1);
-  }
+  
   categories.forEach(category => {
     let cat = CATEGORY_QUERIES[category];
     let query = cat.query;
 
     // Find matching studies
-    let matches = model.studies.filter(study => {
-      let match = false;
-      // first split query by AND and OR
-      let ors = query.split(' OR ');
-      ors.forEach(term => {
-        let allAnds = true;
-        let ands = term.split(' AND ');
-        ands.forEach(mustMatch => {
-          let queryKeyValue = mustMatch.split(":");
-          let valueMatch = false;
-          // check all key-values (may be duplicate keys) for value that matches
-          for (let i=0; i<study.mapValues.length; i++){
-            let kv = study.mapValues[i];
-            if (kv[0] === queryKeyValue[0] && kv[1].indexOf(queryKeyValue[1]) > -1) {
-              valueMatch = true;
-            }
-          }
-          // if not found, then our AND term fails
-          if (!valueMatch) {
-            allAnds = false;
-          }
-        });
-        if (allAnds) {
-          match = true;
-        }
-      });
-      return match;
-    });
+    let matches = model.filterStudiesByMapQuery(query);
 
     var div = document.createElement( "div" );
     div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
@@ -229,7 +198,13 @@ renderStudyKeys();
 // ----------- Load / Filter Studies --------------------
 
 // Do the loading and render() when done...
-model.loadStudies(render);
+model.loadStudies(() => {
+  // Immediately filter by Super category
+  if (SUPER_CATEGORY && SUPER_CATEGORY.query) {
+    model.studies = model.filterStudiesByMapQuery(SUPER_CATEGORY.query);
+  }
+  render();
+});
 
 
 // Load MAPR config

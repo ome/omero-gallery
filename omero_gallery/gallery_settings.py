@@ -60,10 +60,12 @@ GALLERY_SETTINGS_MAPPING = {
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
          ('{'
-          '"cells": {"label": "Cells - IDR", "categories": "other", "image": '
-          '"https://idr.openmicroscopy.org/webgateway/'
+          '"cells": {"label": "Cells - IDR",'
+          ' "query": "Study Type:NOT histology", "image":'
+          ' "https://idr.openmicroscopy.org/webgateway/'
           'render_image/122770/0/0/"},'
-          '"tissue": {"label": "Tissue - IDR", "categories": ["histology"],'
+          '"tissue": {"label": "Tissue - IDR", '
+          ' "query": "Study Type:histology",'
           ' "image": "https://idr.openmicroscopy.org/webgateway/'
           'render_image_region/5470164/0/0/?region=1024,1024,696,520"}'
           '}'),    # TODO: - should be {}

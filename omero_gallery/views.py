@@ -23,17 +23,6 @@ def index(request, super_category=None):
         context['super_categories'] = gallery_settings.SUPER_CATEGORIES
         category = gallery_settings.SUPER_CATEGORIES.get(super_category)
         if category is not None:
-            # If the sub-category is "other", populate list of all categories
-            # that are NOT in the other super categories
-            if category['categories'] == "other":
-                exclude = []
-                for c, value in gallery_settings.SUPER_CATEGORIES.items():
-                    if c is not super_category:
-                        exclude.extend(value['categories'])
-                include = [c for c in category_queries.keys()
-                           if c not in exclude]
-                category['categories'] = include
-
             context['super_category'] = json.dumps(category)
         base_url = reverse('webindex')
         if gallery_settings.BASE_URL is not None:

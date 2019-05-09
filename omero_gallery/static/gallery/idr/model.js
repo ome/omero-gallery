@@ -165,6 +165,52 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
 }
 
 
+StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuery(query) {
+
+  let matches = this.studies.filter(study => {
+    // If no key-values loaded, filter out
+    if (!study.mapValues) {
+      return false;
+    }
+    let match = false;
+    // first split query by AND and OR
+    let ors = query.split(' OR ');
+    ors.forEach(term => {
+      let allAnds = true;
+      let ands = term.split(' AND ');
+      ands.forEach(mustMatch => {
+        let queryKeyValue = mustMatch.split(":");
+        let valueMatch = false;
+        // check all key-values (may be duplicate keys) for value that matches
+        for (let i=0; i<study.mapValues.length; i++){
+          let kv = study.mapValues[i];
+          if (kv[0] === queryKeyValue[0]) {
+            let value = queryKeyValue[1];
+            if (value.substr(0, 4) === 'NOT ') {
+              value = value.replace('NOT ', '');
+              if (kv[1].indexOf(value) == -1) {
+                valueMatch = true;
+              }
+            } else if (kv[1].indexOf(value) > -1) {
+              valueMatch = true;
+            }
+          }
+        }
+        // if not found, then our AND term fails
+        if (!valueMatch) {
+          allAnds = false;
+        }
+      });
+      if (allAnds) {
+        match = true;
+      }
+    });
+    return match;
+  });
+  return matches;
+}
+
+
 StudiesModel.prototype.loadImageId = function loadImageId(obj_type, obj_id, callback) {
   // Get a sample image ID for 'screen' or 'project'
   let key = `${obj_type}-${obj_id}`;
