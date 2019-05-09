@@ -236,7 +236,7 @@ StudiesModel.prototype.getImageId = function getImageId(obj_type, obj_id, callba
     return;
   }
 
-  let url = `/gallery/study_image/${obj_type}/${ obj_id }/`
+  let url = `${ GALLERY_INDEX }study_image/${obj_type}/${ obj_id }/`
   fetch(url)
     .then(response => response.json())
     .then(data => {

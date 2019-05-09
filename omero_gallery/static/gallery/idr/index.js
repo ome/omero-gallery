@@ -233,7 +233,7 @@ model.loadStudies(render);
 
 
 // Load MAPR config
-fetch('/gallery/idr/mapr/config/')
+fetch(GALLERY_INDEX + 'idr/mapr/config/')
   .then(response => response.json())
   .then(data => {
     mapr_settings = data;
