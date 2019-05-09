@@ -318,6 +318,7 @@ def study_image(request, obj_type, obj_id, conn=None, **kwargs):
     img_id = _get_study_image(conn, obj_type, obj_id)
     return {'id': img_id}
 
+
 @login_required()
 def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
     img_id = _get_study_image(conn, obj_type, obj_id)

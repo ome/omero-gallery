@@ -54,4 +54,5 @@ urlpatterns = patterns(
 
 for c in SUPER_CATEGORIES:
     urlpatterns += (url(r'^%s/$' % c, views.index, {'super_category': c}),
-                    url(r'^%s/search/$' % c, views.search, {'super_category': c}),)
+                    url(r'^%s/search/$' % c, views.search, {'super_category':
+                        c}),)
