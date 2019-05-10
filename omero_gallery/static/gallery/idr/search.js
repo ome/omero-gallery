@@ -244,10 +244,10 @@ function renderMapr(maprData) {
 function render(filterFunc) {
   document.getElementById('studies').innerHTML = "";
 
-  if (!filterFunc) {
-    document.getElementById('filterCount').innerHTML = "";
-    return;
-  }
+  // if (!filterFunc) {
+  //   document.getElementById('filterCount').innerHTML = "";
+  //   return;
+  // }
 
   let studiesToRender = model.studies;
   if (filterFunc) {
