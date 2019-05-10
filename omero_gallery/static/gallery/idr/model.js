@@ -8,7 +8,7 @@ var StudiesModel = function() {
 
   this.studies = [];
 
-  this.imageIds = {}
+  this.images = {}
 
   return this;
 }
@@ -226,16 +226,17 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
 }
 
 
-StudiesModel.prototype.loadImageId = function loadImageId(obj_type, obj_id, callback) {
+StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback) {
   // Get a sample image ID for 'screen' or 'project'
   let key = `${obj_type}-${obj_id}`;
 
   // check cache
-  if (this.imageIds[key]) {
-    callback(this.imageIds[key]);
+  if (this.images[key]) {
+    callback(this.images[key]);
     return;
   }
 
+  let limit = 20;
   if (obj_type == 'screen') {
     let url = `${ this.base_url }/api/v0/m/screens/${ obj_id }/plates/`;
     url += '?limit=1'   // just get first plate
@@ -244,19 +245,27 @@ StudiesModel.prototype.loadImageId = function loadImageId(obj_type, obj_id, call
       .then(response => response.json())
       .then(data => {
         obj = data.data[0];
-        let url = `${ this.base_url }/api/v0/m/plates/${ obj['@id'] }/wells/?limit=1`;
+        // Jump into the 'middle' of plate to make sure Wells have images
+        // NB: Some plates don't have Well at each Row/Column spot. Well_count < Rows * Cols * 0.5
+        let offset = Math.max(0, parseInt(obj.Rows * obj.Columns * 0.25) - limit);
+        let url = `${ this.base_url }/api/v0/m/plates/${ obj['@id'] }/wells/?limit=${limit}&offset=${offset}`;
         url += '&_=' + Math.random();
         return fetch(url)
       })
       .then(response => response.json())
       .then(data => {
-        if (!data.data[0].WellSamples) {
-          console.log('No WellSamples in first Well!', data);
+        let wellSample;
+        for (let w=0; w<data.data.length; w++) {
+          if (data.data[w].WellSamples) {
+            wellSample = data.data[w].WellSamples[0]
+          }
+        }
+        if (!wellSample) {
+          console.log('No WellSamples in first Wells!', data);
           return;
         }
-        let wellSample = data.data[0].WellSamples[0];
-        this.imageIds[key] = wellSample.Image['@id'];
-        callback(this.imageIds[key]);
+        this.images[key] = wellSample.Image;
+        callback(this.images[key]);
         return;
       })
   } else if (obj_type == 'project') {
@@ -277,9 +286,9 @@ StudiesModel.prototype.loadImageId = function loadImageId(obj_type, obj_id, call
       })
       .then(response => response.json())
       .then(data => {
-        let imageId = data.data[0]['@id'];
-        this.imageIds[key] = imageId;
-        callback(this.imageIds[key]);
+        let image = data.data[0];
+        this.images[key] = image;
+        callback(this.images[key]);
         return;
       })
   }
