@@ -63,14 +63,16 @@ GALLERY_SETTINGS_MAPPING = {
     "omero.web.gallery.filter_keys":
         ["FILTER_KEYS",
          ('['
-          '"Imaging Method", "Organism", "Publication Authors",'
+          '{"label": "Name (IDR number)", "value": "Name"},'
+          ' "Imaging Method", "Organism", "Publication Authors",'
           ' "Publication Title", "Screen Technology Type",'
           ' "Screen Type", "Study Type"'
           ']'),
          json.loads,
          ("If this is configured then we allow filtering of Screens and"
           " Projects by Key:Value pairs linked to them. This list allows us"
-          " to specify which Keys the user can choose in the UI.")],
+          " to specify which Keys the user can choose in the UI."
+          "Each item is simple string or object with 'label' and 'value'")],
 
     "omero.web.gallery.filter_mapr_keys":
         ["FILTER_MAPR_KEYS",

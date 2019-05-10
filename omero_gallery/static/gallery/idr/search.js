@@ -5,10 +5,14 @@ let model = new StudiesModel();
 
 function renderStudyKeys() {
   let html = FILTER_KEYS
-      .map(key => `<option value="${ key }">${ key }</option>`)
+      .map(key => {
+        if (key.label && key.value) {
+          return `<option value="${ key.value }">${ key.label }</option>`
+        }
+        return `<option value="${ key }">${ key }</option>`
+      })
       .join("\n");
   document.getElementById('studyKeys').innerHTML = html;
-  document.getElementById('maprConfig').value = "Publication Authors";
 }
 renderStudyKeys();
 
@@ -92,7 +96,12 @@ $("#maprQuery").autocomplete({
         let configId = document.getElementById("maprConfig").value;
         if (configId.indexOf('mapr_') != 0) {
 
-          let matches = model.getKeyValueAutoComplete(configId, request.term);
+          let matches;
+          if (configId === 'Name') {
+            matches = model.getStudiesNames(request.term);
+          } else {
+            matches = model.getKeyValueAutoComplete(configId, request.term);
+          }
           response(matches);
 
           if (request.term.length === 0) {
@@ -100,17 +109,7 @@ $("#maprQuery").autocomplete({
             return;
           }
 
-          // filter studies by Key-Value pairs
-          let filterFunc = study => {
-            let show = false;
-            study.mapValues.forEach(kv => {
-              if (kv[0] === configId && kv[1].toLowerCase().indexOf(request.term.toLowerCase()) > -1) {
-                show = true;
-              }
-            });
-            return show;
-          }
-          render(filterFunc);
+          filterAndRender();
           return;
         }
 
@@ -181,9 +180,14 @@ function filterAndRender() {
   if (configId.indexOf('mapr_') != 0) {
     // filter studies by Key-Value pairs
     let filterFunc = study => {
+      let toMatch = value.toLowerCase();
+      if (configId === 'Name') {
+        return study.Name.toLowerCase().indexOf(toMatch) > -1;
+      }
+      // Filter by Map-Annotation Key-Value
       let show = false;
       study.mapValues.forEach(kv => {
-        if (kv[0] === configId && kv[1].toLowerCase().indexOf(value.toLowerCase()) > -1) {
+        if (kv[0] === configId && kv[1].toLowerCase().indexOf(toMatch) > -1) {
           show = true;
         }
       });

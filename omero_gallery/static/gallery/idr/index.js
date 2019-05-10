@@ -32,7 +32,12 @@ $("#maprQuery").autocomplete({
         let configId = document.getElementById("maprConfig").value;
         if (configId.indexOf('mapr_') != 0) {
 
-          let matches = model.getKeyValueAutoComplete(configId, request.term);
+          let matches;
+          if (configId === 'Name') {
+            matches = model.getStudiesNames(request.term);
+          } else {
+            matches = model.getKeyValueAutoComplete(configId, request.term);
+          }
           response(matches);
           return;
         }
@@ -197,10 +202,14 @@ function loadStudyThumbnails() {
 
 function renderStudyKeys() {
   let html = FILTER_KEYS
-      .map(key => `<option value="${ key }">${ key }</option>`)
+      .map(key => {
+        if (key.label && key.value) {
+          return `<option value="${ key.value }">${ key.label }</option>`
+        }
+        return `<option value="${ key }">${ key }</option>`
+      })
       .join("\n");
   document.getElementById('studyKeys').innerHTML = html;
-  document.getElementById('maprConfig').value = "Publication Authors";
 }
 renderStudyKeys();
 

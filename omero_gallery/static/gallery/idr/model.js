@@ -13,6 +13,14 @@ var StudiesModel = function() {
   return this;
 }
 
+StudiesModel.prototype.getStudiesNames = function getStudiesNames(filterQuery) {
+  let names = this.studies.map(s => s.Name);
+  if (filterQuery) {
+    names = names.filter(name => name.toLowerCase().indexOf(filterQuery) > -1);
+  }
+  return names;
+}
+
 StudiesModel.prototype.getStudyValue = function getStudyValue(study, key) {
   if (!study.mapValues) return;
   for (let i=0; i<study.mapValues.length; i++){
