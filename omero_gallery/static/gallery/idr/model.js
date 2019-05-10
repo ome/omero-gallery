@@ -44,7 +44,6 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
     for (let i=0; i<v.length; i++) {
       values.push(v[i]);
     }
-    console.log("No value found for study for key", key, study);
     return "";
   });
   // We want values that match inputText

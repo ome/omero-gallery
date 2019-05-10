@@ -13,9 +13,12 @@ document.getElementById('maprConfig').onchange = (event) => {
   let placeholder = mapr_settings[value] ? mapr_settings[value].default[0] : value;
   document.getElementById('maprQuery').placeholder = placeholder;
   // Show all autocomplete options...
-  $("#maprQuery").autocomplete( "search", "" );
   $("#maprQuery").focus();
   render();
+}
+
+document.getElementById('maprQuery').onfocus = (event) => {
+  $("#maprQuery").autocomplete("search", event.target.value);
 }
 
 // ------ AUTO-COMPLETE -------------------
