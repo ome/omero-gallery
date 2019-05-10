@@ -37,17 +37,19 @@ GALLERY_SETTINGS_MAPPING = {
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
          ('{'
-          '"timelapse": {"label": "Time-lapse", "index": 0, "query":'
+          '"latest": {"label": "Most Recent", "index": 0, "query":'
+          ' "FIRST10:date"},'
+          '"timelapse": {"label": "Time-lapse", "index": 1, "query":'
           ' "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},'
-          '"lightsheet": {"label": "Light sheet", "index": 1, "query":'
+          '"lightsheet": {"label": "Light sheet", "index": 2, "query":'
           ' "Study Type:light sheet"},'
           '"proteinlocalization": {"label": "Protein localization",'
-          '"index": 2, "query": "Study Type:protein localization"},'
-          '"histology": {"label": "Histology", "index": 3, "query":'
+          '"index": 3, "query": "Study Type:protein localization"},'
+          '"histology": {"label": "Histology", "index": 4, "query":'
           ' "Study Type:histology"},'
-          '"yeast": {"label": "Yeast", "index": 4, "query": "Organism:'
+          '"yeast": {"label": "Yeast", "index": 5, "query": "Organism:'
           'Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},'
-          '"humancellscreen": {"label": "Human Cell Screen", "index": 5, '
+          '"humancellscreen": {"label": "Human Cell Screen", "index": 6, '
           '"query": "Organism:Homo sapiens AND'
           ' Study Type:high content screen"}'
           '}'),    # TODO: - should be {}
@@ -55,7 +57,8 @@ GALLERY_SETTINGS_MAPPING = {
          ("If this is configured then the gallery Home Page shows a list"
           " of categories containing Projects and Screens that match the"
           " relevant query. Query is by Key:Value on Map Annotations linked"
-          " to Projects and Screens")],
+          " to Projects and Screens, or e.g. 'FIRST5:Name' or 'LAST10:date"
+          " to sort by Name or date.")],
 
     "omero.web.gallery.filter_keys":
         ["FILTER_KEYS",

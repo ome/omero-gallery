@@ -155,10 +155,12 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
       // populate the studies array...
       // dict of {'project-1' : key-values}
       let annsByParentId = {};
+      let datesByParentId = {};
       data.annotations.forEach(ann => {
         let key = ann.link.parent.class;  // 'ProjectI'
         key = key.substr(0, key.length-1).toLowerCase();
         key += '-' + ann.link.parent.id;  // project-1
+        datesByParentId[key] = new Date(ann.date);
         if (!annsByParentId[key]) {
           annsByParentId[key] = [];
         }
@@ -166,7 +168,11 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
       });
       // Add mapValues to studies...
       this.studies = this.studies.map(study => {
-        let values = annsByParentId[`${ study['@type'].split('#')[1].toLowerCase() }-${ study['@id'] }`];
+        let key = `${ study['@type'].split('#')[1].toLowerCase() }-${ study['@id'] }`;
+        if (datesByParentId[key]) {
+          study.date = datesByParentId[key];
+        }
+        let values = annsByParentId[key];
         if (values) {
           study.mapValues = values;
           return study;
@@ -181,6 +187,17 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
 
 
 StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuery(query) {
+
+  if (query.startsWith("FIRST") || query.startsWith("LAST")) {
+    // E.g. query is 'FIRST10:date' sort by 'date' and return first 10
+    let limit = parseInt(query.replace('FIRST', '').replace('LAST', ''));
+    let attr = query.split(':')[1];
+    let desc = query.startsWith("FIRST") ? 1 : -1;
+    let sorted = this.studies.sort((a, b) => {
+      return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
+    });
+    return sorted.slice(0, limit);
+  }
 
   let matches = this.studies.filter(study => {
     // If no key-values loaded, filter out
