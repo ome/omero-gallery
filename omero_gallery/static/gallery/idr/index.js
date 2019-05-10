@@ -105,6 +105,7 @@ function render() {
 
     // Find matching studies
     let matches = model.filterStudiesByMapQuery(query);
+    if (matches.length == 0) return;
 
     var div = document.createElement( "div" );
     div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
@@ -122,10 +123,10 @@ function render() {
     }
 
     matches.forEach(study => renderStudy(study, cat.label, linkFunc));
-
-    // Now we iterate all Studies in DOM, loading image ID for link and thumbnail
-    loadStudyThumbnails();
   });
+
+  // Now we iterate all Studies in DOM, loading image ID for link and thumbnail
+  loadStudyThumbnails();
 }
 
 
