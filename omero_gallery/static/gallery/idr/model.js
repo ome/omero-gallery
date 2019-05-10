@@ -23,12 +23,27 @@ StudiesModel.prototype.getStudyValue = function getStudyValue(study, key) {
   }
 }
 
+StudiesModel.prototype.getStudyValues = function getStudyValues(study, key) {
+  if (!study.mapValues) return;
+  let matches = [];
+  for (let i=0; i<study.mapValues.length; i++){
+    let kv = study.mapValues[i];
+    if (kv[0] === key) {
+      matches.push(kv[1]);
+    }
+  }
+  return matches;
+}
+
 StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplete(key, inputText) {
   inputText = inputText.toLowerCase();
   // Get values for key from each study
-  let values = this.studies.map(study => {
-    let v = this.getStudyValue(study, key);
-    if (v) return v;
+  let values = []
+  this.studies.forEach(study => {
+    let v = this.getStudyValues(study, key);
+    for (let i=0; i<v.length; i++) {
+      values.push(v[i]);
+    }
     console.log("No value found for study for key", key, study);
     return "";
   });
