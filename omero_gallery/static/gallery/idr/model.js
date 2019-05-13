@@ -224,13 +224,13 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
         for (let i=0; i<study.mapValues.length; i++){
           let kv = study.mapValues[i];
           if (kv[0] === queryKeyValue[0]) {
-            let value = queryKeyValue[1];
+            let value = queryKeyValue[1].trim();
             if (value.substr(0, 4) === 'NOT ') {
               value = value.replace('NOT ', '');
-              if (kv[1].indexOf(value) == -1) {
+              if (kv[1].toLowerCase().indexOf(value.toLowerCase()) == -1) {
                 valueMatch = true;
               }
-            } else if (kv[1].indexOf(value) > -1) {
+            } else if (kv[1].toLowerCase().indexOf(value.toLowerCase()) > -1) {
               valueMatch = true;
             }
           }
