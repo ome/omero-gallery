@@ -85,18 +85,18 @@ GALLERY_SETTINGS_MAPPING = {
           " as 'gene', 'antibody' etc. which allows us"
           " to specify which Keys the user can choose in the UI.")],
 
-# TISSUE studies can be found by this query (add NOT for CELLS):
-# 18 Study Type: histology
-# 26 Imaging Method: MultiPhoton
-# 32 Study Type: in situ
-# 38 Study Type: organoids
-# 42 Study Type: histology
-# 43 Publication Title: human proteome
-# 44 Study Type: TARDIS
-# 45 Study Type: zygotes
-# 51 Study Type: zebrafish
-# 53 Study Type: electron
-# 54 Study Type: cytometry
+    # TISSUE studies can be found by this query (add NOT for CELLS):
+    # 18 Study Type: histology
+    # 26 Imaging Method: MultiPhoton
+    # 32 Study Type: in situ
+    # 38 Study Type: organoids
+    # 42 Study Type: histology
+    # 43 Publication Title: human proteome
+    # 44 Study Type: TARDIS
+    # 45 Study Type: zygotes
+    # 51 Study Type: zebrafish
+    # 53 Study Type: electron
+    # 54 Study Type: cytometry
 
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
