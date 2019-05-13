@@ -34,7 +34,7 @@ urlpatterns = patterns(
     url(r'show_image/(?P<image_id>[0-9]+)/$',
         views.show_image, name='webgallery_show_image'),
 
-    # IDR UI prototype
+    # Search page shows Projects / Screens filtered by Map Annotation
     url(r'^search/$', views.search, {'super_category': None}),
 
     # Temp mapr config - until mapr PR 46 is merged
