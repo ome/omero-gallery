@@ -344,7 +344,13 @@ function loadStudyThumbnails() {
 // ----------- Load / Filter Studies --------------------
 
 // Do the loading and render() when done...
-model.loadStudies(filterAndRender);
+model.loadStudies(() => {
+  // Immediately filter by Super category
+  if (SUPER_CATEGORY && SUPER_CATEGORY.query) {
+    model.studies = model.filterStudiesByMapQuery(SUPER_CATEGORY.query);
+  }
+  filterAndRender();
+});
 
 
 // Load MAPR config

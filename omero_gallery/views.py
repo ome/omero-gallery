@@ -260,7 +260,9 @@ def search(request, super_category=None, conn=None, **kwargs):
     context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
     context['filter_mapr_keys'] = json.dumps(
             gallery_settings.FILTER_MAPR_KEYS)
-    context['super_category'] = super_category
+    category = gallery_settings.SUPER_CATEGORIES.get(super_category)
+    if category is not None:
+        context['super_category'] = json.dumps(category)
     base_url = reverse('webindex')
     if gallery_settings.BASE_URL is not None:
         base_url = gallery_settings.BASE_URL
