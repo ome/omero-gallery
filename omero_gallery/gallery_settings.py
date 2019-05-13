@@ -85,15 +85,39 @@ GALLERY_SETTINGS_MAPPING = {
           " as 'gene', 'antibody' etc. which allows us"
           " to specify which Keys the user can choose in the UI.")],
 
+# TISSUE studies can be found by this query (add NOT for CELLS):
+# 18 Study Type: histology
+# 26 Imaging Method: MultiPhoton
+# 32 Study Type: in situ
+# 38 Study Type: organoids
+# 42 Study Type: histology
+# 43 Publication Title: human proteome
+# 44 Study Type: TARDIS
+# 45 Study Type: zygotes
+# 51 Study Type: zebrafish
+# 53 Study Type: electron
+# 54 Study Type: cytometry
+
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
          ('{'
           '"cells": {"label": "Cells - IDR",'
-          ' "query": "Study Type:NOT histology", "image":'
+          ' "query": "Study Type: NOT histology'
+          ' AND Imaging Method: NOT Multi-Photon'
+          ' AND Study Type: NOT in situ AND Study Type: NOT organoids'
+          ' AND Publication Title: NOT human proteome'
+          ' AND Study Type: NOT TARDIS'
+          ' AND Study Type: NOT zygotes AND Study Type: NOT zebrafish'
+          ' AND Study Type: NOT electron'
+          ' AND Study Type: NOT cytometry", "image":'
           ' "https://idr.openmicroscopy.org/webgateway/'
           'render_image/122770/0/0/"},'
           '"tissue": {"label": "Tissue - IDR", '
-          ' "query": "Study Type:histology",'
+          ' "query": "Study Type: histology OR Imaging Method: Multi-Photon'
+          ' OR Study Type: in situ OR Study Type: organoids'
+          ' OR Publication Title: human proteome OR Study Type: TARDIS'
+          ' OR Study Type: zygotes OR Study Type: zebrafish'
+          ' OR Study Type: electron OR Study Type: cytometry",'
           ' "image": "https://idr.openmicroscopy.org/webgateway/'
           'render_image_region/5470164/0/0/?region=1024,1024,696,520"}'
           '}'),    # TODO: - should be {}
