@@ -17,7 +17,7 @@
 <hr class="whitespace" style="height: 0">
 
 <div class="row column text-center">
-  <h1>Welcome to {% if idr_type %}{{ idr_type|title }} {% endif %} IDR</h1>
+  {% if gallery_title %}<h1>{{ gallery_title }}</h1>{% endif %}
 
 <div class="small-10 small-centered medium-10 medium-centered columns">
 

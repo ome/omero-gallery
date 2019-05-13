@@ -125,7 +125,11 @@ GALLERY_SETTINGS_MAPPING = {
          ("If category_queries has been set, we can create top-level"
           " super-categories that contain them. The 'categories' is a list"
           " of category IDs from the category_queries OR can be 'other'"
-          " to include all categories not listed in other super_categories")]
+          " to include all categories not listed in other super_categories")],
+
+    "omero.web.gallery.title":  # TODO: 'Welcome to OMERO.gallery'
+        ["GALLERY_TITLE", "Welcome to IDR", str,
+         "Gallery home page title"]
 
 }
 

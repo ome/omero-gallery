@@ -20,12 +20,15 @@ def index(request, super_category=None):
     category_queries = gallery_settings.CATEGORY_QUERIES
     if len(category_queries) > 0:
         context = {'template': "webgallery/idr/index.html"}
+        context['gallery_title'] = gallery_settings.GALLERY_TITLE
         context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
         context['filter_mapr_keys'] = json.dumps(
             gallery_settings.FILTER_MAPR_KEYS)
         context['super_categories'] = gallery_settings.SUPER_CATEGORIES
         category = gallery_settings.SUPER_CATEGORIES.get(super_category)
         if category is not None:
+            context['gallery_title'] = category.get('label',
+                context['gallery_title'])
             context['super_category'] = json.dumps(category)
         base_url = reverse('webindex')
         if gallery_settings.BASE_URL is not None:
