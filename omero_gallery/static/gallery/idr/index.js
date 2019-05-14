@@ -23,7 +23,14 @@ document.getElementById('maprQuery').onfocus = (event) => {
 
 // ------ AUTO-COMPLETE -------------------
 
-$("#maprQuery").autocomplete({
+$("#maprQuery")
+  .keyup(event => {
+    if (event.which == 13) {
+      let configId = document.getElementById("maprConfig").value;
+      document.location.href = `search/?query=${ configId }:${ event.target.value }`;
+    }
+  })
+  .autocomplete({
     autoFocus: false,
     delay: 1000,
     source: function( request, response ) {

@@ -88,7 +88,17 @@ document.getElementById('maprQuery').onfocus = (event) => {
 
 // ------ AUTO-COMPLETE -------------------
 
-$("#maprQuery").autocomplete({
+$("#maprQuery")
+    .keyup(event => {
+      if (event.which == 13) {
+        $(event.target).autocomplete( "close" );
+        filterAndRender();
+        // Add to browser history. Handled by onpopstate on browser Back
+        let configId = document.getElementById("maprConfig").value;
+        window.history.pushState({}, "", `?query=${ configId }:${ event.target.value }`);
+      }
+    })
+    .autocomplete({
     autoFocus: false,
     delay: 1000,
     source: function( request, response ) {
