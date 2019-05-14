@@ -28,7 +28,7 @@ def index(request, super_category=None):
         category = gallery_settings.SUPER_CATEGORIES.get(super_category)
         if category is not None:
             context['gallery_title'] = category.get('label',
-                context['gallery_title'])
+                                                    context['gallery_title'])
             context['super_category'] = json.dumps(category)
         base_url = reverse('webindex')
         if gallery_settings.BASE_URL is not None:
