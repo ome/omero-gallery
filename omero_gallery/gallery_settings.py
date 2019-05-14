@@ -64,7 +64,7 @@ GALLERY_SETTINGS_MAPPING = {
         ["FILTER_KEYS",
          ('['
           '{"label": "Name (IDR number)", "value": "Name"},'
-          ' "Imaging Method", "Organism", "Publication Authors",'
+          ' "Imaging Method", "License", "Organism", "Publication Authors",'
           ' "Publication Title", "Screen Technology Type",'
           ' "Screen Type", "Study Type"'
           ']'),
