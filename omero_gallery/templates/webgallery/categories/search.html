@@ -1,5 +1,5 @@
 
-{% extends "webgallery/idr/base.html" %}
+{% extends "webgallery/categories/base.html" %}
 
 {% block content %}
 
@@ -88,6 +88,6 @@
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
 </script>
 
-<script src="{% static 'gallery/idr/search.js' %}"></script>
+<script src="{% static 'gallery/search.js' %}"></script>
 
 {% endblock %}

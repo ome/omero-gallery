@@ -19,7 +19,7 @@ def index(request, super_category=None):
 
     category_queries = gallery_settings.CATEGORY_QUERIES
     if len(category_queries) > 0:
-        context = {'template': "webgallery/idr/index.html"}
+        context = {'template': "webgallery/categories/index.html"}
         context['gallery_title'] = gallery_settings.GALLERY_TITLE
         context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
         context['filter_mapr_keys'] = json.dumps(
@@ -259,7 +259,7 @@ def show_image(request, image_id, conn=None, **kwargs):
 @render_response()
 def search(request, super_category=None, conn=None, **kwargs):
 
-    context = {'template': "webgallery/idr/search.html"}
+    context = {'template': "webgallery/categories/search.html"}
     context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
     context['filter_mapr_keys'] = json.dumps(
             gallery_settings.FILTER_MAPR_KEYS)
