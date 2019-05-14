@@ -29,8 +29,9 @@ function populateInputsFromSearch() {
     }
   }
   if (query) {
-    let configId = query.split(":")[0];
-    let value = query.split(":")[1];
+    let splitIndex = query.indexOf(':');
+    let configId = query.slice(0, splitIndex);
+    let value = query.slice(splitIndex + 1);
     if (configId && value) {
       document.getElementById("maprConfig").value = configId;
       document.getElementById("maprQuery").value = value;
