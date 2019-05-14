@@ -159,6 +159,9 @@ $("#maprQuery").autocomplete({
     select: function(event, ui) {
         $(this).val(ui.item.value);
         filterAndRender();
+        // Add to browser history. Handled by onpopstate on browser Back
+        let configId = document.getElementById("maprConfig").value;
+        window.history.pushState({}, "", `?query=${ configId }:${ ui.item.value }`);
 
         return false;
     }
@@ -352,6 +355,12 @@ model.loadStudies(() => {
   }
   filterAndRender();
 });
+
+// Handle browser Back and Forwards - redo filtering
+window.onpopstate = (event) => {
+  populateInputsFromSearch();
+  filterAndRender();
+}
 
 
 // Load MAPR config
