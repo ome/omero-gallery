@@ -49,28 +49,46 @@ $("#maprQuery")
           return;
         }
 
-        // If empty, don't handle mapr...
-        if (request.term.length === 0) {
-          return;
-        }
-
         // Auto-complete to filter by mapr...
         configId = configId.replace('mapr_', '');
-        let url = `${ BASE_URL }/mapr/api/autocomplete/${ configId }/`;
         let case_sensitive = false;
+
+        let requestData = {
+            case_sensitive: case_sensitive,
+            experimenter_id: -1,
+            page: 1,
+            group: 3,     // TODO: don't hard-code this!
+            '_': (Math.random() + "").split(".")[1],    // cache-buster
+        }
+        let url;
+        if (request.term.length === 0) {
+          // Try to list all top-level values.
+          // This works for 'wild-card' configs where number of values is small e.g. Organism
+          // But will return empty list for e.g. Gene
+          url = `${ BASE_URL }/mapr/api/${ configId }/`;
+          requestData.orphaned = true
+        } else {
+          // Find auto-complete matches
+          url = `${ BASE_URL }/mapr/api/autocomplete/${ configId }/`;
+          requestData.value = case_sensitive ? request.term : request.term.toLowerCase();
+          requestData.query = true;   // use a 'like' HQL query
+        }
 
         $.ajax({
             dataType: "json",
             type : 'GET',
             url: url,
-            data: {
-                value: case_sensitive ? request.term : request.term.toLowerCase(),
-                query: true,
-                case_sensitive: case_sensitive,
-                '_': Math.random,    // cache-buster
-            },
+            data: requestData,
             success: function(data) {
-                if (data.length > 0) {
+                if (request.term.length === 0) {
+                  // Top-level terms in 'maps'
+                  if (data.maps && data.maps.length > 0) {
+                    let terms = data.maps.map(m => m.id);
+                    terms.sort();
+                    response(terms);
+                  }
+                }
+                else if (data.length > 0) {
                     response( $.map( data, function(item) {
                         return item;
                     }));
