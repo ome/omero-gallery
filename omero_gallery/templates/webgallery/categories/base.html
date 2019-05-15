@@ -38,7 +38,17 @@
             <div class="top-bar-left">
                 <ul class="dropdown menu" data-dropdown-menu>
                     <li><a class="logo" href="{% url 'webgallery_index' %}">
-                        <img src="http://idr.openmicroscopy.org/about/img/logos/logo-idr.svg" }}" alt="IDR logo"></a></li>
+                        <img src="http://idr.openmicroscopy.org/about/img/logos/logo-idr.svg" }}" alt="IDR logo"></a>
+                    </li>
+
+
+                    {% for category, data in super_categories.items %}
+                    <li>
+                        <a href="{% url 'gallery_super_category' super_category=category %}">
+                          {{ data.label }}
+                        </a>
+                    </li>
+                    {% endfor %}
                 </ul>
             </div>
             

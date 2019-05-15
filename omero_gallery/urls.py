@@ -50,6 +50,7 @@ urlpatterns = patterns(
 )
 
 for c in SUPER_CATEGORIES:
-    urlpatterns += (url(r'^%s/$' % c, views.index, {'super_category': c}),
+    urlpatterns += (url(r'^%s/$' % c, views.index, {'super_category': c},
+                        name="gallery_super_category"),
                     url(r'^%s/search/$' % c, views.search, {'super_category':
                         c}),)
