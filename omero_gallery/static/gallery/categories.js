@@ -58,7 +58,7 @@ $("#maprQuery")
             experimenter_id: -1,
             page: 1,
             group: 3,     // TODO: don't hard-code this!
-            '_': (Math.random() + "").split(".")[1],    // cache-buster
+            '_': window.location.host,    // CORS cache-buster
         }
         let url;
         if (request.term.length === 0) {
