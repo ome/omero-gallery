@@ -101,7 +101,7 @@ GALLERY_SETTINGS_MAPPING = {
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
          ('{'
-          '"cell": {"label": "Cell - IDR",'
+          '"cell": {"label": "Cell - IDR", "title": "Welcome to Cell-IDR",'
           ' "query": "Study Type: NOT histology'
           ' AND Imaging Method: NOT Multi-Photon'
           ' AND Study Type: NOT in situ AND Study Type: NOT organoids'
@@ -112,7 +112,8 @@ GALLERY_SETTINGS_MAPPING = {
           ' AND Study Type: NOT cytometry", "image":'
           ' "https://idr.openmicroscopy.org/webgateway/'
           'render_image/122770/0/0/"},'
-          '"tissue": {"label": "Tissue - IDR", '
+          '"tissue": {"label": "Tissue - IDR",'
+          ' "title": "Welcome to Tissue-IDR",'
           ' "query": "Study Type: histology OR Imaging Method: Multi-Photon'
           ' OR Study Type: in situ OR Study Type: organoids'
           ' OR Publication Title: human proteome OR Study Type: TARDIS'
@@ -122,10 +123,11 @@ GALLERY_SETTINGS_MAPPING = {
           'render_image_region/5470164/0/0/?region=1024,1024,696,520"}'
           '}'),    # TODO: - should be {}
          json.loads,
-         ("If category_queries has been set, we can create top-level"
-          " super-categories that contain them. The 'categories' is a list"
-          " of category IDs from the category_queries OR can be 'other'"
-          " to include all categories not listed in other super_categories")],
+         ("Optional config to provide top-level categories, similar to"
+          " category_queries, using the same config format and 'query' syntax."
+          " Each will create a landing page /:id/ that will filter Projects"
+          " and Screens by the query. Optional 'title' for each category"
+          " can be used for page title, otherwise the 'label' is used.")],
 
     "omero.web.gallery.title":  # TODO: 'Welcome to OMERO.gallery'
         ["GALLERY_TITLE", "Welcome to IDR", str,

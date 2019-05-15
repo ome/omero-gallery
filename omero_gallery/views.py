@@ -27,8 +27,9 @@ def index(request, super_category=None):
         context['super_categories'] = gallery_settings.SUPER_CATEGORIES
         category = gallery_settings.SUPER_CATEGORIES.get(super_category)
         if category is not None:
-            context['gallery_title'] = category.get('label',
-                                                    context['gallery_title'])
+            label = category.get('label', context['gallery_title'])
+            title = category.get('title', label)
+            context['gallery_title'] = title
             context['super_category'] = json.dumps(category)
         base_url = reverse('webindex')
         if gallery_settings.BASE_URL is not None:
@@ -267,8 +268,9 @@ def search(request, super_category=None, conn=None, **kwargs):
             gallery_settings.FILTER_MAPR_KEYS)
     category = gallery_settings.SUPER_CATEGORIES.get(super_category)
     if category is not None:
-        context['gallery_title'] = category.get('label',
-                                                    context['gallery_title'])
+        label = category.get('label', context['gallery_title'])
+        title = category.get('title', label)
+        context['gallery_title'] = title
         context['super_category'] = json.dumps(category)
     base_url = reverse('webindex')
     if gallery_settings.BASE_URL is not None:
