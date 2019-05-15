@@ -56,8 +56,10 @@ GALLERY_SETTINGS_MAPPING = {
          json.loads,
          ("If this is configured then the gallery Home Page shows a list"
           " of categories containing Projects and Screens that match the"
-          " relevant query. Query is by Key:Value on Map Annotations linked"
-          " to Projects and Screens, or e.g. 'FIRST5:Name' or 'LAST10:date"
+          " relevant query. Each category is defined by"
+          " 'id': {'label':'Cool data', 'query': 'Key:Value'}"
+          " Query is by Key:Value on Map Annotations linked"
+          " to Projects and Screens, OR e.g. 'FIRST5:Name' or 'LAST10:date"
           " to sort by Name or date.")],
 
     "omero.web.gallery.filter_keys":
