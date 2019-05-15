@@ -101,7 +101,7 @@ GALLERY_SETTINGS_MAPPING = {
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
          ('{'
-          '"cells": {"label": "Cells - IDR",'
+          '"cell": {"label": "Cell - IDR",'
           ' "query": "Study Type: NOT histology'
           ' AND Imaging Method: NOT Multi-Photon'
           ' AND Study Type: NOT in situ AND Study Type: NOT organoids'
