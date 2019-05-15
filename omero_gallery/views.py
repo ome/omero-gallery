@@ -260,11 +260,15 @@ def show_image(request, image_id, conn=None, **kwargs):
 def search(request, super_category=None, conn=None, **kwargs):
 
     context = {'template': "webgallery/categories/search.html"}
+    context['gallery_title'] = gallery_settings.GALLERY_TITLE
     context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
+    context['super_categories'] = gallery_settings.SUPER_CATEGORIES
     context['filter_mapr_keys'] = json.dumps(
             gallery_settings.FILTER_MAPR_KEYS)
     category = gallery_settings.SUPER_CATEGORIES.get(super_category)
     if category is not None:
+        context['gallery_title'] = category.get('label',
+                                                    context['gallery_title'])
         context['super_category'] = json.dumps(category)
     base_url = reverse('webindex')
     if gallery_settings.BASE_URL is not None:
