@@ -130,13 +130,9 @@ $("#maprQuery")
 
         let requestData = {
             case_sensitive: case_sensitive,
-            experimenter_id: -1,
-            page: 1,
-            group: 3,   // TODO: don't hard-code this!
             '_': window.location.host,    // CORS cache-buster
         }
         let url;
-        experimenter_id=-1&page=1&group=3&_=3534304584309
         if (request.term.length === 0) {
           // Try to list all top-level values.
           // This works for 'wild-card' configs where number of values is small e.g. Organism
