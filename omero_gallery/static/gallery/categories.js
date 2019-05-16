@@ -23,6 +23,13 @@ document.getElementById('maprQuery').onfocus = (event) => {
 
 // ------ AUTO-COMPLETE -------------------
 
+function showSpinner() {
+  document.getElementById('spinner').style.visibility = 'visible';
+}
+function hideSpinner() {
+  document.getElementById('spinner').style.visibility = 'hidden';
+}
+
 $("#maprQuery")
   .keyup(event => {
     if (event.which == 13) {
@@ -70,13 +77,14 @@ $("#maprQuery")
           requestData.value = case_sensitive ? request.term : request.term.toLowerCase();
           requestData.query = true;   // use a 'like' HQL query
         }
-
+        showSpinner();
         $.ajax({
             dataType: "json",
             type : 'GET',
             url: url,
             data: requestData,
             success: function(data) {
+                hideSpinner();
                 if (request.term.length === 0) {
                   // Top-level terms in 'maps'
                   if (data.maps && data.maps.length > 0) {
@@ -94,6 +102,7 @@ $("#maprQuery")
                 }
             },
             error: function(data) {
+                hideSpinner();
                 response([{ label: 'Error occured.', value: -1 }]);
             }
         });

@@ -94,6 +94,15 @@ maprText {
   width: 100%
 }
 
+#spinner {
+  width: 20px;
+  color: #bbb;
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  visibility: hidden;
+}
+
 /* Fix issues from combining foundation css with jquery-ui auto-complete */
 .ui-autocomplete a {
   font-weight: normal;
