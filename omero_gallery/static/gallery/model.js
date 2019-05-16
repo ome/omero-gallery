@@ -182,8 +182,8 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
         let values = annsByParentId[key];
         if (values) {
           study.mapValues = values;
-          return study;
         }
+        return study;
       });
 
       if (callback) {

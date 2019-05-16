@@ -178,7 +178,10 @@ function renderStudy(studyData, elementId, linkFunc) {
      desc = desc.split(title)[1];
    }
   // First line is e.g. "Screen Description". Show NEXT line only.
-  let studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
+  let studyDesc = "";
+  if (desc) {
+    studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
+  }
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
