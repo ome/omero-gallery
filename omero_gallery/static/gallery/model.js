@@ -1,4 +1,5 @@
 
+CACHE_BUSTER = window.location.host;
 
 var StudiesModel = function() {
 
@@ -155,7 +156,7 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
     .join("&");
   url += '&' + data;
   // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
-  url += '&_=' + Math.random();
+  url += '&_=' + CACHE_BUSTER;
   fetch(url)
     .then(response => response.json())
     .then(data => {
@@ -264,7 +265,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
   if (obj_type == 'screen') {
     let url = `${ this.base_url }/api/v0/m/screens/${ obj_id }/plates/`;
     url += '?limit=1'   // just get first plate
-    url += '&_=' + Math.random();
+    url += '&_=' + CACHE_BUSTER;
     fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -273,7 +274,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
         // NB: Some plates don't have Well at each Row/Column spot. Well_count < Rows * Cols * 0.5
         let offset = Math.max(0, parseInt(obj.Rows * obj.Columns * 0.25) - limit);
         let url = `${ this.base_url }/api/v0/m/plates/${ obj['@id'] }/wells/?limit=${limit}&offset=${offset}`;
-        url += '&_=' + Math.random();
+        url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })
       .then(response => response.json())
@@ -295,7 +296,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
   } else if (obj_type == 'project') {
     let url = `${ this.base_url }/api/v0/m/projects/${ obj_id }/datasets/`;
     url += '?limit=1'   // just get first plate
-    url += '&_=' + Math.random();
+    url += '&_=' + CACHE_BUSTER;
     fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -305,7 +306,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
           return;
         }
         let url = `${ this.base_url }/api/v0/m/datasets/${ obj['@id'] }/images/?limit=1`;
-        url += '&_=' + Math.random();
+        url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })
       .then(response => response.json())

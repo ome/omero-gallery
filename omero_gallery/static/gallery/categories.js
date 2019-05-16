@@ -55,7 +55,7 @@ $("#maprQuery")
 
         let requestData = {
             case_sensitive: case_sensitive,
-            '_': window.location.host,    // CORS cache-buster
+            '_': CACHE_BUSTER,    // CORS cache-buster
         }
         let url;
         if (request.term.length === 0) {
