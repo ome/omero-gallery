@@ -264,6 +264,7 @@ def search(request, super_category=None, conn=None, **kwargs):
     context['gallery_title'] = gallery_settings.GALLERY_TITLE
     context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
     context['super_categories'] = gallery_settings.SUPER_CATEGORIES
+    context['SUPER_CATEGORIES'] = json.dumps(gallery_settings.SUPER_CATEGORIES)
     context['filter_mapr_keys'] = json.dumps(
             gallery_settings.FILTER_MAPR_KEYS)
     category = gallery_settings.SUPER_CATEGORIES.get(super_category)

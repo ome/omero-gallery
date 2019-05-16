@@ -240,7 +240,12 @@ function renderMapr(maprData) {
   htmlFunc = maprHtml;
 
   let totalCount = maprData.reduce((count, data) => count + data.imageCount, 0);
-  let filterMessage = `Found ${ totalCount } images in ${ maprData.length} studies`;
+  let filterMessage = "";
+  if (maprData.length === 0) {
+    filterMessage = noStudiesMessage();
+  } else {
+    filterMessage = `Found ${ totalCount } images in ${ maprData.length} studies`;
+  }
   document.getElementById('filterCount').innerHTML = filterMessage;
 
   maprData.forEach(s => renderStudy(s, 'studies', linkFunc, htmlFunc));
@@ -290,7 +295,9 @@ function render(filterFunc) {
   }
 
   let filterMessage = "";
-  if (studiesToRender.length < model.studies.length) {
+  if (studiesToRender.length === 0) {
+    filterMessage = noStudiesMessage();
+  } else if (studiesToRender.length < model.studies.length) {
     filterMessage = `Showing ${ studiesToRender.length } of ${ model.studies.length} studies`;
   }
   document.getElementById('filterCount').innerHTML = filterMessage;
@@ -305,6 +312,27 @@ function render(filterFunc) {
   studiesToRender.forEach(s => renderStudy(s, 'studies', linkFunc, htmlFunc));
 
   loadStudyThumbnails();
+}
+
+
+// When no studies match the filter, show message/link.
+function noStudiesMessage() {
+  let filterMessage = "No matching studies.";
+  if (SUPER_CATEGORY) {
+    let currLabel = SUPER_CATEGORY.label;
+    let configId = document.getElementById("maprConfig").value;
+    let maprQuery = document.getElementById("maprQuery").value;
+    let others = [];
+    for (cat in SUPER_CATEGORIES) {
+      if (SUPER_CATEGORIES[cat].label !== currLabel) {
+        others.push(`<a href="${GALLERY_INDEX}${ cat }/search/?query=${configId}:${maprQuery}">${ SUPER_CATEGORIES[cat].label }</a>`);
+      }
+    }
+    if (others.length > 0) {
+      filterMessage += " Try " + others.join (" or ");
+    }
+  }
+  return filterMessage;
 }
 
 
