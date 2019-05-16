@@ -47,6 +47,7 @@ function filterStudiesByMapr(value) {
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
   let url = `${ BASE_URL }/mapr/api/${ configId }/?value=${ value }`;
   // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
+  url += '&_=' + Math.random();
   $.getJSON(url, (data) => {
     // filter studies by 'screens' and 'projects'
     let imageCounts = {};
@@ -254,11 +255,13 @@ function renderMapr(maprData) {
     let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
     let maprValue = document.getElementById('maprQuery').value;
     let url = `${ BASE_URL }/mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
+    url += '&_=' + Math.random();
     fetch(url)
       .then(response => response.json())
       .then(data => {
         let firstChild = data[childType][0];
         let imagesUrl = `${ BASE_URL }/mapr/api/${ configId }/images/?value=${ maprValue }&id=${ firstChild.id }&node=${ firstChild.extra.node }`;
+        imagesUrl += '&_=' + Math.random();
         return fetch(imagesUrl);
       })
       .then(response => response.json())
