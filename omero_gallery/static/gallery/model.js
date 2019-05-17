@@ -302,20 +302,25 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
       .then(data => {
         obj = data.data[0];
         if (!obj) {
-          console.log('No Dataset in Project!', data);
+          // No Dataset in Project: ' + obj_id;
           return;
         }
         let url = `${ this.base_url }/api/v0/m/datasets/${ obj['@id'] }/images/?limit=1`;
         url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })
-      .then(response => response.json())
+      // Handle undefined if no Datasets in Project...
+      .then(response => response ? response.json() : {})
       .then(data => {
-        let image = data.data[0];
-        this.images[key] = image;
-        callback(this.images[key]);
-        return;
+        if (data && data.data && data.data[0]) {
+          let image = data.data[0];
+          this.images[key] = image;
+          callback(this.images[key]);
+        }
       })
+      .catch(error => {
+        console.error("Error loading Image for Project: " + obj_id, error);
+      });
   }
 }
 
