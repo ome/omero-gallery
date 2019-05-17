@@ -131,6 +131,11 @@ $("#maprQuery")
           return;
         }
 
+        // Don't handle empty query for mapr
+        if (request.term.length == 0) {
+          return;
+        }
+
         // Auto-complete to filter by mapr...
         configId = configId.replace('mapr_', '');
         let case_sensitive = false;
