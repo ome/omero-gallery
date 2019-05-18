@@ -226,7 +226,7 @@ function loadStudyThumbnails() {
       let thumbUrl = `${ BASE_URL }/webgateway/render_thumbnail/${ iid }/`;
       // If we know the image is not Big, can render whole plane
       if (image.Pixels && image.Pixels.SizeX * image.Pixels.SizeY < 10000000) {
-        thumbUrl = `${ BASE_URL }/webgateway/render_image/${ iid }/`;
+        thumbUrl = `${ BASE_URL }/webgateway/render_thumbnail/${ iid }/`;
       }
       // Find all studies matching the study ID and set src on image
       let studyImage = element.querySelector('img.studyImage');
