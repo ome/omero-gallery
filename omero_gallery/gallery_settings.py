@@ -28,59 +28,38 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.base_url":
         ["BASE_URL",
-         'https://idr.openmicroscopy.org',  # TODO: - should be None
+         None,
          str,
          ("Base URL to use for JSON AJAX requests."
-          "This allows data to be loaded from another OMERO server."
-          "The default behaviour is to use the current server.")],
+          " e.g. 'https://demo.openmicroscopy.org'."
+          " This allows data to be loaded from another OMERO server."
+          " The default behaviour is to use the current server.")],
 
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
-         ('{'
-          '"latest": {"label": "Most Recent", "index": 0, "query":'
-          ' "LAST10:date"},'
-          '"timelapse": {"label": "Time-lapse imaging", "index": 1, "query":'
-          ' "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},'
-          '"lightsheet": {"label": "Light sheet fluorescence microscopy",'
-          ' "index": 2, "query": "Study Type:light sheet"},'
-          '"proteinlocalization": {"label": "Protein localization studies",'
-          '"index": 3, "query": "Study Type:protein localization"},'
-          '"histology": {"label": "Digital pathology imaging", "index": 4,'
-          ' "query":"Study Type:histology"},'
-          '"yeast": {"label": "Yeast studies", "index": 5, "query": "Organism:'
-          'Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},'
-          '"humancellscreen": {"label": "High-content screening (human)",'
-          ' "index": 6, "query": "Organism:Homo sapiens AND'
-          ' Study Type:high content screen"}'
-          '}'),    # TODO: - should be {}
+         ('{}'),
          json.loads,
          ("If this is configured then the gallery Home Page shows a list"
           " of categories containing Projects and Screens that match the"
           " relevant query. Each category is defined by"
-          " 'id': {'label':'Cool data', 'query': 'Key:Value'}"
+          " 'id': {'label':'Cool data', 'query': 'Key:Value', 'index': 0}"
           " Query is by Key:Value on Map Annotations linked"
-          " to Projects and Screens, OR e.g. 'FIRST5:Name' or 'LAST10:date"
+          " to Projects and Screens, e.g. 'Study Type:light sheet'"
+          " OR e.g. 'FIRST5:Name' or 'LAST10:date"
           " to sort by Name or date.")],
 
     "omero.web.gallery.filter_keys":
         ["FILTER_KEYS",
-         ('['
-          '{"label": "Name (IDR number)", "value": "Name"},'
-          ' "Imaging Method", "License", "Organism", "Publication Authors",'
-          ' "Publication Title", "Screen Technology Type",'
-          ' "Screen Type", "Study Type"'
-          ']'),
+         ('[]'),
          json.loads,
          ("If this is configured then we allow filtering of Screens and"
           " Projects by Key:Value pairs linked to them. This list allows us"
           " to specify which Keys the user can choose in the UI."
-          "Each item is simple string or object with 'label' and 'value'")],
+          " Each item is simple string or object with 'label' and 'value'")],
 
     "omero.web.gallery.filter_mapr_keys":
         ["FILTER_MAPR_KEYS",
-         ('['
-          '"antibody", "cellline", "gene", "phenotype", "sirna"'
-          ']'),
+         ('[]'),
          json.loads,
          ("If this is configured then we allow filtering of Screens and"
           " Projects by OMERO.mapr. This is a list of mapr_config IDs, such"
@@ -89,17 +68,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
-         ('{'
-          '"cell": {"label": "Cell - IDR", "title": "Welcome to Cell-IDR",'
-          ' "query": "Sample Type:cell", "image":'
-          ' "https://idr.openmicroscopy.org/webgateway/'
-          'render_image/122770/0/0/"},'
-          '"tissue": {"label": "Tissue - IDR",'
-          ' "title": "Welcome to Tissue-IDR",'
-          ' "query": "Sample Type:tissue",'
-          ' "image": "https://idr.openmicroscopy.org/webgateway/'
-          'render_image_region/5470164/0/0/?region=1024,1024,696,520"}'
-          '}'),    # TODO: - should be {}
+         ('{}'),
          json.loads,
          ("Optional config to provide top-level categories, similar to"
           " category_queries, using the same config format and 'query' syntax."
@@ -107,9 +76,9 @@ GALLERY_SETTINGS_MAPPING = {
           " and Screens by the query. Optional 'title' for each category"
           " can be used for page title, otherwise the 'label' is used.")],
 
-    "omero.web.gallery.title":  # TODO: 'Welcome to OMERO.gallery'
-        ["GALLERY_TITLE", "Welcome to IDR", str,
-         "Gallery home page title"]
+    "omero.web.gallery.title":
+        ["GALLERY_TITLE", "Welcome to OMERO.gallery", str,
+         "Title for the home page shown when category_queries is set."]
 
 }
 
