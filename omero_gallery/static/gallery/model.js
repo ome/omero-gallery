@@ -200,7 +200,7 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
     // E.g. query is 'FIRST10:date' sort by 'date' and return first 10
     let limit = parseInt(query.replace('FIRST', '').replace('LAST', ''));
     let attr = query.split(':')[1];
-    let desc = query.startsWith("FIRST") ? 1 : -1;
+    let desc = query.startsWith("FIRST") ? -1 : 1;
     let sorted = this.studies.sort((a, b) => {
       return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
     });

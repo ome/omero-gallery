@@ -38,7 +38,7 @@ GALLERY_SETTINGS_MAPPING = {
         ["CATEGORY_QUERIES",
          ('{'
           '"latest": {"label": "Most Recent", "index": 0, "query":'
-          ' "FIRST10:date"},'
+          ' "LAST10:date"},'
           '"timelapse": {"label": "Time-lapse imaging", "index": 1, "query":'
           ' "Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},'
           '"lightsheet": {"label": "Light sheet fluorescence microscopy",'
