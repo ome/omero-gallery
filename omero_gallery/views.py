@@ -6,9 +6,16 @@ import omero
 from omero.rtypes import wrap
 from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.webgateway.views import render_thumbnail
+from omeroweb.api.api_settings import API_MAX_LIMIT
+
+try:
+    from omero_marshal import get_encoder
+except ImportError:
+    get_encoder = None
 
 from . import gallery_settings
 
+MAX_LIMIT = max(1, API_MAX_LIMIT)
 
 @render_response()
 def index(request, super_category=None):
@@ -281,13 +288,14 @@ def search(request, super_category=None, conn=None, **kwargs):
     return context
 
 
-def _get_study_image(conn, obj_type, obj_id):
-    img_id = None
+def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0):
+
     query_service = conn.getQueryService()
     params = omero.sys.ParametersI()
     params.addId(obj_id)
     params.theFilter = omero.sys.Filter()
-    params.theFilter.limit = wrap(1)
+    params.theFilter.limit = wrap(limit)
+    params.theFilter.offset = wrap(offset)
 
     if obj_type == "project":
         query = "select i from Image as i"\
@@ -298,38 +306,49 @@ def _get_study_image(conn, obj_type, obj_id):
                 " where project.id = :id"
 
     elif obj_type == "screen":
-        query = ("select well from Well as well "
-                 "join fetch well.plate as pt "
-                 "left outer join pt.screenLinks as sl "
-                 "join sl.parent as screen "
-                 "left outer join fetch well.wellSamples as ws "
-                 "join fetch ws.image as img "
-                 "where screen.id = :id")
+        query = ("select i from Image as i"
+                 " left outer join i.wellSamples as ws"
+                 " join ws.well as well"
+                 " join well.plate as pt"
+                 " left outer join pt.screenLinks as sl"
+                 " join sl.parent as screen"
+                 " where screen.id = :id"
+                 " order by well.column, well.row")
 
-    obj = query_service.findByQuery(query, params, conn.SERVICE_OPTS)
+    objs = query_service.findAllByQuery(query, params, conn.SERVICE_OPTS)
 
-    if obj is None:
-        raise Http404("No Image Found")
-
-    if obj_type == "screen":
-        img_ids = [ws.image.id.val for ws in obj.copyWellSamples()]
-        img_id = img_ids[0]
-    elif obj_type == "project":
-        img_id = obj.id.val
-    return img_id
+    return objs
 
 
 @render_response()
 @login_required()
-def study_image(request, obj_type, obj_id, conn=None, **kwargs):
-    img_id = _get_study_image(conn, obj_type, obj_id)
-    return {'id': img_id}
+def study_images(request, obj_type, obj_id, conn=None, **kwargs):
+    limit = int(request.REQUEST.get('limit', 1))
+    limit = min(limit, MAX_LIMIT)
+    offset = int(request.REQUEST.get('offset', 0))
+    images = _get_study_images(conn, obj_type, obj_id, limit, offset)
+    json_data = []
+    for image in images:
+        if get_encoder is not None:
+            encoder = get_encoder(image.__class__)
+            if encoder is not None:
+                json_data.append(encoder.encode(image))
+                continue
+        json_data.append({'@id': image.id.val, 'Name': image.name.val})
+    meta = {}
+    meta['offset'] = offset
+    meta['limit'] = limit
+    meta['maxLimit'] = MAX_LIMIT
+    # Same format as OMERO.api app
+    return {'data': json_data, 'meta': meta}
 
 
 @login_required()
 def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
-    img_id = _get_study_image(conn, obj_type, obj_id)
-    print 'img_id', img_id
+    images = _get_study_images(conn, obj_type, obj_id, limit=1, offset=0)
+    if len(images) == 0:
+        raise Http404("No images found")
+    img_id = images[0].id.val
     return render_thumbnail(request, img_id, conn=conn)
 
 

@@ -326,22 +326,25 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
 
 
 
-StudiesModel.prototype.getImageId = function getImageId(obj_type, obj_id, callback) {
+StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, callback) {
   // Get a sample image ID for 'screen' or 'project'
   let key = `${obj_type}-${obj_id}`;
 
   // check cache
-  if (this.imageIds[key]) {
-    callback(this.imageIds[key]);
+  if (this.images[key]) {
+    callback(this.images[key]);
     return;
   }
 
-  let url = `${ GALLERY_INDEX }study_image/${obj_type}/${ obj_id }/`
+  let url = `${ GALLERY_INDEX }api/${obj_type}s/${ obj_id }/images/?limit=1`
   fetch(url)
     .then(response => response.json())
     .then(data => {
-      this.imageIds[key] = data.id;
-      callback(this.imageIds[key]);
+      let images = data.data;
+      if (images.length > 0) {
+        this.images[key] = images[0]
+      }
+      callback(this.images[key]);
       return;
     })
   

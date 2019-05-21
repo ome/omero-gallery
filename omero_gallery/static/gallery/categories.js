@@ -220,7 +220,7 @@ function loadStudyThumbnails() {
     let obj_type = element.dataset.obj_type;
     if (!obj_id || !obj_type) return;
 
-    model.loadImage(obj_type, obj_id, (image) => {
+    model.getStudyImage(obj_type, obj_id, (image) => {
       let iid = image['@id'];
       // Render thumbnail by default
       let thumbUrl = `${ BASE_URL }/webgateway/render_thumbnail/${ iid }/`;
