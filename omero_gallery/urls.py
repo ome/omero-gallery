@@ -47,6 +47,10 @@ urlpatterns = patterns(
     url(r'^api/(?P<obj_type>[screen|project]+)s/'
         r'(?P<obj_id>[0-9]+)/thumbnail/$',
         views.study_thumbnail, name='webgallery_study_thumbnail'),
+
+    # Supports e.g. ?project=1&project=2&screen=3
+    url(r'^api/thumbnails/$', views.study_thumbnails,
+        name='webgallery_study_thumbnails'),
 )
 
 for c in SUPER_CATEGORIES:

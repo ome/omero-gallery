@@ -149,6 +149,28 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 }
 
 
+StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
+  let url = GALLERY_INDEX + "api/thumbnails/";
+  // let ids = this.studies.map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`);
+  ids = [...new Set(ids)];
+  let batchSize = 10;
+  while (ids.length > 0) {
+    console.log("ids", ids.length);
+    let data = ids.slice(0, batchSize).join("&");
+    fetch(url + '?' + data)
+      .then(response => response.json())
+      .then(data => {
+        console.log('data');
+        if (callback) {
+          callback(data);
+        }
+      })
+
+    ids = ids.slice(batchSize);
+  }
+}
+
+
 StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnotations(callback) {
   let url = this.base_url + "/webclient/api/annotations/?type=map";
   let data = this.studies

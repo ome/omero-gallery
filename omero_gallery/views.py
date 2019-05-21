@@ -1,11 +1,13 @@
 from django.http import Http404
 from django.core.urlresolvers import reverse
 import json
+import logging
+import base64
 
 import omero
-from omero.rtypes import wrap
+from omero.rtypes import wrap, rlong
 from omeroweb.webclient.decorators import login_required, render_response
-from omeroweb.webgateway.views import render_thumbnail
+from omeroweb.webgateway.views import render_thumbnail, get_thumbnails_json
 from omeroweb.api.api_settings import API_MAX_LIMIT
 
 try:
@@ -15,6 +17,7 @@ except ImportError:
 
 from . import gallery_settings
 
+logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
 
 
@@ -354,6 +357,40 @@ def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
     img_id = images[0].id.val
     return render_thumbnail(request, img_id, conn=conn)
 
+@render_response()
+@login_required()
+def study_thumbnails(request, conn=None, **kwargs):
+    """
+    Return data like
+    { project-1: {thumbnail: base64data, image: {id:1}} }
+    """
+    project_ids = request.GET.getlist('project')
+    screen_ids = request.GET.getlist('screen')
+
+    image_ids = {}
+    for obj_type, ids in zip(['project', 'screen'], [project_ids, screen_ids]):
+        for obj_id in ids:
+            images = _get_study_images(conn, obj_type, obj_id)
+            if len(images) > 0:
+                image_ids[images[0].id.val] = "%s-%s" % (obj_type, obj_id)
+
+    thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids.keys()], 96)
+    rv = {}
+    for i, obj_id in image_ids.items():
+        rv[obj_id] = None
+        try:
+            t = thumbnails[i]
+            if len(t) > 0:
+                # replace thumbnail urls by base64 encoded image
+                rv[obj_id] = {
+                    "image": {'id': i},
+                    "thumbnail": ("data:image/jpeg;base64,%s"
+                                  % base64.b64encode(t))}
+        except KeyError:
+            logger.error("Thumbnail not available. (img id: %d)" % i)
+        except Exception:
+            logger.error(traceback.format_exc())
+    return rv
 
 @render_response()
 def temp_mapr_config(request):
