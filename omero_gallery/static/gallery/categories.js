@@ -177,24 +177,30 @@ function render() {
 function renderStudy(studyData, elementId, linkFunc) {
 
   // Add Project or Screen to the page
-  // If filterKey, try to render the Key: Value
-  let titleRe = /Publication Title\n(.+)[\n]?/
-  // let descRe = /Experiment Description\n(.+)[\n]?/
-  let desc = studyData.Description;
-  let match = titleRe.exec(desc);
-  let title = match ? match[1] : '';
+  let title;
+  for (let i=0; i<TITLE_KEYS.length; i++) {
+    title = model.getStudyValue(studyData, TITLE_KEYS[i]);
+    if (title) {
+      break;
+    }
+  }
+  if (!title) {
+    title = studyData.Name;
+  }
   let type = studyData['@type'].split('#')[1].toLowerCase();
   let studyLink = linkFunc(studyData);
   // save for later
   studyData.title = title;
 
-  if (title.length >0) {
-     desc = desc.split(title)[1];
-   }
-  // First line is e.g. "Screen Description". Show NEXT line only.
-  let studyDesc = "";
+  let desc = studyData.Description;
+  let studyDesc;
   if (desc) {
-    studyDesc = desc.split('\n').filter(l => l.length > 0)[1];
+    // If description contains title, use the text that follows
+    if (title.length > 0 && desc.indexOf(title) > -1) {
+      desc = desc.split(title)[1];
+    }
+    // Remove blank lines
+    studyDesc = desc.split('\n').filter(l => l.length > 0).join('\n');
   }
 
   let idrId = studyData.Name.split('-')[0];  // idr0001

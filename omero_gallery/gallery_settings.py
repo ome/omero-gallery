@@ -66,6 +66,15 @@ GALLERY_SETTINGS_MAPPING = {
           " as 'gene', 'antibody' etc. which allows us"
           " to specify which Keys the user can choose in the UI.")],
 
+    "omero.web.gallery.title_keys":
+        ["TITLE_KEYS",
+         ('["Publication Title", "Study Title"]'),
+         json.loads,
+         ("Supports lookup of a Title for Screens and Projects using"
+          " Map Annotations on those objects and the specified Key(s)."
+          " Each Key in this list will be checked in turn until a"
+          " Value is found")],
+
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
          ('{}'),

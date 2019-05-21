@@ -92,6 +92,7 @@
   const GALLERY_INDEX = "{% url 'webgallery_index' %}";
   const BASE_URL = "{{ base_url }}";
   const CATEGORY_QUERIES = {{ category_queries|escape|safe }};
+  var TITLE_KEYS = {{ TITLE_KEYS|escape|safe }};
   var SUPER_CATEGORIES = {{ SUPER_CATEGORIES|escape|safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
 </script>
