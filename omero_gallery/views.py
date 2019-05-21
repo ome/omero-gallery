@@ -7,7 +7,7 @@ import base64
 import omero
 from omero.rtypes import wrap, rlong
 from omeroweb.webclient.decorators import login_required, render_response
-from omeroweb.webgateway.views import render_thumbnail, get_thumbnails_json
+from omeroweb.webgateway.views import render_thumbnail
 from omeroweb.api.api_settings import API_MAX_LIMIT
 
 try:
@@ -357,6 +357,7 @@ def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
     img_id = images[0].id.val
     return render_thumbnail(request, img_id, conn=conn)
 
+
 @render_response()
 @login_required()
 def study_thumbnails(request, conn=None, **kwargs):
@@ -388,9 +389,8 @@ def study_thumbnails(request, conn=None, **kwargs):
                                   % base64.b64encode(t))}
         except KeyError:
             logger.error("Thumbnail not available. (img id: %d)" % i)
-        except Exception:
-            logger.error(traceback.format_exc())
     return rv
+
 
 @render_response()
 def temp_mapr_config(request):
