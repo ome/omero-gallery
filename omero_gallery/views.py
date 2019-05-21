@@ -17,6 +17,7 @@ from . import gallery_settings
 
 MAX_LIMIT = max(1, API_MAX_LIMIT)
 
+
 @render_response()
 def index(request, super_category=None):
     """
