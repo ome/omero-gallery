@@ -396,28 +396,34 @@ function renderStudy(studyData, elementId, linkFunc, htmlFunc) {
 // --------- Render utils -----------
 function loadStudyThumbnails() {
 
+  let ids = [];
+  // Collect study IDs 'project-1', 'screen-2' etc
   document.querySelectorAll('div.study').forEach(element => {
-    // Load image ID for study, then update DOM to load thumbnail
     let obj_id = element.dataset.obj_id;
     let obj_type = element.dataset.obj_type;
-    if (!obj_id || !obj_type) return;
+    if (obj_id && obj_type) {
+      ids.push(obj_type + '=' + obj_id);
+    }
+  });
 
-    model.loadImage(obj_type, obj_id, (image) => {
-      let iid = image['@id'];
-      // Render thumbnail by default
-      let thumbUrl = `${ BASE_URL }/webgateway/render_thumbnail/${ iid }/`;
-      // If we know the image is not Big, can render whole plane
-      if (image.Pixels && image.Pixels.SizeX * image.Pixels.SizeY < 10000000) {
-        thumbUrl = `${ BASE_URL }/webgateway/render_thumbnail/${ iid }/`;
+  // Load images
+  model.loadStudiesThumbnails(ids, (data) => {
+    // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
+    for (id in data) {
+      let obj_type = id.split('-')[0];
+      let obj_id = id.split('-')[1];
+      let elements = document.querySelectorAll(`div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`);
+      for (let e=0; e<elements.length; e++) {
+        // Find all studies matching the study ID and set src on image
+        let element = elements[e];
+        let studyImage = element.querySelector('img.studyImage');
+        studyImage.src = data[id].thumbnail;
+        // viewer link
+        let iid = data[id].image.id;
+        let link = `${ BASE_URL }/webclient/img_detail/${ iid }/`;
+        element.querySelector('a.viewerLink').href = link;
       }
-      // Find all studies matching the study ID and set src on image
-      let studyImage = element.querySelector('img.studyImage');
-      studyImage.src = thumbUrl;
-
-      // viewer link
-      let link = `${ BASE_URL }/webclient/img_detail/${ iid }/`;
-      element.querySelector('a.viewerLink').href = link;
-    });
+    }
   });
 }
 

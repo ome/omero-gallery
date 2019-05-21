@@ -155,17 +155,14 @@ StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(id
   ids = [...new Set(ids)];
   let batchSize = 10;
   while (ids.length > 0) {
-    console.log("ids", ids.length);
     let data = ids.slice(0, batchSize).join("&");
     fetch(url + '?' + data)
       .then(response => response.json())
       .then(data => {
-        console.log('data');
         if (callback) {
           callback(data);
         }
-      })
-
+      });
     ids = ids.slice(batchSize);
   }
 }
