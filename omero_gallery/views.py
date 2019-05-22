@@ -1,17 +1,61 @@
 from django.http import Http404
+from django.core.urlresolvers import reverse
+import json
+import logging
+import base64
 
 import omero
-from omero.rtypes import wrap
+from omero.rtypes import wrap, rlong
 from omeroweb.webclient.decorators import login_required, render_response
+from omeroweb.webgateway.views import render_thumbnail
+from omeroweb.api.api_settings import API_MAX_LIMIT
+
+try:
+    from omero_marshal import get_encoder
+except ImportError:
+    get_encoder = None
+
+from . import gallery_settings
+
+logger = logging.getLogger(__name__)
+MAX_LIMIT = max(1, API_MAX_LIMIT)
+
+
+@render_response()
+def index(request, super_category=None):
+    """
+    Home page shows a list of groups OR a set of 'categories' from
+    user-configured queries.
+    """
+
+    category_queries = gallery_settings.CATEGORY_QUERIES
+    if len(category_queries) > 0:
+        context = {'template': "webgallery/categories/index.html"}
+        context['gallery_title'] = gallery_settings.GALLERY_TITLE
+        context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
+        context['TITLE_KEYS'] = json.dumps(gallery_settings.TITLE_KEYS)
+        context['filter_mapr_keys'] = json.dumps(
+            gallery_settings.FILTER_MAPR_KEYS)
+        context['super_categories'] = gallery_settings.SUPER_CATEGORIES
+        category = gallery_settings.SUPER_CATEGORIES.get(super_category)
+        if category is not None:
+            label = category.get('label', context['gallery_title'])
+            title = category.get('title', label)
+            context['gallery_title'] = title
+            context['super_category'] = json.dumps(category)
+        base_url = reverse('webindex')
+        if gallery_settings.BASE_URL is not None:
+            base_url = gallery_settings.BASE_URL
+        context['base_url'] = base_url
+        context['category_queries'] = json.dumps(category_queries)
+        return context
+
+    return index_with_login(request)
 
 
 @login_required()
 @render_response()
-def index(request, conn=None, **kwargs):
-    """
-    Home page shows a list of Projects from all of our groups
-    """
-
+def index_with_login(request, conn=None, **kwargs):
     my_groups = list(conn.getGroupsMemberOf())
 
     # Need a custom query to get 1 (random) image per Project
@@ -223,3 +267,234 @@ def show_image(request, image_id, conn=None, **kwargs):
     context['tags'] = tags
 
     return context
+
+
+@render_response()
+def search(request, super_category=None, conn=None, **kwargs):
+
+    context = {'template': "webgallery/categories/search.html"}
+    context['gallery_title'] = gallery_settings.GALLERY_TITLE
+    context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
+    context['super_categories'] = gallery_settings.SUPER_CATEGORIES
+    context['SUPER_CATEGORIES'] = json.dumps(gallery_settings.SUPER_CATEGORIES)
+    context['TITLE_KEYS'] = json.dumps(gallery_settings.TITLE_KEYS)
+    context['filter_mapr_keys'] = json.dumps(
+            gallery_settings.FILTER_MAPR_KEYS)
+    category = gallery_settings.SUPER_CATEGORIES.get(super_category)
+    if category is not None:
+        label = category.get('label', context['gallery_title'])
+        title = category.get('title', label)
+        context['gallery_title'] = title
+        context['super_category'] = json.dumps(category)
+    base_url = reverse('webindex')
+    if gallery_settings.BASE_URL is not None:
+        base_url = gallery_settings.BASE_URL
+    context['base_url'] = base_url
+    context['category_queries'] = json.dumps(gallery_settings.CATEGORY_QUERIES)
+    return context
+
+
+def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0):
+
+    query_service = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    params.addId(obj_id)
+    params.theFilter = omero.sys.Filter()
+    params.theFilter.limit = wrap(limit)
+    params.theFilter.offset = wrap(offset)
+
+    if obj_type == "project":
+        query = "select i from Image as i"\
+                " left outer join i.datasetLinks as dl"\
+                " join dl.parent as dataset"\
+                " left outer join dataset.projectLinks"\
+                " as pl join pl.parent as project"\
+                " where project.id = :id"
+
+    elif obj_type == "screen":
+        query = ("select i from Image as i"
+                 " left outer join i.wellSamples as ws"
+                 " join ws.well as well"
+                 " join well.plate as pt"
+                 " left outer join pt.screenLinks as sl"
+                 " join sl.parent as screen"
+                 " where screen.id = :id"
+                 " order by well.column, well.row")
+
+    objs = query_service.findAllByQuery(query, params, conn.SERVICE_OPTS)
+
+    return objs
+
+
+@render_response()
+@login_required()
+def study_images(request, obj_type, obj_id, conn=None, **kwargs):
+    limit = int(request.REQUEST.get('limit', 1))
+    limit = min(limit, MAX_LIMIT)
+    offset = int(request.REQUEST.get('offset', 0))
+    images = _get_study_images(conn, obj_type, obj_id, limit, offset)
+    json_data = []
+    for image in images:
+        if get_encoder is not None:
+            encoder = get_encoder(image.__class__)
+            if encoder is not None:
+                json_data.append(encoder.encode(image))
+                continue
+        json_data.append({'@id': image.id.val, 'Name': image.name.val})
+    meta = {}
+    meta['offset'] = offset
+    meta['limit'] = limit
+    meta['maxLimit'] = MAX_LIMIT
+    # Same format as OMERO.api app
+    return {'data': json_data, 'meta': meta}
+
+
+@login_required()
+def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
+    images = _get_study_images(conn, obj_type, obj_id, limit=1, offset=0)
+    if len(images) == 0:
+        raise Http404("No images found")
+    img_id = images[0].id.val
+    return render_thumbnail(request, img_id, conn=conn)
+
+
+@render_response()
+@login_required()
+def study_thumbnails(request, conn=None, **kwargs):
+    """
+    Return data like
+    { project-1: {thumbnail: base64data, image: {id:1}} }
+    """
+    project_ids = request.GET.getlist('project')
+    screen_ids = request.GET.getlist('screen')
+
+    image_ids = {}
+    for obj_type, ids in zip(['project', 'screen'], [project_ids, screen_ids]):
+        for obj_id in ids:
+            images = _get_study_images(conn, obj_type, obj_id)
+            if len(images) > 0:
+                image_ids[images[0].id.val] = "%s-%s" % (obj_type, obj_id)
+
+    thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids.keys()], 96)
+    rv = {}
+    for i, obj_id in image_ids.items():
+        rv[obj_id] = None
+        try:
+            t = thumbnails[i]
+            if len(t) > 0:
+                # replace thumbnail urls by base64 encoded image
+                rv[obj_id] = {
+                    "image": {'id': i},
+                    "thumbnail": ("data:image/jpeg;base64,%s"
+                                  % base64.b64encode(t))}
+        except KeyError:
+            logger.error("Thumbnail not available. (img id: %d)" % i)
+    return rv
+
+
+@render_response()
+def temp_mapr_config(request):
+    """
+    Temp mapr config.
+    until https://github.com/ome/omero-mapr/pull/46 is merged
+    """
+
+    return {
+          "antibody": {
+            "all": [
+              "Antibody Identifier"
+            ],
+            "case_sensitive": True,
+            "default": [
+              "Antibody Identifier"
+            ],
+            "label": "Antibody",
+            "ns": [
+              "openmicroscopy.org/mapr/antibody"
+            ]
+          },
+          "cellline": {
+            "all": [
+              "Cell Line"
+            ],
+            "default": [
+              "Cell Line"
+            ],
+            "label": "Cell Lines",
+            "ns": [
+              "openmicroscopy.org/mapr/cell_line"
+            ],
+            "wildcard": {
+              "enabled": True
+            }
+          },
+          "compound": {
+            "all": [
+              "Compound Name"
+            ],
+            "case_sensitive": True,
+            "default": [
+              "Compound Name"
+            ],
+            "label": "Compound",
+            "ns": [
+              "openmicroscopy.org/mapr/compound"
+            ]
+          },
+          "gene": {
+            "all": [
+              "Gene Symbol",
+              "Gene Identifier"
+            ],
+            "case_sensitive": True,
+            "default": [
+              "Gene Symbol"
+            ],
+            "label": "Gene",
+            "ns": [
+              "openmicroscopy.org/mapr/gene"
+            ]
+          },
+          "orf": {
+            "all": [
+              "ORF Identifier"
+            ],
+            "default": [
+              "ORF Identifier"
+            ],
+            "label": "ORF",
+            "ns": [
+              "openmicroscopy.org/mapr/orf"
+            ]
+          },
+          "phenotype": {
+            "all": [
+              "Phenotype",
+              "Phenotype Term Accession"
+            ],
+            "case_sensitive": True,
+            "default": [
+              "Phenotype"
+            ],
+            "label": "Phenotype",
+            "ns": [
+              "openmicroscopy.org/mapr/phenotype"
+            ],
+            "wildcard": {
+              "enabled": True
+            }
+          },
+          "sirna": {
+            "all": [
+              "siRNA Identifier",
+              "siRNA Pool Identifier"
+            ],
+            "default": [
+              "siRNA Identifier"
+            ],
+            "label": "siRNA",
+            "ns": [
+              "openmicroscopy.org/mapr/sirna"
+            ]
+          }
+        }

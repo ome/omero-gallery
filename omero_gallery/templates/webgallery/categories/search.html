@@ -1,0 +1,102 @@
+
+{% extends "webgallery/categories/base.html" %}
+
+{% block content %}
+
+<style>
+  .study{
+    width: 247px;
+  }
+</style>
+
+<hr class="whitespace" style="height: 0">
+
+<div class="row column text-center">
+
+  {% if gallery_title %}<h1>{{ gallery_title }}</h1>{% endif %}
+
+<div class="small-10 small-centered medium-10 medium-centered columns">
+
+    <div class="row horizontal">
+
+      <div class="small-12 medium-12 large-2 columns">
+        <h2>Search by:</h2>
+      </div>
+      <div style="padding:0" class="small-12 medium-4 large-3 columns">
+        <select id="maprConfig">
+          <optgroup id="studyKeys" label="Study Attributes">
+            <!-- Map-Annotation keys loaded here -->
+          </optgroup>
+          <optgroup id="maprKeys" label="Image Attributes">
+          </optgroup>
+        </select>
+      </div>
+      <div style="position: relative" class="small-12 medium-8 large-7 columns">
+        <input id="maprQuery" type="text" placeholder="Publication Authors">
+        <svg id="spinner" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>
+    </div>
+
+    <div id="filterCount" class="row horizontal">
+    </div>
+</div>
+
+<div id="studies" class="row horizontal">
+  Loading Studies...
+
+  <script>
+    function studyHtml(props) {
+      return `
+      <a target="_blank" href="${ props.studyLink }">
+        <div class="studyBackground" style="padding: 0">
+          <img class="studyImage" src="" />
+        </div>
+        <div class="studyText">
+          <p title="${ props.studyDesc }">
+            <span style='color:#1976d2'>${ props.idrId }</span>:
+            ${ props.title }
+          </p>
+        </div>
+        <div class="studyAuthors">
+          ${ props.authors }
+        </div>
+      </a>
+      <a class="viewerLink" title="Open image in viewer" target="_blank"
+         href="">
+        <i class="fas fa-eye"></i>
+      </a>
+      `
+    }
+
+    function maprHtml(props, data) {
+      return `
+      <a target="_blank" href="${ props.studyLink }">
+        
+        <div id="${ props.type }-${ data['@id'] }" class="maprText">
+          <p>Found ${ data.imageCount } images in study:</p>
+          <p title="${ props.studyDesc }">
+            <span style='color:#1976d2'>${ props.idrId }</span>:
+            ${ props.title }
+          </p>
+        </div>
+      </a>
+      `
+    }
+  </script>
+</div>
+
+
+<script>
+  // Various global constants from bin/omero config set...
+  var FILTER_KEYS = {{ filter_keys|escape|safe }};
+  var FILTER_MAPR_KEYS = {{ filter_mapr_keys|escape|safe }};
+  const GALLERY_INDEX = "{% url 'webgallery_index' %}";
+  const BASE_URL = "{{ base_url }}";
+  const CATEGORY_QUERIES = {{ category_queries|escape|safe }};
+  var TITLE_KEYS = {{ TITLE_KEYS|escape|safe }};
+  var SUPER_CATEGORIES = {{ SUPER_CATEGORIES|escape|safe }};
+  var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
+</script>
+
+<script src="{% static 'gallery/search.js' %}"></script>
+
+{% endblock %}

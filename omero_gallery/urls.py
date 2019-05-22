@@ -1,4 +1,5 @@
 from django.conf.urls import url, patterns
+from gallery_settings import SUPER_CATEGORIES
 
 from . import views
 
@@ -33,4 +34,27 @@ urlpatterns = patterns(
     url(r'show_image/(?P<image_id>[0-9]+)/$',
         views.show_image, name='webgallery_show_image'),
 
+    # Search page shows Projects / Screens filtered by Map Annotation
+    url(r'^search/$', views.search, {'super_category': None}),
+
+    # Temp mapr config - until mapr PR 46 is merged
+    url(r'^idr/mapr/config/$', views.temp_mapr_config),
+
+    url(r'^api/(?P<obj_type>[screen|project]+)s/'
+        r'(?P<obj_id>[0-9]+)/images/$',
+        views.study_images, name='webgallery_study_image'),
+
+    url(r'^api/(?P<obj_type>[screen|project]+)s/'
+        r'(?P<obj_id>[0-9]+)/thumbnail/$',
+        views.study_thumbnail, name='webgallery_study_thumbnail'),
+
+    # Supports e.g. ?project=1&project=2&screen=3
+    url(r'^api/thumbnails/$', views.study_thumbnails,
+        name='webgallery_study_thumbnails'),
 )
+
+for c in SUPER_CATEGORIES:
+    urlpatterns += (url(r'^%s/$' % c, views.index, {'super_category': c},
+                        name="gallery_super_category"),
+                    url(r'^%s/search/$' % c, views.search, {'super_category':
+                        c}),)

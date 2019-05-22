@@ -1,0 +1,76 @@
+<!doctype html>
+<html class="no-js" lang="en" dir="ltr">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>IDR: {{ page.title }}</title>
+        <link rel="shortcut icon" type="image/x-icon" href="http://idr.openmicroscopy.org/about/img/logos/favicon-idr.ico">
+
+        <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic">
+        <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Nunito">
+        <link href="http://idr.openmicroscopy.org/about/css/foundation.min.css" rel="stylesheet">
+        <link href="http://idr.openmicroscopy.org/about/css/openmicroscopy.css" rel="stylesheet">
+        <link href="http://idr.openmicroscopy.org/about/css/idr.css" rel="stylesheet">
+        <link href="http://idr.openmicroscopy.org/about/fonts/fontawesome-webfont.woff2?v=4.3.0" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+        <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+
+        <script src="http://idr.openmicroscopy.org/about/js/vendor/foundation.min.js"></script>
+
+        <script src="{% static 'gallery/model.js' %}"></script>
+        <link href="{% static 'gallery/studies.css' %}" rel="stylesheet">
+    </head>
+
+    <body>
+
+        <div class="nav-secondary">
+            <div class="top-bar-right">
+                <ul class="menu">
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-nav-bar top-bar" id="main-menu">
+            <div class="top-bar-left">
+                <ul class="dropdown menu" data-dropdown-menu>
+                    <li><a class="logo" href="{% url 'webgallery_index' %}">
+                        <img src="http://idr.openmicroscopy.org/about/img/logos/logo-idr.svg" }}" alt="IDR logo"></a>
+                    </li>
+
+
+                    {% for category, data in super_categories.items %}
+                    <li>
+                        <a href="{% url 'gallery_super_category' super_category=category %}">
+                          {{ data.label }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+        </div>
+        </div>
+
+        <a name="page-top"></a>
+
+
+        {% block content %}
+
+        {% endblock %}
+
+        
+        <div id="page-anchor"><a href="#page-top"><i class="fa fa-arrow-up"></i> back to top</a></div>
+
+        <hr class="whitespace">
+
+        <script>
+            $(document).foundation();
+        </script>
+
+    </body>
+
+</html>
