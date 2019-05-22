@@ -20,7 +20,8 @@
 """Settings for the OMERO.gallery app."""
 
 import sys
-from omeroweb.settings import process_custom_settings, report_settings
+from omeroweb.settings import process_custom_settings, \
+  report_settings, str_slash
 import json
 
 # load settings
@@ -29,7 +30,7 @@ GALLERY_SETTINGS_MAPPING = {
     "omero.web.gallery.base_url":
         ["BASE_URL",
          None,
-         str,
+         str_slash,
          ("Base URL to use for JSON AJAX requests."
           " e.g. 'https://demo.openmicroscopy.org'."
           " This allows data to be loaded from another OMERO server."

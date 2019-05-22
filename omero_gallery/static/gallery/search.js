@@ -45,7 +45,7 @@ populateInputsFromSearch();
 
 function filterStudiesByMapr(value) {
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  let url = `${ BASE_URL }/mapr/api/${ configId }/?value=${ value }`;
+  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ value }`;
   // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
   url += '&_=' + CACHE_BUSTER;
   $.getJSON(url, (data) => {
@@ -149,11 +149,11 @@ $("#maprQuery")
           // Try to list all top-level values.
           // This works for 'wild-card' configs where number of values is small e.g. Organism
           // But will return empty list for e.g. Gene
-          url = `${ BASE_URL }/mapr/api/${ configId }/`;
+          url = `${ BASE_URL }mapr/api/${ configId }/`;
           requestData.orphaned = true
         } else {
           // Find auto-complete matches
-          url = `${ BASE_URL }/mapr/api/autocomplete/${ configId }/`;
+          url = `${ BASE_URL }mapr/api/autocomplete/${ configId }/`;
           requestData.value = case_sensitive ? request.term : request.term.toLowerCase();
           requestData.query = true;   // use a 'like' HQL query
         }
@@ -274,21 +274,21 @@ function renderMapr(maprData) {
     let childType = objType === "project" ? "datasets" : "plates";
     let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
     let maprValue = document.getElementById('maprQuery').value;
-    let url = `${ BASE_URL }/mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
+    let url = `${ BASE_URL }mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
     url += '&_=' + CACHE_BUSTER;
     fetch(url)
       .then(response => response.json())
       .then(data => {
         let firstChild = data[childType][0];
-        let imagesUrl = `${ BASE_URL }/mapr/api/${ configId }/images/?value=${ maprValue }&id=${ firstChild.id }&node=${ firstChild.extra.node }`;
+        let imagesUrl = `${ BASE_URL }mapr/api/${ configId }/images/?value=${ maprValue }&id=${ firstChild.id }&node=${ firstChild.extra.node }`;
         imagesUrl += '&_=' + CACHE_BUSTER;
         return fetch(imagesUrl);
       })
       .then(response => response.json())
       .then(data => {
         let html = data.images.slice(0, 4).map(i => `
-          <a href="${ BASE_URL }/webclient/img_detail/${ i.id }/" target="_blank">
-            <img class="thumbnail" src="${ BASE_URL }/webgateway/render_thumbnail/${ i.id }/">
+          <a href="${ BASE_URL }webclient/img_detail/${ i.id }/" target="_blank">
+            <img class="thumbnail" src="${ BASE_URL }webgateway/render_thumbnail/${ i.id }/">
           </a>`).join("");
         // Find the container and add images html
         $("#"+element.id).append(html);
@@ -320,7 +320,7 @@ function render(filterFunc) {
   // By default, we link to the study itself in IDR...
   let linkFunc = (studyData) => {
     let type = studyData['@type'].split('#')[1].toLowerCase();
-    return `${ BASE_URL }/webclient/?show=${ type }-${ studyData['@id'] }`;
+    return `${ BASE_URL }webclient/?show=${ type }-${ studyData['@id'] }`;
   }
   let htmlFunc = studyHtml;
 
@@ -420,7 +420,7 @@ function loadStudyThumbnails() {
         studyImage.src = data[id].thumbnail;
         // viewer link
         let iid = data[id].image.id;
-        let link = `${ BASE_URL }/webclient/img_detail/${ iid }/`;
+        let link = `${ BASE_URL }webclient/img_detail/${ iid }/`;
         element.querySelector('a.viewerLink').href = link;
       }
     }

@@ -117,8 +117,8 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 
   // Load Projects AND Screens, sort them and render...
   Promise.all([
-    fetch(this.base_url + "/api/v0/m/projects/"),
-    fetch(this.base_url + "/api/v0/m/screens/"),
+    fetch(this.base_url + "api/v0/m/projects/"),
+    fetch(this.base_url + "api/v0/m/screens/"),
   ]).then(responses =>
       Promise.all(responses.map(res => res.json()))
   ).then(([projects, screens]) => {
@@ -169,7 +169,7 @@ StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(id
 
 
 StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnotations(callback) {
-  let url = this.base_url + "/webclient/api/annotations/?type=map";
+  let url = this.base_url + "webclient/api/annotations/?type=map";
   let data = this.studies
     .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
     .join("&");
@@ -282,7 +282,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
 
   let limit = 20;
   if (obj_type == 'screen') {
-    let url = `${ this.base_url }/api/v0/m/screens/${ obj_id }/plates/`;
+    let url = `${ this.base_url }api/v0/m/screens/${ obj_id }/plates/`;
     url += '?limit=1'   // just get first plate
     url += '&_=' + CACHE_BUSTER;
     fetch(url)
@@ -292,7 +292,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
         // Jump into the 'middle' of plate to make sure Wells have images
         // NB: Some plates don't have Well at each Row/Column spot. Well_count < Rows * Cols * 0.5
         let offset = Math.max(0, parseInt(obj.Rows * obj.Columns * 0.25) - limit);
-        let url = `${ this.base_url }/api/v0/m/plates/${ obj['@id'] }/wells/?limit=${limit}&offset=${offset}`;
+        let url = `${ this.base_url }api/v0/m/plates/${ obj['@id'] }/wells/?limit=${limit}&offset=${offset}`;
         url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })
@@ -313,7 +313,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
         return;
       })
   } else if (obj_type == 'project') {
-    let url = `${ this.base_url }/api/v0/m/projects/${ obj_id }/datasets/`;
+    let url = `${ this.base_url }api/v0/m/projects/${ obj_id }/datasets/`;
     url += '?limit=1'   // just get first plate
     url += '&_=' + CACHE_BUSTER;
     fetch(url)
@@ -324,7 +324,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
           // No Dataset in Project: ' + obj_id;
           return;
         }
-        let url = `${ this.base_url }/api/v0/m/datasets/${ obj['@id'] }/images/?limit=1`;
+        let url = `${ this.base_url }api/v0/m/datasets/${ obj['@id'] }/images/?limit=1`;
         url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })
