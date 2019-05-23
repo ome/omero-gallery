@@ -7,6 +7,7 @@ import base64
 import omero
 from omero.rtypes import wrap, rlong
 from omeroweb.webclient.decorators import login_required, render_response
+from omeroweb.api.decorators import login_required as api_login_required
 from omeroweb.webgateway.views import render_thumbnail
 from omeroweb.api.api_settings import API_MAX_LIMIT
 
@@ -359,8 +360,8 @@ def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
 
 
 @render_response()
-@login_required()
-def study_thumbnails(request, conn=None, **kwargs):
+@api_login_required()   # 403 JsonResponse if not logged in
+def api_thumbnails(request, conn=None, **kwargs):
     """
     Return data like
     { project-1: {thumbnail: base64data, image: {id:1}} }

@@ -46,8 +46,8 @@ urlpatterns = patterns(
         views.study_thumbnail, name='webgallery_study_thumbnail'),
 
     # Supports e.g. ?project=1&project=2&screen=3
-    url(r'^api/thumbnails/$', views.study_thumbnails,
-        name='webgallery_study_thumbnails'),
+    url(r'^api/thumbnails/$', views.api_thumbnails,
+        name='webgallery_api_thumbnails'),
 )
 
 for c in SUPER_CATEGORIES:
