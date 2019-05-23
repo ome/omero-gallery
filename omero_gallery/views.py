@@ -8,7 +8,6 @@ import omero
 from omero.rtypes import wrap, rlong
 from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.api.decorators import login_required as api_login_required
-from omeroweb.webgateway.views import render_thumbnail
 from omeroweb.api.api_settings import API_MAX_LIMIT
 
 try:
