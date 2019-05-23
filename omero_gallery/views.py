@@ -350,15 +350,6 @@ def study_images(request, obj_type, obj_id, conn=None, **kwargs):
     return {'data': json_data, 'meta': meta}
 
 
-@login_required()
-def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
-    images = _get_study_images(conn, obj_type, obj_id, limit=1, offset=0)
-    if len(images) == 0:
-        raise Http404("No images found")
-    img_id = images[0].id.val
-    return render_thumbnail(request, img_id, conn=conn)
-
-
 @render_response()
 @api_login_required()   # 403 JsonResponse if not logged in
 def api_thumbnails(request, conn=None, **kwargs):

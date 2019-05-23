@@ -37,13 +37,10 @@ urlpatterns = patterns(
     # Search page shows Projects / Screens filtered by Map Annotation
     url(r'^search/$', views.search, {'super_category': None}),
 
+    # list images within container. NB: not used but potentially useful
     url(r'^api/(?P<obj_type>[screen|project]+)s/'
         r'(?P<obj_id>[0-9]+)/images/$',
         views.study_images, name='webgallery_study_image'),
-
-    url(r'^api/(?P<obj_type>[screen|project]+)s/'
-        r'(?P<obj_id>[0-9]+)/thumbnail/$',
-        views.study_thumbnail, name='webgallery_study_thumbnail'),
 
     # Supports e.g. ?project=1&project=2&screen=3
     url(r'^api/thumbnails/$', views.api_thumbnails,
