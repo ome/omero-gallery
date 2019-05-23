@@ -37,9 +37,6 @@ urlpatterns = patterns(
     # Search page shows Projects / Screens filtered by Map Annotation
     url(r'^search/$', views.search, {'super_category': None}),
 
-    # Temp mapr config - until mapr PR 46 is merged
-    url(r'^idr/mapr/config/$', views.temp_mapr_config),
-
     url(r'^api/(?P<obj_type>[screen|project]+)s/'
         r'(?P<obj_id>[0-9]+)/images/$',
         views.study_images, name='webgallery_study_image'),
