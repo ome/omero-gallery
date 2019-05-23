@@ -446,7 +446,7 @@ window.onpopstate = (event) => {
 
 
 // Load MAPR config
-fetch('/gallery/idr/mapr/config/')
+fetch(BASE_URL + 'mapr/api/config/')
   .then(response => response.json())
   .then(data => {
     mapr_settings = data;

@@ -286,7 +286,7 @@ def search(request, super_category=None, conn=None, **kwargs):
         title = category.get('title', label)
         context['gallery_title'] = title
         context['super_category'] = json.dumps(category)
-    base_url = reverse('webindex')
+    base_url = reverse('index')
     if gallery_settings.BASE_URL is not None:
         base_url = gallery_settings.BASE_URL
     context['base_url'] = base_url
