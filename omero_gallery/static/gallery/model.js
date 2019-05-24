@@ -221,9 +221,12 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
     let limit = parseInt(query.replace('FIRST', '').replace('LAST', ''));
     let attr = query.split(':')[1];
     let desc = query.startsWith("FIRST") ? -1 : 1;
-    let sorted = this.studies.sort((a, b) => {
-      return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
-    });
+    // first filter studies, remove those that don't have 'attr'
+    let sorted = this.studies
+      .filter(study => study[attr] !== undefined)
+      .sort((a, b) => {
+        return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
+      });
     return sorted.slice(0, limit);
   }
 
