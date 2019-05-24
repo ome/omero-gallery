@@ -2,6 +2,7 @@
 
 // Model for loading Projects, Screens and their Map Annotations
 let model = new StudiesModel();
+let mapr_settings;
 
 function renderStudyKeys() {
   let html = FILTER_KEYS
@@ -35,6 +36,12 @@ function populateInputsFromSearch() {
     if (configId && value) {
       document.getElementById("maprConfig").value = configId;
       document.getElementById("maprQuery").value = value;
+      let key = configId.replace('mapr_', '');
+      let placeholder = key;
+      if (mapr_settings && mapr_settings[key]) {
+        placeholder = mapr_settings[key].all.join(", ");
+      }
+      document.getElementById('maprQuery').placeholder = placeholder;
     }
   }
 }
@@ -75,7 +82,7 @@ function filterStudiesByMapr(value) {
 document.getElementById('maprConfig').onchange = (event) => {
   document.getElementById('maprQuery').value = '';
   let value = event.target.value.replace('mapr_', '');
-  let placeholder = mapr_settings[value] ? mapr_settings[value].default[0] : value;
+  let placeholder = mapr_settings[value] ? mapr_settings[value].all.join(", ") : value;
   document.getElementById('maprQuery').placeholder = placeholder;
   // Show all autocomplete options...
   $("#maprQuery").focus();
