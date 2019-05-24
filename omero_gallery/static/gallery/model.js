@@ -19,6 +19,7 @@ StudiesModel.prototype.getStudiesNames = function getStudiesNames(filterQuery) {
   if (filterQuery) {
     names = names.filter(name => name.toLowerCase().indexOf(filterQuery) > -1);
   }
+  names.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1: -1);
   return names;
 }
 
@@ -98,10 +99,13 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
                     matchCounts[key].count]);
   }
 
-  // Sort by the matchScore
+  // Sort by the matchScore (hightest first)
   matchList.sort(function(a, b) {
-    return (a[0] < b[0] ? 1 :
-      a[0] > b[0] ? -1 : 0)
+    if (a[0] < b[0]) return 1;
+    if (a[0] > b[0]) return -1;
+    // equal score. Sort by value (lowest first)
+    if (a[1] > b[1]) return 1;
+    return -1;
   });
 
   // Return the matches
