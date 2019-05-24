@@ -33,7 +33,9 @@ StudiesModel.prototype.getStudyValue = function getStudyValue(study, key) {
 }
 
 StudiesModel.prototype.getStudyValues = function getStudyValues(study, key) {
-  if (!study.mapValues) return;
+  if (!study.mapValues) {
+    return [];
+  }
   let matches = [];
   for (let i=0; i<study.mapValues.length; i++){
     let kv = study.mapValues[i];
@@ -53,7 +55,6 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
     for (let i=0; i<v.length; i++) {
       values.push(v[i]);
     }
-    return "";
   });
   // We want values that match inputText
   // Except for "Publication Authors", where we want words
