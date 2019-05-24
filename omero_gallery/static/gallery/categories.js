@@ -226,7 +226,7 @@ function loadStudyThumbnails() {
     let obj_id = element.dataset.obj_id;
     let obj_type = element.dataset.obj_type;
     if (obj_id && obj_type) {
-      ids.push(obj_type + '=' + obj_id);
+      ids.push(obj_type + '-' + obj_id);
     }
   });
 

@@ -14,6 +14,18 @@ var StudiesModel = function() {
   return this;
 }
 
+StudiesModel.prototype.getStudyById = function getStudyById(typeId) {
+  // E.g. 'project-1', or 'screen-2'
+  let objType = typeId.split('-')[0];
+  let id = typeId.split('-')[1];
+  for (let i=0; i<this.studies.length; i++) {
+    let study = this.studies[i];
+    if (study['@id'] == id && study['@type'].split('#')[1].toLowerCase() == objType) {
+      return study;
+    }
+  }
+}
+
 StudiesModel.prototype.getStudiesNames = function getStudiesNames(filterQuery) {
   let names = this.studies.map(s => s.Name);
   if (filterQuery) {
@@ -156,19 +168,40 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
   let url = GALLERY_INDEX + "api/thumbnails/";
-  // let ids = this.studies.map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`);
+  // remove duplicates
   ids = [...new Set(ids)];
+  // find any thumbnails we already have in hand...
+  let found = {};
+  let toFind = [];
+  ids.forEach(id => {
+    let study = this.getStudyById(id);
+    if (study && study.image && study.thumbnail) {
+      found[id] = {image: study.image, thumbnail: study.thumbnail}
+    } else {
+      toFind.push(id);
+    }
+  });
+  if (Object.keys(found).length > 0) {
+    callback(found);
+  }
+
+  toFind = toFind.map(id => id.replace('-', '='));
   let batchSize = 10;
-  while (ids.length > 0) {
-    let data = ids.slice(0, batchSize).join("&");
+  while (toFind.length > 0) {
+    let data = toFind.slice(0, batchSize).join("&");
     fetch(url + '?' + data)
       .then(response => response.json())
       .then(data => {
+        for (studyId in data) {
+          let study = this.getStudyById(studyId);
+          study.image = data[studyId].image;
+          study.thumbnail = data[studyId].thumbnail;
+        }
         if (callback) {
           callback(data);
         }
       });
-    ids = ids.slice(batchSize);
+    toFind = toFind.slice(batchSize);
   }
 }
 

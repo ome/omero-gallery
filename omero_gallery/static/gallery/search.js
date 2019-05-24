@@ -236,11 +236,13 @@ function filterAndRender() {
       }
       // Filter by Map-Annotation Key-Value
       let show = false;
-      study.mapValues.forEach(kv => {
-        if (kv[0] === configId && kv[1].toLowerCase().indexOf(toMatch) > -1) {
-          show = true;
-        }
-      });
+      if (study.mapValues) {
+        study.mapValues.forEach(kv => {
+          if (kv[0] === configId && kv[1].toLowerCase().indexOf(toMatch) > -1) {
+            show = true;
+          }
+        });
+      }
       return show;
     }
     render(filterFunc);
@@ -409,7 +411,7 @@ function loadStudyThumbnails() {
     let obj_id = element.dataset.obj_id;
     let obj_type = element.dataset.obj_type;
     if (obj_id && obj_type) {
-      ids.push(obj_type + '=' + obj_id);
+      ids.push(obj_type + '-' + obj_id);
     }
   });
 
