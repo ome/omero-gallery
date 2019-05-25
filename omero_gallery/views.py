@@ -369,15 +369,13 @@ def api_thumbnails(request, conn=None, **kwargs):
     thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids.keys()], 96)
     rv = {}
     for i, obj_id in image_ids.items():
-        rv[obj_id] = None
+        rv[obj_id] = {"image": {'id': i}}
         try:
             t = thumbnails[i]
             if len(t) > 0:
                 # replace thumbnail urls by base64 encoded image
-                rv[obj_id] = {
-                    "image": {'id': i},
-                    "thumbnail": ("data:image/jpeg;base64,%s"
-                                  % base64.b64encode(t))}
+                rv[obj_id]["thumbnail"] = ("data:image/jpeg;base64,%s"
+                                           % base64.b64encode(t))
         except KeyError:
             logger.error("Thumbnail not available. (img id: %d)" % i)
     return rv

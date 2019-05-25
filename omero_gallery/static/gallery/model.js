@@ -194,8 +194,10 @@ StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(id
       .then(data => {
         for (studyId in data) {
           let study = this.getStudyById(studyId);
-          study.image = data[studyId].image;
-          study.thumbnail = data[studyId].thumbnail;
+          if (data[studyId]) {
+            study.image = data[studyId].image;
+            study.thumbnail = data[studyId].thumbnail;
+          }
         }
         if (callback) {
           callback(data);

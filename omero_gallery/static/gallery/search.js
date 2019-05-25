@@ -419,6 +419,7 @@ function loadStudyThumbnails() {
   model.loadStudiesThumbnails(ids, (data) => {
     // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
     for (id in data) {
+      if (!data[id]) continue;  // may be null
       let obj_type = id.split('-')[0];
       let obj_id = id.split('-')[1];
       let elements = document.querySelectorAll(`div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`);
@@ -426,11 +427,15 @@ function loadStudyThumbnails() {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
         let studyImage = element.querySelector('img.studyImage');
-        studyImage.src = data[id].thumbnail;
+        if (data[id].thumbnail) {
+          studyImage.src = data[id].thumbnail;
+        }
         // viewer link
-        let iid = data[id].image.id;
-        let link = `${ BASE_URL }webclient/img_detail/${ iid }/`;
-        element.querySelector('a.viewerLink').href = link;
+        if (data[id].image && data[id].image.id) {
+          let iid = data[id].image.id;
+          let link = `${ BASE_URL }webclient/img_detail/${ iid }/`;
+          element.querySelector('a.viewerLink').href = link;
+        }
       }
     }
   });
