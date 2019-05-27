@@ -313,8 +313,11 @@ function renderMapr(maprData) {
       .then(response => response.json())
       .then(data => {
         let html = data.images.slice(0, 4).map(i => `
-          <a href="${ BASE_URL }webclient/img_detail/${ i.id }/" target="_blank">
-            <img class="thumbnail" src="${ BASE_URL }webgateway/render_thumbnail/${ i.id }/">
+          <a href="${ BASE_URL }webclient/img_detail/${ i.id }/" target="_blank" title="Open image in viewer" class="maprViewerLink">
+            <div>
+              <img class="thumbnail" src="${ BASE_URL }webgateway/render_thumbnail/${ i.id }/">
+              <i class="fas fa-eye"></i>
+            </div>
           </a>`).join("");
         // Find the container and add images html
         $("#"+element.id).append(html);

@@ -6,6 +6,30 @@
 <style>
   .study{
     width: 247px;
+    height: 300px;
+  }
+  .study a {
+    color: #455a64;
+  }
+  .study a:hover {
+    color: #1e94e6;
+  }
+  .maprViewerLink {
+    position: relative;
+  }
+  a.maprViewerLink div {
+    display: inline-block;
+    position:relative;
+  }
+  a.maprViewerLink i {
+    visibility: hidden;
+    color: white;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+  a.maprViewerLink:hover i{
+    visibility: visible;
   }
 </style>
 
@@ -75,17 +99,16 @@
     }
 
     function maprHtml(props, data) {
-      return `
-      <a target="_blank" href="${ props.studyLink }">
-        
-        <div id="${ props.type }-${ data['@id'] }" class="maprText">
+      return `  
+      <div id="${ props.type }-${ data['@id'] }" class="maprText">
+        <a target="_blank" href="${ props.studyLink }">
           <p>Found ${ data.imageCount } images in study:</p>
           <p title="${ props.studyDesc }">
             <span style='color:#1976d2'>${ props.idrId }</span>:
             ${ props.title }
           </p>
-        </div>
-      </a>
+        </a>
+      </div>
       `
     }
   </script>
