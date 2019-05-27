@@ -55,6 +55,9 @@ function filterStudiesByMapr(value) {
   let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ value }`;
   // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
   url += '&_=' + CACHE_BUSTER;
+  document.getElementById('studies').innerHTML = "";
+  let key = mapr_settings[value] ? mapr_settings[value].all.join(" or ") : value;
+  showFilterSpinner(`Finding images with ${ configId }: ${ value }...`);
   $.getJSON(url, (data) => {
     // filter studies by 'screens' and 'projects'
     let imageCounts = {};
@@ -71,10 +74,15 @@ function filterStudiesByMapr(value) {
       let studyData = Object.assign({}, study);
       studyData.imageCount = imageCounts[studyId];
       return studyData;
-    });
-
+    })
     renderMapr(maprData);
   })
+  .fail(() => {
+    document.getElementById('filterCount').innerHTML = "Request failed. Server may be busy."
+  })
+  .always(() => {
+    hideFilterSpinner();
+  });
 }
 
 // ----- event handling --------
@@ -100,6 +108,19 @@ function showSpinner() {
 }
 function hideSpinner() {
   document.getElementById('spinner').style.visibility = 'hidden';
+}
+// timeout to avoid flash of spinner
+let filterSpinnerTimout;
+function showFilterSpinner(message) {
+  filterSpinnerTimout = setTimeout(() => {
+    document.getElementById('filterSpinnerMessage').innerHTML = message ? message : '';
+    document.getElementById('filterSpinner').style.display = 'block';
+  }, 500);
+}
+function hideFilterSpinner() {
+  clearTimeout(filterSpinnerTimout);
+  document.getElementById('filterSpinnerMessage').innerHTML = '';
+  document.getElementById('filterSpinner').style.display = 'none';
 }
 
 $("#maprQuery")
@@ -191,7 +212,8 @@ $("#maprQuery")
             },
             error: function(data) {
                 hideSpinner();
-                response([{ label: 'Error occured.', value: -1 }]);
+                // E.g. status 504 for timeout
+                response([{ label: 'Loading auto-complete terms failed. Server may be busy.', value: -1 }]);
             }
         });
     },

@@ -103,6 +103,15 @@ maprText {
   visibility: hidden;
 }
 
+#filterSpinner {
+  display: none;
+}
+#filterSpinner svg {
+  width: 50px;
+  margin: 20px;
+  color: #bbb;
+}
+
 /* Fix issues from combining foundation css with jquery-ui auto-complete */
 .ui-autocomplete a {
   font-weight: normal;
