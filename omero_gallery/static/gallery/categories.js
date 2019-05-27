@@ -74,11 +74,11 @@ $("#maprQuery")
           // Try to list all top-level values.
           // This works for 'wild-card' configs where number of values is small e.g. Organism
           // But will return empty list for e.g. Gene
-          url = `${ BASE_URL }/mapr/api/${ configId }/`;
+          url = `${ BASE_URL }mapr/api/${ configId }/`;
           requestData.orphaned = true
         } else {
           // Find auto-complete matches
-          url = `${ BASE_URL }/mapr/api/autocomplete/${ configId }/`;
+          url = `${ BASE_URL }mapr/api/autocomplete/${ configId }/`;
           requestData.value = case_sensitive ? request.term : request.term.toLowerCase();
           requestData.query = true;   // use a 'like' HQL query
         }
@@ -163,7 +163,7 @@ function render() {
     // By default, we link to the study itself in IDR...
     let linkFunc = (studyData) => {
       let type = studyData['@type'].split('#')[1].toLowerCase();
-      return `${ BASE_URL }/webclient/?show=${ type }-${ studyData['@id'] }`;
+      return `${ BASE_URL }webclient/?show=${ type }-${ studyData['@id'] }`;
     }
 
     matches.forEach(study => renderStudy(study, cat.label, linkFunc));
@@ -226,7 +226,7 @@ function loadStudyThumbnails() {
     let obj_id = element.dataset.obj_id;
     let obj_type = element.dataset.obj_type;
     if (obj_id && obj_type) {
-      ids.push(obj_type + '=' + obj_id);
+      ids.push(obj_type + '-' + obj_id);
     }
   });
 
@@ -244,7 +244,7 @@ function loadStudyThumbnails() {
         studyImage.src = data[id].thumbnail;
         // viewer link
         let iid = data[id].image.id;
-        let link = `${ BASE_URL }/webclient/img_detail/${ iid }/`;
+        let link = `${ BASE_URL }webclient/img_detail/${ iid }/`;
         element.querySelector('a.viewerLink').href = link;
       }
     }
@@ -278,7 +278,7 @@ model.loadStudies(() => {
 
 
 // Load MAPR config
-fetch(GALLERY_INDEX + 'idr/mapr/config/')
+fetch(BASE_URL + 'mapr/api/config/')
   .then(response => response.json())
   .then(data => {
     mapr_settings = data;

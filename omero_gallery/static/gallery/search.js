@@ -2,6 +2,7 @@
 
 // Model for loading Projects, Screens and their Map Annotations
 let model = new StudiesModel();
+let mapr_settings;
 
 function renderStudyKeys() {
   let html = FILTER_KEYS
@@ -35,6 +36,12 @@ function populateInputsFromSearch() {
     if (configId && value) {
       document.getElementById("maprConfig").value = configId;
       document.getElementById("maprQuery").value = value;
+      let key = configId.replace('mapr_', '');
+      let placeholder = key;
+      if (mapr_settings && mapr_settings[key]) {
+        placeholder = mapr_settings[key].all.join(", ");
+      }
+      document.getElementById('maprQuery').placeholder = placeholder;
     }
   }
 }
@@ -45,7 +52,7 @@ populateInputsFromSearch();
 
 function filterStudiesByMapr(value) {
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  let url = `${ BASE_URL }/mapr/api/${ configId }/?value=${ value }`;
+  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ value }`;
   // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
   url += '&_=' + CACHE_BUSTER;
   $.getJSON(url, (data) => {
@@ -75,7 +82,7 @@ function filterStudiesByMapr(value) {
 document.getElementById('maprConfig').onchange = (event) => {
   document.getElementById('maprQuery').value = '';
   let value = event.target.value.replace('mapr_', '');
-  let placeholder = mapr_settings[value] ? mapr_settings[value].default[0] : value;
+  let placeholder = mapr_settings[value] ? mapr_settings[value].all.join(", ") : value;
   document.getElementById('maprQuery').placeholder = placeholder;
   // Show all autocomplete options...
   $("#maprQuery").focus();
@@ -149,11 +156,11 @@ $("#maprQuery")
           // Try to list all top-level values.
           // This works for 'wild-card' configs where number of values is small e.g. Organism
           // But will return empty list for e.g. Gene
-          url = `${ BASE_URL }/mapr/api/${ configId }/`;
+          url = `${ BASE_URL }mapr/api/${ configId }/`;
           requestData.orphaned = true
         } else {
           // Find auto-complete matches
-          url = `${ BASE_URL }/mapr/api/autocomplete/${ configId }/`;
+          url = `${ BASE_URL }mapr/api/autocomplete/${ configId }/`;
           requestData.value = case_sensitive ? request.term : request.term.toLowerCase();
           requestData.query = true;   // use a 'like' HQL query
         }
@@ -229,11 +236,13 @@ function filterAndRender() {
       }
       // Filter by Map-Annotation Key-Value
       let show = false;
-      study.mapValues.forEach(kv => {
-        if (kv[0] === configId && kv[1].toLowerCase().indexOf(toMatch) > -1) {
-          show = true;
-        }
-      });
+      if (study.mapValues) {
+        study.mapValues.forEach(kv => {
+          if (kv[0] === configId && kv[1].toLowerCase().indexOf(toMatch) > -1) {
+            show = true;
+          }
+        });
+      }
       return show;
     }
     render(filterFunc);
@@ -274,21 +283,21 @@ function renderMapr(maprData) {
     let childType = objType === "project" ? "datasets" : "plates";
     let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
     let maprValue = document.getElementById('maprQuery').value;
-    let url = `${ BASE_URL }/mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
+    let url = `${ BASE_URL }mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
     url += '&_=' + CACHE_BUSTER;
     fetch(url)
       .then(response => response.json())
       .then(data => {
         let firstChild = data[childType][0];
-        let imagesUrl = `${ BASE_URL }/mapr/api/${ configId }/images/?value=${ maprValue }&id=${ firstChild.id }&node=${ firstChild.extra.node }`;
+        let imagesUrl = `${ BASE_URL }mapr/api/${ configId }/images/?value=${ maprValue }&id=${ firstChild.id }&node=${ firstChild.extra.node }`;
         imagesUrl += '&_=' + CACHE_BUSTER;
         return fetch(imagesUrl);
       })
       .then(response => response.json())
       .then(data => {
         let html = data.images.slice(0, 4).map(i => `
-          <a href="${ BASE_URL }/webclient/img_detail/${ i.id }/" target="_blank">
-            <img class="thumbnail" src="${ BASE_URL }/webgateway/render_thumbnail/${ i.id }/">
+          <a href="${ BASE_URL }webclient/img_detail/${ i.id }/" target="_blank">
+            <img class="thumbnail" src="${ BASE_URL }webgateway/render_thumbnail/${ i.id }/">
           </a>`).join("");
         // Find the container and add images html
         $("#"+element.id).append(html);
@@ -320,7 +329,7 @@ function render(filterFunc) {
   // By default, we link to the study itself in IDR...
   let linkFunc = (studyData) => {
     let type = studyData['@type'].split('#')[1].toLowerCase();
-    return `${ BASE_URL }/webclient/?show=${ type }-${ studyData['@id'] }`;
+    return `${ BASE_URL }webclient/?show=${ type }-${ studyData['@id'] }`;
   }
   let htmlFunc = studyHtml;
 
@@ -402,7 +411,7 @@ function loadStudyThumbnails() {
     let obj_id = element.dataset.obj_id;
     let obj_type = element.dataset.obj_type;
     if (obj_id && obj_type) {
-      ids.push(obj_type + '=' + obj_id);
+      ids.push(obj_type + '-' + obj_id);
     }
   });
 
@@ -410,6 +419,7 @@ function loadStudyThumbnails() {
   model.loadStudiesThumbnails(ids, (data) => {
     // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
     for (id in data) {
+      if (!data[id]) continue;  // may be null
       let obj_type = id.split('-')[0];
       let obj_id = id.split('-')[1];
       let elements = document.querySelectorAll(`div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`);
@@ -417,11 +427,15 @@ function loadStudyThumbnails() {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
         let studyImage = element.querySelector('img.studyImage');
-        studyImage.src = data[id].thumbnail;
+        if (data[id].thumbnail) {
+          studyImage.src = data[id].thumbnail;
+        }
         // viewer link
-        let iid = data[id].image.id;
-        let link = `${ BASE_URL }/webclient/img_detail/${ iid }/`;
-        element.querySelector('a.viewerLink').href = link;
+        if (data[id].image && data[id].image.id) {
+          let iid = data[id].image.id;
+          let link = `${ BASE_URL }webclient/img_detail/${ iid }/`;
+          element.querySelector('a.viewerLink').href = link;
+        }
       }
     }
   });
@@ -446,7 +460,7 @@ window.onpopstate = (event) => {
 
 
 // Load MAPR config
-fetch('/gallery/idr/mapr/config/')
+fetch(BASE_URL + 'mapr/api/config/')
   .then(response => response.json())
   .then(data => {
     mapr_settings = data;

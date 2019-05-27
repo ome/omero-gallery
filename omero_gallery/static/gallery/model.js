@@ -14,11 +14,24 @@ var StudiesModel = function() {
   return this;
 }
 
+StudiesModel.prototype.getStudyById = function getStudyById(typeId) {
+  // E.g. 'project-1', or 'screen-2'
+  let objType = typeId.split('-')[0];
+  let id = typeId.split('-')[1];
+  for (let i=0; i<this.studies.length; i++) {
+    let study = this.studies[i];
+    if (study['@id'] == id && study['@type'].split('#')[1].toLowerCase() == objType) {
+      return study;
+    }
+  }
+}
+
 StudiesModel.prototype.getStudiesNames = function getStudiesNames(filterQuery) {
   let names = this.studies.map(s => s.Name);
   if (filterQuery) {
     names = names.filter(name => name.toLowerCase().indexOf(filterQuery) > -1);
   }
+  names.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1: -1);
   return names;
 }
 
@@ -33,7 +46,9 @@ StudiesModel.prototype.getStudyValue = function getStudyValue(study, key) {
 }
 
 StudiesModel.prototype.getStudyValues = function getStudyValues(study, key) {
-  if (!study.mapValues) return;
+  if (!study.mapValues) {
+    return [];
+  }
   let matches = [];
   for (let i=0; i<study.mapValues.length; i++){
     let kv = study.mapValues[i];
@@ -53,7 +68,6 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
     for (let i=0; i<v.length; i++) {
       values.push(v[i]);
     }
-    return "";
   });
   // We want values that match inputText
   // Except for "Publication Authors", where we want words
@@ -97,10 +111,13 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
                     matchCounts[key].count]);
   }
 
-  // Sort by the matchScore
+  // Sort by the matchScore (hightest first)
   matchList.sort(function(a, b) {
-    return (a[0] < b[0] ? 1 :
-      a[0] > b[0] ? -1 : 0)
+    if (a[0] < b[0]) return 1;
+    if (a[0] > b[0]) return -1;
+    // equal score. Sort by value (lowest first)
+    if (a[1].toLowerCase() > b[1].toLowerCase()) return 1;
+    return -1;
   });
 
   // Return the matches
@@ -117,8 +134,8 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 
   // Load Projects AND Screens, sort them and render...
   Promise.all([
-    fetch(this.base_url + "/api/v0/m/projects/"),
-    fetch(this.base_url + "/api/v0/m/screens/"),
+    fetch(this.base_url + "api/v0/m/projects/"),
+    fetch(this.base_url + "api/v0/m/screens/"),
   ]).then(responses =>
       Promise.all(responses.map(res => res.json()))
   ).then(([projects, screens]) => {
@@ -151,25 +168,48 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
   let url = GALLERY_INDEX + "api/thumbnails/";
-  // let ids = this.studies.map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`);
+  // remove duplicates
   ids = [...new Set(ids)];
+  // find any thumbnails we already have in hand...
+  let found = {};
+  let toFind = [];
+  ids.forEach(id => {
+    let study = this.getStudyById(id);
+    if (study && study.image && study.thumbnail) {
+      found[id] = {image: study.image, thumbnail: study.thumbnail}
+    } else {
+      toFind.push(id);
+    }
+  });
+  if (Object.keys(found).length > 0) {
+    callback(found);
+  }
+
+  toFind = toFind.map(id => id.replace('-', '='));
   let batchSize = 10;
-  while (ids.length > 0) {
-    let data = ids.slice(0, batchSize).join("&");
+  while (toFind.length > 0) {
+    let data = toFind.slice(0, batchSize).join("&");
     fetch(url + '?' + data)
       .then(response => response.json())
       .then(data => {
+        for (studyId in data) {
+          let study = this.getStudyById(studyId);
+          if (data[studyId]) {
+            study.image = data[studyId].image;
+            study.thumbnail = data[studyId].thumbnail;
+          }
+        }
         if (callback) {
           callback(data);
         }
       });
-    ids = ids.slice(batchSize);
+    toFind = toFind.slice(batchSize);
   }
 }
 
 
 StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnotations(callback) {
-  let url = this.base_url + "/webclient/api/annotations/?type=map";
+  let url = this.base_url + "webclient/api/annotations/?type=map";
   let data = this.studies
     .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
     .join("&");
@@ -220,9 +260,12 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
     let limit = parseInt(query.replace('FIRST', '').replace('LAST', ''));
     let attr = query.split(':')[1];
     let desc = query.startsWith("FIRST") ? -1 : 1;
-    let sorted = this.studies.sort((a, b) => {
-      return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
-    });
+    // first filter studies, remove those that don't have 'attr'
+    let sorted = this.studies
+      .filter(study => study[attr] !== undefined)
+      .sort((a, b) => {
+        return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
+      });
     return sorted.slice(0, limit);
   }
 
@@ -282,7 +325,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
 
   let limit = 20;
   if (obj_type == 'screen') {
-    let url = `${ this.base_url }/api/v0/m/screens/${ obj_id }/plates/`;
+    let url = `${ this.base_url }api/v0/m/screens/${ obj_id }/plates/`;
     url += '?limit=1'   // just get first plate
     url += '&_=' + CACHE_BUSTER;
     fetch(url)
@@ -292,7 +335,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
         // Jump into the 'middle' of plate to make sure Wells have images
         // NB: Some plates don't have Well at each Row/Column spot. Well_count < Rows * Cols * 0.5
         let offset = Math.max(0, parseInt(obj.Rows * obj.Columns * 0.25) - limit);
-        let url = `${ this.base_url }/api/v0/m/plates/${ obj['@id'] }/wells/?limit=${limit}&offset=${offset}`;
+        let url = `${ this.base_url }api/v0/m/plates/${ obj['@id'] }/wells/?limit=${limit}&offset=${offset}`;
         url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })
@@ -313,7 +356,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
         return;
       })
   } else if (obj_type == 'project') {
-    let url = `${ this.base_url }/api/v0/m/projects/${ obj_id }/datasets/`;
+    let url = `${ this.base_url }api/v0/m/projects/${ obj_id }/datasets/`;
     url += '?limit=1'   // just get first plate
     url += '&_=' + CACHE_BUSTER;
     fetch(url)
@@ -324,7 +367,7 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
           // No Dataset in Project: ' + obj_id;
           return;
         }
-        let url = `${ this.base_url }/api/v0/m/datasets/${ obj['@id'] }/images/?limit=1`;
+        let url = `${ this.base_url }api/v0/m/datasets/${ obj['@id'] }/images/?limit=1`;
         url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })

@@ -7,7 +7,7 @@ import base64
 import omero
 from omero.rtypes import wrap, rlong
 from omeroweb.webclient.decorators import login_required, render_response
-from omeroweb.webgateway.views import render_thumbnail
+from omeroweb.api.decorators import login_required as api_login_required
 from omeroweb.api.api_settings import API_MAX_LIMIT
 
 try:
@@ -43,7 +43,7 @@ def index(request, super_category=None):
             title = category.get('title', label)
             context['gallery_title'] = title
             context['super_category'] = json.dumps(category)
-        base_url = reverse('webindex')
+        base_url = reverse('index')
         if gallery_settings.BASE_URL is not None:
             base_url = gallery_settings.BASE_URL
         context['base_url'] = base_url
@@ -286,7 +286,7 @@ def search(request, super_category=None, conn=None, **kwargs):
         title = category.get('title', label)
         context['gallery_title'] = title
         context['super_category'] = json.dumps(category)
-    base_url = reverse('webindex')
+    base_url = reverse('index')
     if gallery_settings.BASE_URL is not None:
         base_url = gallery_settings.BASE_URL
     context['base_url'] = base_url
@@ -349,18 +349,9 @@ def study_images(request, obj_type, obj_id, conn=None, **kwargs):
     return {'data': json_data, 'meta': meta}
 
 
-@login_required()
-def study_thumbnail(request, obj_type, obj_id, conn=None, **kwargs):
-    images = _get_study_images(conn, obj_type, obj_id, limit=1, offset=0)
-    if len(images) == 0:
-        raise Http404("No images found")
-    img_id = images[0].id.val
-    return render_thumbnail(request, img_id, conn=conn)
-
-
 @render_response()
-@login_required()
-def study_thumbnails(request, conn=None, **kwargs):
+@api_login_required()   # 403 JsonResponse if not logged in
+def api_thumbnails(request, conn=None, **kwargs):
     """
     Return data like
     { project-1: {thumbnail: base64data, image: {id:1}} }
@@ -378,123 +369,13 @@ def study_thumbnails(request, conn=None, **kwargs):
     thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids.keys()], 96)
     rv = {}
     for i, obj_id in image_ids.items():
-        rv[obj_id] = None
+        rv[obj_id] = {"image": {'id': i}}
         try:
             t = thumbnails[i]
             if len(t) > 0:
                 # replace thumbnail urls by base64 encoded image
-                rv[obj_id] = {
-                    "image": {'id': i},
-                    "thumbnail": ("data:image/jpeg;base64,%s"
-                                  % base64.b64encode(t))}
+                rv[obj_id]["thumbnail"] = ("data:image/jpeg;base64,%s"
+                                           % base64.b64encode(t))
         except KeyError:
             logger.error("Thumbnail not available. (img id: %d)" % i)
     return rv
-
-
-@render_response()
-def temp_mapr_config(request):
-    """
-    Temp mapr config.
-    until https://github.com/ome/omero-mapr/pull/46 is merged
-    """
-
-    return {
-          "antibody": {
-            "all": [
-              "Antibody Identifier"
-            ],
-            "case_sensitive": True,
-            "default": [
-              "Antibody Identifier"
-            ],
-            "label": "Antibody",
-            "ns": [
-              "openmicroscopy.org/mapr/antibody"
-            ]
-          },
-          "cellline": {
-            "all": [
-              "Cell Line"
-            ],
-            "default": [
-              "Cell Line"
-            ],
-            "label": "Cell Lines",
-            "ns": [
-              "openmicroscopy.org/mapr/cell_line"
-            ],
-            "wildcard": {
-              "enabled": True
-            }
-          },
-          "compound": {
-            "all": [
-              "Compound Name"
-            ],
-            "case_sensitive": True,
-            "default": [
-              "Compound Name"
-            ],
-            "label": "Compound",
-            "ns": [
-              "openmicroscopy.org/mapr/compound"
-            ]
-          },
-          "gene": {
-            "all": [
-              "Gene Symbol",
-              "Gene Identifier"
-            ],
-            "case_sensitive": True,
-            "default": [
-              "Gene Symbol"
-            ],
-            "label": "Gene",
-            "ns": [
-              "openmicroscopy.org/mapr/gene"
-            ]
-          },
-          "orf": {
-            "all": [
-              "ORF Identifier"
-            ],
-            "default": [
-              "ORF Identifier"
-            ],
-            "label": "ORF",
-            "ns": [
-              "openmicroscopy.org/mapr/orf"
-            ]
-          },
-          "phenotype": {
-            "all": [
-              "Phenotype",
-              "Phenotype Term Accession"
-            ],
-            "case_sensitive": True,
-            "default": [
-              "Phenotype"
-            ],
-            "label": "Phenotype",
-            "ns": [
-              "openmicroscopy.org/mapr/phenotype"
-            ],
-            "wildcard": {
-              "enabled": True
-            }
-          },
-          "sirna": {
-            "all": [
-              "siRNA Identifier",
-              "siRNA Pool Identifier"
-            ],
-            "default": [
-              "siRNA Identifier"
-            ],
-            "label": "siRNA",
-            "ns": [
-              "openmicroscopy.org/mapr/sirna"
-            ]
-          }
-        }
