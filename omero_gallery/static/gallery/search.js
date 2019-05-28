@@ -313,14 +313,20 @@ function renderMapr(maprData) {
       .then(response => response.json())
       .then(data => {
         let html = data.images.slice(0, 4).map(i => `
-          <a href="${ BASE_URL }webclient/img_detail/${ i.id }/" target="_blank" title="Open image in viewer" class="maprViewerLink">
+          <a href="${ BASE_URL }webclient/img_detail/${ i.id }/"
+             target="_blank" title="Open image in viewer" class="maprViewerLink">
             <div>
-              <img class="thumbnail" src="${ BASE_URL }webgateway/render_thumbnail/${ i.id }/">
+              <img class="thumbnail" src="${ STATIC_DIR }images/transparent.png"
+                data-src="${ BASE_URL }webgateway/render_thumbnail/${ i.id }/">
               <i class="fas fa-eye"></i>
             </div>
           </a>`).join("");
-        // Find the container and add images html
+        // Find the container and add placeholder images html
         $("#"+element.id).append(html);
+        // Update the src to load the thumbnails
+        $('img', "#"+element.id).each((img, a,b) => {
+          a.src = a.dataset.src;
+        });
       });
   });
 }

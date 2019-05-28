@@ -125,6 +125,7 @@
   var TITLE_KEYS = {{ TITLE_KEYS|escape|safe }};
   var SUPER_CATEGORIES = {{ SUPER_CATEGORIES|escape|safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
+  var STATIC_DIR = "{% static 'gallery/' %}";
 </script>
 
 <script src="{% static 'gallery/search.js' %}"></script>
