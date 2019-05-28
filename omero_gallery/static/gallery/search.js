@@ -287,7 +287,7 @@ function renderMapr(maprData) {
   if (maprData.length === 0) {
     filterMessage = noStudiesMessage();
   } else {
-    filterMessage = `Found ${ totalCount } images in ${ maprData.length} studies`;
+    filterMessage = `Found <strong>${ totalCount }</strong> images in <strong>${ maprData.length}</strong> studies`;
   }
   document.getElementById('filterCount').innerHTML = filterMessage;
 
@@ -342,7 +342,7 @@ function render(filterFunc) {
   if (studiesToRender.length === 0) {
     filterMessage = noStudiesMessage();
   } else if (studiesToRender.length < model.studies.length) {
-    filterMessage = `Showing ${ studiesToRender.length } of ${ model.studies.length} studies`;
+    filterMessage = `Showing <strong>${ studiesToRender.length }</strong> of ${ model.studies.length} studies`;
   }
   document.getElementById('filterCount').innerHTML = filterMessage;
 
