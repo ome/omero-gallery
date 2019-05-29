@@ -103,6 +103,7 @@ function renderMaprResults(term) {
       <tbody id='${ elementId }'>
         <tr>
           <th>Study ID</th>
+          <th>Organism</th>
           <th>Image count</th>
           <th>Title</th>
           <th>Sample Images</th>
@@ -333,6 +334,11 @@ function filterAndRender() {
 }
 
 function renderMapr(maprData, term) {
+
+  maprData.sort((a, b) => {
+    return a.Name > b.Name ? 1 : -1;
+  });
+
   let elementId = 'maprResultsTable' + term;
 
   let configId = document.getElementById("maprConfig").value;
