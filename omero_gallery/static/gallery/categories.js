@@ -119,6 +119,10 @@ $("#maprQuery")
     },
     focus: function(event,ui) {},
     select: function(event, ui) {
+        if (ui.item.value == -1) {
+          // Ignore 'No results found'
+          return false;
+        }
         let configId = document.getElementById("maprConfig").value;
         document.location.href = `search/?query=${ configId }:${ ui.item.value }`;
         return false;

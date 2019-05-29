@@ -222,6 +222,10 @@ $("#maprQuery")
     },
     focus: function(event,ui) {},
     select: function(event, ui) {
+        if (ui.item.value == -1) {
+          // Ignore 'No results found'
+          return false;
+        }
         $(this).val(ui.item.value);
         filterAndRender();
         // Add to browser history. Handled by onpopstate on browser Back
