@@ -6,7 +6,7 @@
 <style>
   .study{
     width: 247px;
-    height: 300px;
+    height: 247px;
   }
   .study a {
     color: #455a64;
@@ -30,6 +30,19 @@
   }
   a.maprViewerLink:hover i{
     visibility: visible;
+  }
+  .thumbnail {
+    max-height: 45px;
+    max-width: 45px;
+  }
+  table td {
+    white-space: nowrap;
+  }
+  .filterMessage {
+    font-size: 120%;
+  }
+  .filterMessage strong {
+    color: #1976d2;
   }
 </style>
 
@@ -75,8 +88,8 @@
   Loading Studies...
 
   <script>
-    function studyHtml(props) {
-      return `
+    function studyHtml(props, studyData) {
+      let html = `
       <a target="_blank" href="${ props.studyLink }">
         <div class="studyBackground" style="padding: 0">
           <img class="studyImage" src="" />
@@ -96,20 +109,33 @@
         <i class="fas fa-eye"></i>
       </a>
       `
+      var div = document.createElement( "div" );
+      div.innerHTML = html;
+      div.id = props.type + '-' + studyData['@id'];
+      div.dataset.obj_type = props.type;
+      div.dataset.obj_id = studyData['@id'];
+      div.className = "row study ";
+      return div;
     }
 
-    function maprHtml(props, data) {
-      return `  
-      <div id="${ props.type }-${ data['@id'] }" class="maprText">
-        <a target="_blank" href="${ props.studyLink }">
-          <p>Found <strong>${ data.imageCount }</strong> images in study:</p>
-          <p title="${ props.studyDesc }">
-            <span style='color:#1976d2'>${ props.idrId }</span>:
-            ${ props.title }
-          </p>
-        </a>
-      </div>
+    function maprHtml(props, studyData) {
+      let html = `  
+        <td>
+          <a target="_blank" href="${ props.studyLink }" />
+            ${ props.idrId }
+          </a>
+        </td>
+        <td>${ studyData.imageCount }</td>
+        <td title="${ props.studyDesc }">${ props.studyDesc.split('\n')[1].slice(0,40) }...</td>
+        <td class='exampleImages'>loading...</td>
+        <td class='exampleImagesLink'></td>
       `
+      var tr = document.createElement( "tr" );
+      tr.innerHTML = html;
+      tr.id = props.type + '-' + studyData['@id'];
+      tr.dataset.obj_type = props.type;
+      tr.dataset.obj_id = studyData['@id'];
+      return tr;
     }
   </script>
 </div>

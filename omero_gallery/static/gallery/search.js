@@ -271,7 +271,19 @@ function filterAndRender() {
 }
 
 function renderMapr(maprData) {
-  document.getElementById('studies').innerHTML = "";
+  document.getElementById('studies').innerHTML = `
+    <table style='margin-top:20px'>
+      <tbody id='maprResultsTable'>
+        <tr>
+          <th>Study ID</th>
+          <th>Image count</th>
+          <th>Title</th>
+          <th>Sample Images</th>
+          <th>Link</th>
+        </tr>
+      </tbody>
+    </table>
+    `;
 
   let configId = document.getElementById("maprConfig").value;
   let linkFunc = (studyData) => {
@@ -287,32 +299,45 @@ function renderMapr(maprData) {
   if (maprData.length === 0) {
     filterMessage = noStudiesMessage();
   } else {
-    filterMessage = `Found <strong>${ totalCount }</strong> images in <strong>${ maprData.length}</strong> studies`;
+    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+    let key = configId;
+    if (mapr_settings && mapr_settings[configId]) {
+      key = mapr_settings[key].label;
+    }
+    let maprValue = document.getElementById('maprQuery').value;
+    filterMessage = `<p class="filterMessage">
+      Found <strong>${ totalCount }</strong> images with
+      <strong>${key}</strong>: <strong>${maprValue}</strong>
+      in <strong>${ maprData.length}</strong> studies</strong></p>`;
   }
   document.getElementById('filterCount').innerHTML = filterMessage;
 
-  maprData.forEach(s => renderStudy(s, 'studies', linkFunc, htmlFunc));
+  maprData.forEach(s => renderStudy(s, 'maprResultsTable', linkFunc, htmlFunc));
 
   // load images for each study...
-  document.querySelectorAll(".maprText").forEach(element => {
+  document.querySelectorAll("#maprResultsTable tr").forEach(element => {
     // load children in MAPR jsTree query to get images
     let studyId = element.id;
     let objId = studyId.split("-")[1];
     let objType = studyId.split("-")[0];
+    if (!objId || !objType) return;
     let childType = objType === "project" ? "datasets" : "plates";
     let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
     let maprValue = document.getElementById('maprQuery').value;
+    // We want to link to the dataset or plate...
+    let imgContainer;
     let url = `${ BASE_URL }mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
     fetch(url)
       .then(response => response.json())
       .then(data => {
         let firstChild = data[childType][0];
+        imgContainer = `${ firstChild.extra.node }-${ firstChild.id }`;
         let imagesUrl = `${ BASE_URL }mapr/api/${ configId }/images/?value=${ maprValue }&id=${ firstChild.id }&node=${ firstChild.extra.node }`;
         return fetch(imagesUrl);
       })
       .then(response => response.json())
       .then(data => {
-        let html = data.images.slice(0, 4).map(i => `
+        let html = data.images.slice(0, 3).map(i => `
           <a href="${ BASE_URL }webclient/img_detail/${ i.id }/"
              target="_blank" title="Open image in viewer" class="maprViewerLink">
             <div>
@@ -321,12 +346,18 @@ function renderMapr(maprData) {
               <i class="fas fa-eye"></i>
             </div>
           </a>`).join("");
+        let linkHtml = `<a target="_blank" href="${ BASE_URL }mapr/${ configId }/?value=${ maprValue }&show=${ imgContainer }">
+                  more...
+                </a>`
         // Find the container and add placeholder images html
-        $("#"+element.id).append(html);
-        // Update the src to load the thumbnails
-        $('img', "#"+element.id).each((img, a,b) => {
-          a.src = a.dataset.src;
-        });
+        $("#"+element.id + " .exampleImages").html(html);
+        $("#"+element.id + " .exampleImagesLink").append(linkHtml);
+        // Update the src to load the thumbnails. Timeout to let placeholder render while we wait for thumbs
+        setTimeout(() => {
+          $('img', "#"+element.id).each((index, img) => {
+            img.src = img.dataset.src;
+          });
+        }, 0);
       });
   });
 }
@@ -348,7 +379,12 @@ function render(filterFunc) {
   if (studiesToRender.length === 0) {
     filterMessage = noStudiesMessage();
   } else if (studiesToRender.length < model.studies.length) {
-    filterMessage = `Showing <strong>${ studiesToRender.length }</strong> of ${ model.studies.length} studies`;
+    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+    configId = mapr_settings[configId] || configId;
+    let maprValue = document.getElementById('maprQuery').value;
+    filterMessage = `<p class="filterMessage">
+      Found <strong>${ studiesToRender.length }</strong> studies with
+      <strong>${configId}</strong>: <strong>${maprValue}</strong></p>`;
   }
   document.getElementById('filterCount').innerHTML = filterMessage;
 
@@ -418,13 +454,7 @@ function renderStudy(studyData, elementId, linkFunc, htmlFunc) {
   let idrId = studyData.Name.split('-')[0];  // idr0001
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
-  let html = htmlFunc({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData);
-
-  var div = document.createElement( "div" );
-  div.innerHTML = html;
-  div.dataset.obj_type = type;
-  div.dataset.obj_id = studyData['@id'];
-  div.className = "row study ";
+  let div = htmlFunc({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData);
   document.getElementById(elementId).appendChild(div);
 }
 
