@@ -51,11 +51,69 @@ populateInputsFromSearch();
 // ------------ Handle MAPR searching or filtering --------------------- 
 
 function filterStudiesByMapr(value) {
+  $('#studies').removeClass('studiesLayout');
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ value }`;
   document.getElementById('studies').innerHTML = "";
   let key = mapr_settings[value] ? mapr_settings[value].all.join(" or ") : value;
   showFilterSpinner(`Finding images with ${ configId }: ${ value }...`);
+
+  // First, get all terms that match (NOT case_sensitive)
+  // /mapr/api/gene/?value=TOP2&case_sensitive=false&orphaned=true
+  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ value }&case_sensitive=false&orphaned=true`;
+  $.getJSON(url, (data) => {
+    renderMaprMessage(data.maps);
+    data.maps.forEach(termData => {
+      let term = termData.id;
+
+      renderMaprResults(term)
+    });
+  });
+}
+
+
+function renderMaprMessage(mapsData) {
+  let studyCount = mapsData.reduce((count, data) => count + data.childCount, 0);
+  let imageCount = mapsData.reduce((count, data) => count + data.extra.counter, 0);
+  let terms = mapsData.map(d => d.id).join('/');
+  let filterMessage = "";
+  if (mapsData.length === 0) {
+    filterMessage = noStudiesMessage();
+  } else {
+    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+    let key = configId;
+    if (mapr_settings && mapr_settings[configId]) {
+      key = mapr_settings[key].label;
+    }
+    filterMessage = `<p class="filterMessage">
+      Found <strong>${ imageCount }</strong> images with
+      <strong>${key}</strong>: <strong>${terms}</strong>
+      in <strong>${ studyCount }</strong> stud${ studyCount == 1 ? 'y' : 'ies' }</strong></p>`;
+  }
+  document.getElementById('filterCount').innerHTML = filterMessage;
+}
+
+
+function renderMaprResults(term) {
+  let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
+
+  let elementId = 'maprResultsTable' + term;
+  let html = `
+    <h2>${ term }</h2>
+    <table class='maprResultsTable' style='margin-top:20px'>
+      <tbody id='${ elementId }'>
+        <tr>
+          <th>Study ID</th>
+          <th>Image count</th>
+          <th>Title</th>
+          <th>Sample Images</th>
+          <th>Link</th>
+        </tr>
+      </tbody>
+    </table>`;
+  $('#studies').append(html);
+
+
+  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ term }`;
   $.getJSON(url, (data) => {
     // filter studies by 'screens' and 'projects'
     let imageCounts = {};
@@ -73,7 +131,7 @@ function filterStudiesByMapr(value) {
       studyData.imageCount = imageCounts[studyId];
       return studyData;
     })
-    renderMapr(maprData);
+    renderMapr(maprData, term);
   })
   .fail(() => {
     document.getElementById('filterCount').innerHTML = "Request failed. Server may be busy."
@@ -274,20 +332,8 @@ function filterAndRender() {
   }
 }
 
-function renderMapr(maprData) {
-  document.getElementById('studies').innerHTML = `
-    <table style='margin-top:20px'>
-      <tbody id='maprResultsTable'>
-        <tr>
-          <th>Study ID</th>
-          <th>Image count</th>
-          <th>Title</th>
-          <th>Sample Images</th>
-          <th>Link</th>
-        </tr>
-      </tbody>
-    </table>
-    `;
+function renderMapr(maprData, term) {
+  let elementId = 'maprResultsTable' + term;
 
   let configId = document.getElementById("maprConfig").value;
   let linkFunc = (studyData) => {
@@ -296,30 +342,11 @@ function renderMapr(maprData) {
     let maprValue = document.getElementById('maprQuery').value;
     return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
   }
-  htmlFunc = maprHtml;
 
-  let totalCount = maprData.reduce((count, data) => count + data.imageCount, 0);
-  let filterMessage = "";
-  if (maprData.length === 0) {
-    filterMessage = noStudiesMessage();
-  } else {
-    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
-    let key = configId;
-    if (mapr_settings && mapr_settings[configId]) {
-      key = mapr_settings[key].label;
-    }
-    let maprValue = document.getElementById('maprQuery').value;
-    filterMessage = `<p class="filterMessage">
-      Found <strong>${ totalCount }</strong> images with
-      <strong>${key}</strong>: <strong>${maprValue}</strong>
-      in <strong>${ maprData.length}</strong> studies</strong></p>`;
-  }
-  document.getElementById('filterCount').innerHTML = filterMessage;
-
-  maprData.forEach(s => renderStudy(s, 'maprResultsTable', linkFunc, htmlFunc));
+  maprData.forEach(s => renderStudy(s, elementId, linkFunc, maprHtml));
 
   // load images for each study...
-  document.querySelectorAll("#maprResultsTable tr").forEach(element => {
+  document.querySelectorAll(`#${ elementId } tr`).forEach(element => {
     // load children in MAPR jsTree query to get images
     let studyId = element.id;
     let objId = studyId.split("-")[1];
@@ -327,7 +354,7 @@ function renderMapr(maprData) {
     if (!objId || !objType) return;
     let childType = objType === "project" ? "datasets" : "plates";
     let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
-    let maprValue = document.getElementById('maprQuery').value;
+    let maprValue = term;
     // We want to link to the dataset or plate...
     let imgContainer;
     let url = `${ BASE_URL }mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
@@ -367,6 +394,7 @@ function renderMapr(maprData) {
 }
 
 function render(filterFunc) {
+  $('#studies').addClass('studiesLayout');
   document.getElementById('studies').innerHTML = "";
 
   if (!filterFunc) {
