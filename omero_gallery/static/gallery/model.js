@@ -218,12 +218,10 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
       // populate the studies array...
       // dict of {'project-1' : key-values}
       let annsByParentId = {};
-      let datesByParentId = {};
       data.annotations.forEach(ann => {
         let key = ann.link.parent.class;  // 'ProjectI'
         key = key.substr(0, key.length-1).toLowerCase();
         key += '-' + ann.link.parent.id;  // project-1
-        datesByParentId[key] = new Date(ann.date);
         if (!annsByParentId[key]) {
           annsByParentId[key] = [];
         }
@@ -232,12 +230,16 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
       // Add mapValues to studies...
       this.studies = this.studies.map(study => {
         let key = `${ study['@type'].split('#')[1].toLowerCase() }-${ study['@id'] }`;
-        if (datesByParentId[key]) {
-          study.date = datesByParentId[key];
-        }
         let values = annsByParentId[key];
         if (values) {
           study.mapValues = values;
+          let releaseDate = this.getStudyValue(study, 'Release Date');
+          if (releaseDate) {
+            study.date = new Date(releaseDate);
+            if (isNaN(study.date.getTime())) {
+              study.date = undefined;
+            }
+          }
         }
         return study;
       });
