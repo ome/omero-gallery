@@ -1,14 +1,26 @@
 
+.category {
+  width:100%;
+  overflow:auto;
+  background: white;
+}
+.category>div {
+  display: inline-flex;
+}
+
 .study {
-  height: 250px;
+  height: 200px;
   width: 250px;
   float: left;
+  background: no-repeat center;
+  background-size: cover;
   position: relative;
+  border-radius: 10px;
 }
 .row .study {
+  flex-shrink: 0;
   margin: 10px;
   margin-top: 5px;
-  margin-bottom: 60px;
 }
 .study p {
   margin-bottom: 0;
@@ -60,14 +72,14 @@
 }
 .studyAuthors {
   position: absolute;
-  top: 100%;
+  top: 0;
   font-size: 80%;
   width: 200%;
   text-align: left;
   visibility: hidden;
 }
 .study:hover .studyAuthors {
-  visibility: visible;
+  /*visibility: visible;*/
 }
 .viewerLink {
   display: block;

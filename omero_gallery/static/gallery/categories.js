@@ -156,8 +156,8 @@ function render() {
 
     var div = document.createElement( "div" );
     div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
-      <div style="width100%; overflow:auto; background: white">
-        <div id="${cat.label}" style="width: 5000px"></div>
+      <div class="category">
+        <div id="${cat.label}"></div>
       </div>
     `;
     div.className = "row";
@@ -243,8 +243,10 @@ function loadStudyThumbnails() {
       for (let e=0; e<elements.length; e++) {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
-        let studyImage = element.querySelector('img.studyImage');
-        studyImage.src = data[id].thumbnail;
+        console.log('element', element);
+        // let studyImage = element.querySelector('img.studyImage');
+        // studyImage.src = data[id].thumbnail;
+        element.style.backgroundImage = `url(${ data[id].thumbnail })`;
         // viewer link
         let iid = data[id].image.id;
         let link = `${ BASE_URL }webclient/img_detail/${ iid }/`;
