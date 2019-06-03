@@ -520,9 +520,9 @@ function loadStudyThumbnails() {
       for (let e=0; e<elements.length; e++) {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
-        // let studyImage = element.querySelector('img.studyImage');
+        let studyImage = element.querySelector('.studyImage');
         if (data[id].thumbnail) {
-          element.style.backgroundImage = `url(${ data[id].thumbnail })`;
+          studyImage.style.backgroundImage = `url(${ data[id].thumbnail })`;
         }
         // viewer link
         if (data[id].image && data[id].image.id) {

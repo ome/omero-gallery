@@ -3,19 +3,16 @@
   width:100%;
   overflow:auto;
   background: white;
+  margin-bottom: 30px;
 }
 .category>div {
   display: inline-flex;
 }
 
 .study {
-  height: 200px;
   width: 250px;
   float: left;
-  background: no-repeat center;
-  background-size: cover;
   position: relative;
-  border-radius: 10px;
 }
 .row .study {
   flex-shrink: 0;
@@ -30,6 +27,9 @@
 }
 .study a:hover .studyText{
   color: #1976d2;
+}
+a.pubmed {
+  color: #44a6ea
 }
 .img_overlay {
   position: absolute;
@@ -49,19 +49,12 @@
   text-align: center;
   overflow: hidden;
 }
-.studyImage {
-  transition: all 2s ease-out;
-  min-height: 100%;
-  min-width: 100%;
-  top: 0;
-  left: 0;
-  position: absolute;
-}
 .studyBackground, .studyText {
   border-radius: 10px;
 }
 .studyText {
   position: absolute;
+  width: 100%;
   color: white;
   background: rgba(0,0,0,0.3);
   font-size: 90%;
@@ -124,6 +117,16 @@ maprText {
 .ui-autocomplete {
   padding-left: 20px;
   text-indent: -10px;
+}
+
+.studyImage {
+  position: relative;
+  height: 200px;
+  width: 250px;
+  background: no-repeat center;
+  background-size: cover;
+  position: relative;
+  border-radius: 10px;
 }
 
 /* Always show scrollbars https://gist.github.com/IceCreamYou/cd517596e5847a88e2bb0a091da43fb4 */

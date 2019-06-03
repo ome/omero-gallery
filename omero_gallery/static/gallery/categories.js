@@ -210,7 +210,7 @@ function renderStudy(studyData, elementId, linkFunc) {
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
   // Function (and template) are defined where used in index.html
-  let html = studyHtml(studyLink, studyDesc, idrId, title, authors, BASE_URL)
+  let html = studyHtml({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData)
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
@@ -243,10 +243,8 @@ function loadStudyThumbnails() {
       for (let e=0; e<elements.length; e++) {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
-        console.log('element', element);
-        // let studyImage = element.querySelector('img.studyImage');
-        // studyImage.src = data[id].thumbnail;
-        element.style.backgroundImage = `url(${ data[id].thumbnail })`;
+        let studyImage = element.querySelector('.studyImage');
+        studyImage.style.backgroundImage = `url(${ data[id].thumbnail })`;
         // viewer link
         let iid = data[id].image.id;
         let link = `${ BASE_URL }webclient/img_detail/${ iid }/`;
