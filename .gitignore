@@ -3,3 +3,4 @@
 dist
 omero_gallery.egg-info
 .omero
+node_modules/
