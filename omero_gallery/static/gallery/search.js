@@ -100,7 +100,7 @@ function renderMaprResults(term) {
   let html = `
     <h2>${ term }</h2>
     <table class='maprResultsTable' style='margin-top:20px'>
-      <tbody id='${ elementId }'>
+      <tbody data-id='${ elementId }'>
         <tr>
           <th>Study ID</th>
           <th>Organism</th>
@@ -131,7 +131,7 @@ function renderMaprResults(term) {
       let studyData = Object.assign({}, study);
       studyData.imageCount = imageCounts[studyId];
       return studyData;
-    })
+    });
     renderMapr(maprData, term);
   })
   .fail(() => {
@@ -348,11 +348,12 @@ function renderMapr(maprData, term) {
     let maprValue = document.getElementById('maprQuery').value;
     return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
   }
+  let elementSelector = `[data-id="${ elementId }"]`;
 
-  maprData.forEach(s => renderStudy(s, elementId, linkFunc, maprHtml));
+  maprData.forEach(s => renderStudy(s, elementSelector, linkFunc, maprHtml));
 
   // load images for each study...
-  document.querySelectorAll(`#${ elementId } tr`).forEach(element => {
+  document.querySelectorAll(`[data-id="${ elementId }"] tr`).forEach(element => {
     // load children in MAPR jsTree query to get images
     let studyId = element.id;
     let objId = studyId.split("-")[1];
@@ -433,7 +434,7 @@ function render(filterFunc) {
   }
   let htmlFunc = studyHtml;
 
-  studiesToRender.forEach(s => renderStudy(s, 'studies', linkFunc, htmlFunc));
+  studiesToRender.forEach(s => renderStudy(s, '#studies', linkFunc, htmlFunc));
 
   loadStudyThumbnails();
 }
@@ -460,7 +461,7 @@ function noStudiesMessage() {
 }
 
 
-function renderStudy(studyData, elementId, linkFunc, htmlFunc) {
+function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
 
   // Add Project or Screen to the page
   let title;
@@ -493,7 +494,7 @@ function renderStudy(studyData, elementId, linkFunc, htmlFunc) {
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
   let div = htmlFunc({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData);
-  document.getElementById(elementId).appendChild(div);
+  document.querySelector(elementSelector).appendChild(div);
 }
 
 // --------- Render utils -----------
