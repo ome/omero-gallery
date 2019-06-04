@@ -205,8 +205,11 @@ function renderStudy(studyData, elementId, linkFunc) {
     if (title.length > 0 && desc.indexOf(title) > -1) {
       desc = desc.split(title)[1];
     }
-    // Remove blank lines
-    studyDesc = desc.split('\n').filter(l => l.length > 0).join('\n');
+    // Remove blank lines (and first 'Experiment Description' line)
+    studyDesc = desc.split('\n')
+      .filter(l => l.length > 0)
+      .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
+      .join('\n');
   }
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
