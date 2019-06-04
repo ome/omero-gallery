@@ -154,8 +154,25 @@ document.getElementById('maprConfig').onchange = (event) => {
   render();
 }
 
+// We want to show auto-complete options when user
+// clicks on the field.
+function showAutocomplete(event) {
+  let configId = document.getElementById("maprConfig").value;
+  let autoCompleteValue = event.target.value;
+  if (configId.indexOf('mapr_') != 0) {
+    // If not MAPR search, show all auto-complete results
+    autoCompleteValue = '';
+  }
+  $("#maprQuery").autocomplete("search", autoCompleteValue);
+}
+
 document.getElementById('maprQuery').onfocus = (event) => {
-  $("#maprQuery").autocomplete("search", event.target.value);
+  showAutocomplete(event);
+}
+document.getElementById('maprQuery').onclick = (event) => {
+  // select all the text (easier to type new search term)
+  event.target.setSelectionRange(0, event.target.value.length);
+  showAutocomplete(event);
 }
 
 // ------ AUTO-COMPLETE -------------------
