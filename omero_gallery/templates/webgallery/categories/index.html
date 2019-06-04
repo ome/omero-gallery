@@ -42,10 +42,11 @@
     </div>
 
     {% if not super_category %}
-      <div class="row horizontal">
+      <div class="row horizontal super_categories">
+        <div class="small-0 medium-1 large-2 columns">&nbsp</div>
       {% for category, data in super_categories.items %}
         <a href="{{ category }}/">
-          <div class="small-6 medium-6 large-6 columns" style="position: relative;">
+          <div class="small-12 medium-5 large-4 columns" style="position: relative;">
             <img class="thumbnail" src="{{ data.image }}" />
             <div class="img_overlay">
               <span class="overlay_text">{{ data.label }}</span>
@@ -53,6 +54,7 @@
           </div>
         </a>
       {% endfor %}
+        <div class="small-2 medium-2 large-2 columns"></div>
       </div>
     {% endif %}
 

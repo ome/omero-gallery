@@ -1,4 +1,9 @@
-
+.super_categories {
+  margin-bottom: 20px;
+}
+.super_categories img {
+  margin-bottom: 0;
+}
 .category {
   width:100%;
   overflow:auto;
@@ -33,14 +38,15 @@ a.pubmed {
 }
 .img_overlay {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 125px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .overlay_text {
-  background: black;
+  background: #ff9800;
   padding: 10px;
   color: white;
+  border-radius: 2px;
 }
 .studyBackground {
   position: absolute;
