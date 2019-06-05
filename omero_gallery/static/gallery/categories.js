@@ -67,7 +67,6 @@ $("#maprQuery")
 
         let requestData = {
             case_sensitive: case_sensitive,
-            '_': CACHE_BUSTER,    // CORS cache-buster
         }
         let url;
         if (request.term.length === 0) {
@@ -120,6 +119,13 @@ $("#maprQuery")
     },
     focus: function(event,ui) {},
     select: function(event, ui) {
+        if (ui.item.value == -1) {
+          // Ignore 'No results found'
+          return false;
+        }
+        // show temp message in case loading search page is slow
+        $(this).val("loading search results...");
+        // Load search page...
         let configId = document.getElementById("maprConfig").value;
         document.location.href = `search/?query=${ configId }:${ ui.item.value }`;
         return false;
@@ -153,8 +159,8 @@ function render() {
 
     var div = document.createElement( "div" );
     div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
-      <div style="width100%; overflow:auto; background: white">
-        <div id="${cat.label}" style="width: 5000px"></div>
+      <div class="category">
+        <div id="${cat.label}"></div>
       </div>
     `;
     div.className = "row";
@@ -199,15 +205,18 @@ function renderStudy(studyData, elementId, linkFunc) {
     if (title.length > 0 && desc.indexOf(title) > -1) {
       desc = desc.split(title)[1];
     }
-    // Remove blank lines
-    studyDesc = desc.split('\n').filter(l => l.length > 0).join('\n');
+    // Remove blank lines (and first 'Experiment Description' line)
+    studyDesc = desc.split('\n')
+      .filter(l => l.length > 0)
+      .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
+      .join('\n');
   }
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
   // Function (and template) are defined where used in index.html
-  let html = studyHtml(studyLink, studyDesc, idrId, title, authors, BASE_URL)
+  let html = studyHtml({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData)
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
@@ -240,8 +249,8 @@ function loadStudyThumbnails() {
       for (let e=0; e<elements.length; e++) {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
-        let studyImage = element.querySelector('img.studyImage');
-        studyImage.src = data[id].thumbnail;
+        let studyImage = element.querySelector('.studyImage');
+        studyImage.style.backgroundImage = `url(${ data[id].thumbnail })`;
         // viewer link
         let iid = data[id].image.id;
         let link = `${ BASE_URL }webclient/img_detail/${ iid }/`;

@@ -51,10 +51,70 @@ populateInputsFromSearch();
 // ------------ Handle MAPR searching or filtering --------------------- 
 
 function filterStudiesByMapr(value) {
+  $('#studies').removeClass('studiesLayout');
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ value }`;
-  // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
-  url += '&_=' + CACHE_BUSTER;
+  document.getElementById('studies').innerHTML = "";
+  let key = mapr_settings[value] ? mapr_settings[value].all.join(" or ") : value;
+  showFilterSpinner(`Finding images with ${ configId }: ${ value }...`);
+
+  // First, get all terms that match (NOT case_sensitive)
+  // /mapr/api/gene/?value=TOP2&case_sensitive=false&orphaned=true
+  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ value }&case_sensitive=false&orphaned=true`;
+  $.getJSON(url, (data) => {
+    renderMaprMessage(data.maps);
+    data.maps.forEach(termData => {
+      let term = termData.id;
+
+      renderMaprResults(term)
+    });
+  });
+}
+
+
+function renderMaprMessage(mapsData) {
+  let studyCount = mapsData.reduce((count, data) => count + data.childCount, 0);
+  let imageCount = mapsData.reduce((count, data) => count + data.extra.counter, 0);
+  let terms = mapsData.map(d => d.id).join('/');
+  let filterMessage = "";
+  if (mapsData.length === 0) {
+    filterMessage = noStudiesMessage();
+  } else {
+    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+    let key = configId;
+    if (mapr_settings && mapr_settings[configId]) {
+      key = mapr_settings[key].label;
+    }
+    filterMessage = `<p class="filterMessage">
+      Found <strong>${ imageCount }</strong> images with
+      <strong>${key}</strong>: <strong>${terms}</strong>
+      in <strong>${ studyCount }</strong> stud${ studyCount == 1 ? 'y' : 'ies' }</strong></p>`;
+  }
+  document.getElementById('filterCount').innerHTML = filterMessage;
+}
+
+
+function renderMaprResults(term) {
+  let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
+
+  let elementId = 'maprResultsTable' + term;
+  let html = `
+    <h2>${ term }</h2>
+    <table class='maprResultsTable' style='margin-top:20px'>
+      <tbody data-id='${ elementId }'>
+        <tr>
+          <th>Study ID</th>
+          <th>Organism</th>
+          <th>Image count</th>
+          <th>Title</th>
+          <th>Sample Images</th>
+          <th>Link</th>
+        </tr>
+      </tbody>
+    </table>`;
+  $('#studies').append(html);
+
+
+  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ term }`;
   $.getJSON(url, (data) => {
     // filter studies by 'screens' and 'projects'
     let imageCounts = {};
@@ -72,9 +132,14 @@ function filterStudiesByMapr(value) {
       studyData.imageCount = imageCounts[studyId];
       return studyData;
     });
-
-    renderMapr(maprData);
+    renderMapr(maprData, term);
   })
+  .fail(() => {
+    document.getElementById('filterCount').innerHTML = "Request failed. Server may be busy."
+  })
+  .always(() => {
+    hideFilterSpinner();
+  });
 }
 
 // ----- event handling --------
@@ -89,8 +154,25 @@ document.getElementById('maprConfig').onchange = (event) => {
   render();
 }
 
+// We want to show auto-complete options when user
+// clicks on the field.
+function showAutocomplete(event) {
+  let configId = document.getElementById("maprConfig").value;
+  let autoCompleteValue = event.target.value;
+  if (configId.indexOf('mapr_') != 0) {
+    // If not MAPR search, show all auto-complete results
+    autoCompleteValue = '';
+  }
+  $("#maprQuery").autocomplete("search", autoCompleteValue);
+}
+
 document.getElementById('maprQuery').onfocus = (event) => {
-  $("#maprQuery").autocomplete("search", event.target.value);
+  showAutocomplete(event);
+}
+document.getElementById('maprQuery').onclick = (event) => {
+  // select all the text (easier to type new search term)
+  event.target.setSelectionRange(0, event.target.value.length);
+  showAutocomplete(event);
 }
 
 // ------ AUTO-COMPLETE -------------------
@@ -100,6 +182,19 @@ function showSpinner() {
 }
 function hideSpinner() {
   document.getElementById('spinner').style.visibility = 'hidden';
+}
+// timeout to avoid flash of spinner
+let filterSpinnerTimout;
+function showFilterSpinner(message) {
+  filterSpinnerTimout = setTimeout(() => {
+    document.getElementById('filterSpinnerMessage').innerHTML = message ? message : '';
+    document.getElementById('filterSpinner').style.display = 'block';
+  }, 500);
+}
+function hideFilterSpinner() {
+  clearTimeout(filterSpinnerTimout);
+  document.getElementById('filterSpinnerMessage').innerHTML = '';
+  document.getElementById('filterSpinner').style.display = 'none';
 }
 
 $("#maprQuery")
@@ -149,7 +244,6 @@ $("#maprQuery")
 
         let requestData = {
             case_sensitive: case_sensitive,
-            '_': CACHE_BUSTER,    // CORS cache-buster
         }
         let url;
         if (request.term.length === 0) {
@@ -191,7 +285,8 @@ $("#maprQuery")
             },
             error: function(data) {
                 hideSpinner();
-                response([{ label: 'Error occured.', value: -1 }]);
+                // E.g. status 504 for timeout
+                response([{ label: 'Loading auto-complete terms failed. Server may be busy.', value: -1 }]);
             }
         });
     },
@@ -203,6 +298,10 @@ $("#maprQuery")
     },
     focus: function(event,ui) {},
     select: function(event, ui) {
+        if (ui.item.value == -1) {
+          // Ignore 'No results found'
+          return false;
+        }
         $(this).val(ui.item.value);
         filterAndRender();
         // Add to browser history. Handled by onpopstate on browser Back
@@ -251,8 +350,13 @@ function filterAndRender() {
   }
 }
 
-function renderMapr(maprData) {
-  document.getElementById('studies').innerHTML = "";
+function renderMapr(maprData, term) {
+
+  maprData.sort((a, b) => {
+    return a.Name > b.Name ? 1 : -1;
+  });
+
+  let elementId = 'maprResultsTable' + term;
 
   let configId = document.getElementById("maprConfig").value;
   let linkFunc = (studyData) => {
@@ -261,51 +365,60 @@ function renderMapr(maprData) {
     let maprValue = document.getElementById('maprQuery').value;
     return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
   }
-  htmlFunc = maprHtml;
+  let elementSelector = `[data-id="${ elementId }"]`;
 
-  let totalCount = maprData.reduce((count, data) => count + data.imageCount, 0);
-  let filterMessage = "";
-  if (maprData.length === 0) {
-    filterMessage = noStudiesMessage();
-  } else {
-    filterMessage = `Found ${ totalCount } images in ${ maprData.length} studies`;
-  }
-  document.getElementById('filterCount').innerHTML = filterMessage;
-
-  maprData.forEach(s => renderStudy(s, 'studies', linkFunc, htmlFunc));
+  maprData.forEach(s => renderStudy(s, elementSelector, linkFunc, maprHtml));
 
   // load images for each study...
-  document.querySelectorAll(".maprText").forEach(element => {
+  document.querySelectorAll(`[data-id="${ elementId }"] tr`).forEach(element => {
     // load children in MAPR jsTree query to get images
     let studyId = element.id;
     let objId = studyId.split("-")[1];
     let objType = studyId.split("-")[0];
+    if (!objId || !objType) return;
     let childType = objType === "project" ? "datasets" : "plates";
     let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
-    let maprValue = document.getElementById('maprQuery').value;
+    let maprValue = term;
+    // We want to link to the dataset or plate...
+    let imgContainer;
     let url = `${ BASE_URL }mapr/api/${ configId }/${ childType }/?value=${ maprValue }&id=${ objId }`;
-    url += '&_=' + CACHE_BUSTER;
     fetch(url)
       .then(response => response.json())
       .then(data => {
         let firstChild = data[childType][0];
+        imgContainer = `${ firstChild.extra.node }-${ firstChild.id }`;
         let imagesUrl = `${ BASE_URL }mapr/api/${ configId }/images/?value=${ maprValue }&id=${ firstChild.id }&node=${ firstChild.extra.node }`;
-        imagesUrl += '&_=' + CACHE_BUSTER;
         return fetch(imagesUrl);
       })
       .then(response => response.json())
       .then(data => {
-        let html = data.images.slice(0, 4).map(i => `
-          <a href="${ BASE_URL }webclient/img_detail/${ i.id }/" target="_blank">
-            <img class="thumbnail" src="${ BASE_URL }webgateway/render_thumbnail/${ i.id }/">
+        let html = data.images.slice(0, 3).map(i => `
+          <a href="${ BASE_URL }webclient/img_detail/${ i.id }/"
+             target="_blank" title="Open image in viewer" class="maprViewerLink">
+            <div>
+              <img class="thumbnail" src="${ STATIC_DIR }images/transparent.png"
+                data-src="${ BASE_URL }webgateway/render_thumbnail/${ i.id }/">
+              <i class="fas fa-eye"></i>
+            </div>
           </a>`).join("");
-        // Find the container and add images html
-        $("#"+element.id).append(html);
+        let linkHtml = `<a target="_blank" href="${ BASE_URL }mapr/${ configId }/?value=${ maprValue }&show=${ imgContainer }">
+                  more...
+                </a>`
+        // Find the container and add placeholder images html
+        $("#"+element.id + " .exampleImages").html(html);
+        $("#"+element.id + " .exampleImagesLink").append(linkHtml);
+        // Update the src to load the thumbnails. Timeout to let placeholder render while we wait for thumbs
+        setTimeout(() => {
+          $('img', "#"+element.id).each((index, img) => {
+            img.src = img.dataset.src;
+          });
+        }, 0);
       });
   });
 }
 
 function render(filterFunc) {
+  $('#studies').addClass('studiesLayout');
   document.getElementById('studies').innerHTML = "";
 
   if (!filterFunc) {
@@ -322,7 +435,12 @@ function render(filterFunc) {
   if (studiesToRender.length === 0) {
     filterMessage = noStudiesMessage();
   } else if (studiesToRender.length < model.studies.length) {
-    filterMessage = `Showing ${ studiesToRender.length } of ${ model.studies.length} studies`;
+    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+    configId = mapr_settings[configId] || configId;
+    let maprValue = document.getElementById('maprQuery').value;
+    filterMessage = `<p class="filterMessage">
+      Found <strong>${ studiesToRender.length }</strong> studies with
+      <strong>${configId}</strong>: <strong>${maprValue}</strong></p>`;
   }
   document.getElementById('filterCount').innerHTML = filterMessage;
 
@@ -333,7 +451,7 @@ function render(filterFunc) {
   }
   let htmlFunc = studyHtml;
 
-  studiesToRender.forEach(s => renderStudy(s, 'studies', linkFunc, htmlFunc));
+  studiesToRender.forEach(s => renderStudy(s, '#studies', linkFunc, htmlFunc));
 
   loadStudyThumbnails();
 }
@@ -360,7 +478,7 @@ function noStudiesMessage() {
 }
 
 
-function renderStudy(studyData, elementId, linkFunc, htmlFunc) {
+function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
 
   // Add Project or Screen to the page
   let title;
@@ -385,21 +503,18 @@ function renderStudy(studyData, elementId, linkFunc, htmlFunc) {
     if (title.length > 0 && desc.indexOf(title) > -1) {
       desc = desc.split(title)[1];
     }
-    // Remove blank lines
-    studyDesc = desc.split('\n').filter(l => l.length > 0).join('\n');
+    // Remove blank lines (and first 'Experiment Description' line)
+    studyDesc = desc.split('\n')
+      .filter(l => l.length > 0)
+      .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
+      .join('\n');
   }
 
   let idrId = studyData.Name.split('-')[0];  // idr0001
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
-  let html = htmlFunc({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData);
-
-  var div = document.createElement( "div" );
-  div.innerHTML = html;
-  div.dataset.obj_type = type;
-  div.dataset.obj_id = studyData['@id'];
-  div.className = "row study ";
-  document.getElementById(elementId).appendChild(div);
+  let div = htmlFunc({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData);
+  document.querySelector(elementSelector).appendChild(div);
 }
 
 // --------- Render utils -----------
@@ -426,9 +541,9 @@ function loadStudyThumbnails() {
       for (let e=0; e<elements.length; e++) {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
-        let studyImage = element.querySelector('img.studyImage');
+        let studyImage = element.querySelector('.studyImage');
         if (data[id].thumbnail) {
-          studyImage.src = data[id].thumbnail;
+          studyImage.style.backgroundImage = `url(${ data[id].thumbnail })`;
         }
         // viewer link
         if (data[id].image && data[id].image.id) {

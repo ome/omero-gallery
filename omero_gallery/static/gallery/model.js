@@ -1,6 +1,4 @@
 
-CACHE_BUSTER = window.location.host;
-
 var StudiesModel = function() {
 
   "use strict"
@@ -214,20 +212,16 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
     .map(study => `${ study['@type'].split('#')[1].toLowerCase() }=${ study['@id'] }`)
     .join("&");
   url += '&' + data;
-  // Cache-buster. See https://trello.com/c/GpXEHzjV/519-cors-access-control-allow-origin-cached
-  url += '&_=' + CACHE_BUSTER;
   fetch(url)
     .then(response => response.json())
     .then(data => {
       // populate the studies array...
       // dict of {'project-1' : key-values}
       let annsByParentId = {};
-      let datesByParentId = {};
       data.annotations.forEach(ann => {
         let key = ann.link.parent.class;  // 'ProjectI'
         key = key.substr(0, key.length-1).toLowerCase();
         key += '-' + ann.link.parent.id;  // project-1
-        datesByParentId[key] = new Date(ann.date);
         if (!annsByParentId[key]) {
           annsByParentId[key] = [];
         }
@@ -236,12 +230,16 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
       // Add mapValues to studies...
       this.studies = this.studies.map(study => {
         let key = `${ study['@type'].split('#')[1].toLowerCase() }-${ study['@id'] }`;
-        if (datesByParentId[key]) {
-          study.date = datesByParentId[key];
-        }
         let values = annsByParentId[key];
         if (values) {
           study.mapValues = values;
+          let releaseDate = this.getStudyValue(study, 'Release Date');
+          if (releaseDate) {
+            study.date = new Date(releaseDate);
+            if (isNaN(study.date.getTime())) {
+              study.date = undefined;
+            }
+          }
         }
         return study;
       });
@@ -327,7 +325,6 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
   if (obj_type == 'screen') {
     let url = `${ this.base_url }api/v0/m/screens/${ obj_id }/plates/`;
     url += '?limit=1'   // just get first plate
-    url += '&_=' + CACHE_BUSTER;
     fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -336,7 +333,6 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
         // NB: Some plates don't have Well at each Row/Column spot. Well_count < Rows * Cols * 0.5
         let offset = Math.max(0, parseInt(obj.Rows * obj.Columns * 0.25) - limit);
         let url = `${ this.base_url }api/v0/m/plates/${ obj['@id'] }/wells/?limit=${limit}&offset=${offset}`;
-        url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })
       .then(response => response.json())
@@ -358,7 +354,6 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
   } else if (obj_type == 'project') {
     let url = `${ this.base_url }api/v0/m/projects/${ obj_id }/datasets/`;
     url += '?limit=1'   // just get first plate
-    url += '&_=' + CACHE_BUSTER;
     fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -368,7 +363,6 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
           return;
         }
         let url = `${ this.base_url }api/v0/m/datasets/${ obj['@id'] }/images/?limit=1`;
-        url += '&_=' + CACHE_BUSTER;
         return fetch(url)
       })
       // Handle undefined if no Datasets in Project...

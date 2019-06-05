@@ -6,6 +6,46 @@
 <style>
   .study{
     width: 247px;
+    height: 247px;
+  }
+  .study a:hover {
+    color: #1e94e6;
+  }
+  .maprViewerLink {
+    position: relative;
+  }
+  a.maprViewerLink div {
+    display: inline-block;
+    position:relative;
+  }
+  a.maprViewerLink i {
+    visibility: hidden;
+    color: white;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+  a.maprViewerLink:hover i{
+    visibility: visible;
+  }
+  .exampleImages .thumbnail {
+    max-height: 45px;
+    max-width: 45px;
+  }
+  table td {
+    white-space: nowrap;
+  }
+  .filterMessage {
+    font-size: 120%;
+  }
+  .filterMessage strong {
+    color: #1976d2;
+  }
+
+  #studies.studiesLayout {
+    width: 86%;
+    margin-left: auto;
+    margin-right: auto;
   }
 </style>
 
@@ -15,7 +55,7 @@
 
   {% if gallery_title %}<h1>{{ gallery_title }}</h1>{% endif %}
 
-<div class="small-10 small-centered medium-10 medium-centered columns">
+<div class="small-12 small-centered medium-12 medium-centered columns">
 
     <div class="row horizontal">
 
@@ -34,54 +74,86 @@
       <div style="position: relative" class="small-12 medium-8 large-7 columns">
         <input id="maprQuery" type="text" placeholder="Name">
         <svg id="spinner" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>
+      </div>
+
+      <div id="filterCount" class="row horizontal">
+      </div>
     </div>
 
-    <div id="filterCount" class="row horizontal">
+    <div id="filterSpinner" class="row horizontal">
+      <div id="filterSpinnerMessage">
+        <!-- Show a waiting... message here -->
+      </div>
+      <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>
     </div>
-</div>
 
-<div id="studies" class="row horizontal">
-  Loading Studies...
+    <div id="studies" class="row horizontal">
+      Loading Studies...
 
-  <script>
-    function studyHtml(props) {
-      return `
-      <a target="_blank" href="${ props.studyLink }">
-        <div class="studyBackground" style="padding: 0">
-          <img class="studyImage" src="" />
-        </div>
-        <div class="studyText">
-          <p title="${ props.studyDesc }">
-            <span style='color:#1976d2'>${ props.idrId }</span>:
-            ${ props.title }
-          </p>
-        </div>
-        <div class="studyAuthors">
-          ${ props.authors }
-        </div>
-      </a>
-      <a class="viewerLink" title="Open image in viewer" target="_blank"
-         href="">
-        <i class="fas fa-eye"></i>
-      </a>
-      `
-    }
+      <script>
+        function studyHtml(props, studyData) {
 
-    function maprHtml(props, data) {
-      return `
-      <a target="_blank" href="${ props.studyLink }">
-        
-        <div id="${ props.type }-${ data['@id'] }" class="maprText">
-          <p>Found ${ data.imageCount } images in study:</p>
-          <p title="${ props.studyDesc }">
-            <span style='color:#1976d2'>${ props.idrId }</span>:
-            ${ props.title }
-          </p>
-        </div>
-      </a>
-      `
-    }
-  </script>
+          let pubmed = model.getStudyValue(studyData, 'PubMed ID');
+          if (pubmed) {
+            pubmed = pubmed.split(" ")[1];
+          }
+          console.log(pubmed)
+          let author = props.authors.split(',')[0] || '';
+          let html = `
+          <div style='white-space:nowrap'>
+            ${ props.idrId }
+            ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author } et al.</a>` : author}
+          </div>
+          <div class="studyImage">
+            <a target="_blank" href="${ props.studyLink }">
+              <div style="height: 100%; width: 100%">
+                <div class="studyText">
+                  <p title="${ props.studyDesc }">
+                    ${ props.title }
+                  </p>
+                </div>
+                <div class="studyAuthors">
+                  ${ props.authors }
+                </div>
+              </div>
+            </a>
+            <a class="viewerLink" title="Open image in viewer" target="_blank"
+               href="">
+              <i class="fas fa-eye"></i>
+            </a>
+          </div>
+          `
+          var div = document.createElement( "div" );
+          div.innerHTML = html;
+          div.id = props.type + '-' + studyData['@id'];
+          div.dataset.obj_type = props.type;
+          div.dataset.obj_id = studyData['@id'];
+          div.className = "row study ";
+          return div;
+        }
+
+        function maprHtml(props, studyData) {
+          let html = `  
+            <td>
+              <a target="_blank" href="${ props.studyLink }" />
+                ${ props.idrId }
+              </a>
+            </td>
+            <td>${ model.getStudyValue(studyData, 'Organism')}</td>
+            <td>${ studyData.imageCount }</td>
+            <td title="${ props.studyDesc }">${ props.studyDesc.slice(0,40) }...</td>
+            <td class='exampleImages'>loading...</td>
+            <td class='exampleImagesLink'></td>
+          `
+          var tr = document.createElement( "tr" );
+          tr.innerHTML = html;
+          tr.id = props.type + '-' + studyData['@id'];
+          tr.dataset.obj_type = props.type;
+          tr.dataset.obj_id = studyData['@id'];
+          return tr;
+        }
+      </script>
+    </div>
 </div>
 
 
@@ -95,6 +167,7 @@
   var TITLE_KEYS = {{ TITLE_KEYS|escape|safe }};
   var SUPER_CATEGORIES = {{ SUPER_CATEGORIES|escape|safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
+  var STATIC_DIR = "{% static 'gallery/' %}";
 </script>
 
 <script src="{% static 'gallery/search.js' %}"></script>

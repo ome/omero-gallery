@@ -19,6 +19,7 @@
 <div class="row column text-center">
   {% if gallery_title %}<h1>{{ gallery_title }}</h1>{% endif %}
 
+  <p>The Image Data Resource (IDR) is a public repository of image datasets from published scientific studies.</p>
 <div class="small-10 small-centered medium-10 medium-centered columns">
 
     <div class="row horizontal">
@@ -42,10 +43,11 @@
     </div>
 
     {% if not super_category %}
-      <div class="row horizontal">
+      <div class="row horizontal super_categories">
+        <div class="small-0 medium-1 large-2 columns">&nbsp</div>
       {% for category, data in super_categories.items %}
         <a href="{{ category }}/">
-          <div class="small-6 medium-6 large-6 columns" style="position: relative;">
+          <div class="small-12 medium-5 large-4 columns" style="position: relative;">
             <img class="thumbnail" src="{{ data.image }}" />
             <div class="img_overlay">
               <span class="overlay_text">{{ data.label }}</span>
@@ -53,6 +55,7 @@
           </div>
         </a>
       {% endfor %}
+        <div class="small-2 medium-2 large-2 columns"></div>
       </div>
     {% endif %}
 
@@ -63,26 +66,35 @@
 <div id="studies" class="row horizontal">
   Loading Studies...
   <script>
-      function studyHtml(studyLink, studyDesc, idrId, title, authors, BASE_URL) {
+      function studyHtml(props, studyData) {
+        let pubmed = model.getStudyValue(studyData, 'PubMed ID');
+        if (pubmed) {
+          pubmed = pubmed.split(" ")[1];
+        };
+        let author = props.authors.split(',')[0] || '';
     return `
-    <a target="_blank" href="${ studyLink }">
-      <div class="studyBackground" style="padding: 0">
-        <img class="studyImage" src="" />
-      </div>
-      <div class="studyText">
-        <p title="${ studyDesc }">
-          <span style='color:#1976d2'>${ idrId }</span>:
-          ${ title }
-        </p>
-      </div>
-      <div class="studyAuthors">
-        ${ authors }
-      </div>
-    </a>
-    <a class="viewerLink" title="Open image in viewer" target="_blank"
-       href="">
-      <i class="fas fa-eye"></i>
-    </a>
+    <div style='white-space:nowrap'>
+      ${ props.idrId }
+      ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author } et al.</a>` : author }
+    </div>
+    <div class="studyImage">
+      <a target="_blank" href="${ props.studyLink }">
+        <div style="height: 100%; width: 100%">
+          <div class="studyText">
+            <p title="${ props.studyDesc }">
+              ${ props.title }
+            </p>
+          </div>
+          <div class="studyAuthors">
+            ${ props.authors }
+          </div>
+        </div>
+      </a>
+      <a class="viewerLink" title="Open image in viewer" target="_blank"
+         href="">
+        <i class="fas fa-eye"></i>
+      </a>
+    </div>
     `
   }
   </script>
