@@ -464,7 +464,7 @@ function noStudiesMessage() {
     var maprQuery = document.getElementById("maprQuery").value;
     var others = [];
 
-    for (cat in SUPER_CATEGORIES) {
+    for (var cat in SUPER_CATEGORIES) {
       if (SUPER_CATEGORIES[cat].label !== currLabel) {
         others.push("<a href=\"".concat(GALLERY_INDEX).concat(cat, "/search/?query=").concat(configId, ":").concat(maprQuery, "\">").concat(SUPER_CATEGORIES[cat].label, "</a>"));
       }
@@ -531,6 +531,34 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
 } // --------- Render utils -----------
 
 
+function studyHtml(props, studyData) {
+  var pubmed = model.getStudyValue(studyData, 'PubMed ID');
+
+  if (pubmed) {
+    pubmed = pubmed.split(" ")[1];
+  }
+
+  var author = props.authors.split(',')[0] || '';
+  var html = "\n  <div style='white-space:nowrap'>\n    ".concat(props.idrId, "\n    ").concat(pubmed ? "<a class='pubmed' target=\"_blank\" href=\"".concat(pubmed, "\"> ").concat(author, " et al.</a>") : author, "\n  </div>\n  <div class=\"studyImage\">\n    <a target=\"_blank\" href=\"").concat(props.studyLink, "\">\n      <div style=\"height: 100%; width: 100%\">\n        <div class=\"studyText\">\n          <p title=\"").concat(props.studyDesc, "\">\n            ").concat(props.title, "\n          </p>\n        </div>\n        <div class=\"studyAuthors\">\n          ").concat(props.authors, "\n        </div>\n      </div>\n    </a>\n    <a class=\"viewerLink\" title=\"Open image in viewer\" target=\"_blank\"\n       href=\"\">\n      <i class=\"fas fa-eye\"></i>\n    </a>\n  </div>\n  ");
+  var div = document.createElement("div");
+  div.innerHTML = html;
+  div.id = props.type + '-' + studyData['@id'];
+  div.dataset.obj_type = props.type;
+  div.dataset.obj_id = studyData['@id'];
+  div.className = "row study ";
+  return div;
+}
+
+function maprHtml(props, studyData) {
+  var html = "  \n    <td>\n      <a target=\"_blank\" href=\"".concat(props.studyLink, "\" />\n        ").concat(props.idrId, "\n      </a>\n    </td>\n    <td>").concat(model.getStudyValue(studyData, 'Organism'), "</td>\n    <td>").concat(studyData.imageCount, "</td>\n    <td title=\"").concat(props.studyDesc, "\">").concat(props.studyDesc.slice(0, 40), "...</td>\n    <td class='exampleImages'>loading...</td>\n    <td class='exampleImagesLink'></td>\n  ");
+  var tr = document.createElement("tr");
+  tr.innerHTML = html;
+  tr.id = props.type + '-' + studyData['@id'];
+  tr.dataset.obj_type = props.type;
+  tr.dataset.obj_id = studyData['@id'];
+  return tr;
+}
+
 function loadStudyThumbnails() {
   var ids = []; // Collect study IDs 'project-1', 'screen-2' etc
 
@@ -545,7 +573,7 @@ function loadStudyThumbnails() {
 
   model.loadStudiesThumbnails(ids, function (data) {
     // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
-    for (id in data) {
+    for (var id in data) {
       if (!data[id]) continue; // may be null
 
       var obj_type = id.split('-')[0];

@@ -227,6 +227,40 @@ function renderStudy(studyData, elementId, linkFunc) {
 }
 
 // --------- Render utils -----------
+
+function studyHtml(props, studyData) {
+  let pubmed = model.getStudyValue(studyData, 'PubMed ID');
+  if (pubmed) {
+    pubmed = pubmed.split(" ")[1];
+  };
+  let author = props.authors.split(',')[0] || '';
+  return `
+  <div style='white-space:nowrap'>
+    ${ props.idrId }
+    ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author } et al.</a>` : author }
+  </div>
+  <div class="studyImage">
+    <a target="_blank" href="${ props.studyLink }">
+      <div style="height: 100%; width: 100%">
+        <div class="studyText">
+          <p title="${ props.studyDesc }">
+            ${ props.title }
+          </p>
+        </div>
+        <div class="studyAuthors">
+          ${ props.authors }
+        </div>
+      </div>
+    </a>
+    <a class="viewerLink" title="Open image in viewer" target="_blank"
+       href="">
+      <i class="fas fa-eye"></i>
+    </a>
+  </div>
+  `
+}
+
+
 function loadStudyThumbnails() {
 
   let ids = [];
@@ -242,7 +276,7 @@ function loadStudyThumbnails() {
   // Load images
   model.loadStudiesThumbnails(ids, (data) => {
     // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
-    for (id in data) {
+    for (let id in data) {
       let obj_type = id.split('-')[0];
       let obj_id = id.split('-')[1];
       let elements = document.querySelectorAll(`div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`);

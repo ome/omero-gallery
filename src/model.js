@@ -190,7 +190,7 @@ StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(id
     fetch(url + '?' + data)
       .then(response => response.json())
       .then(data => {
-        for (studyId in data) {
+        for (let studyId in data) {
           let study = this.getStudyById(studyId);
           if (data[studyId]) {
             study.image = data[studyId].image;

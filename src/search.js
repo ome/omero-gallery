@@ -465,7 +465,7 @@ function noStudiesMessage() {
     let configId = document.getElementById("maprConfig").value;
     let maprQuery = document.getElementById("maprQuery").value;
     let others = [];
-    for (cat in SUPER_CATEGORIES) {
+    for (let cat in SUPER_CATEGORIES) {
       if (SUPER_CATEGORIES[cat].label !== currLabel) {
         others.push(`<a href="${GALLERY_INDEX}${ cat }/search/?query=${configId}:${maprQuery}">${ SUPER_CATEGORIES[cat].label }</a>`);
       }
@@ -518,6 +518,69 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
 }
 
 // --------- Render utils -----------
+
+function studyHtml(props, studyData) {
+
+  let pubmed = model.getStudyValue(studyData, 'PubMed ID');
+  if (pubmed) {
+    pubmed = pubmed.split(" ")[1];
+  }
+  let author = props.authors.split(',')[0] || '';
+  let html = `
+  <div style='white-space:nowrap'>
+    ${ props.idrId }
+    ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author } et al.</a>` : author}
+  </div>
+  <div class="studyImage">
+    <a target="_blank" href="${ props.studyLink }">
+      <div style="height: 100%; width: 100%">
+        <div class="studyText">
+          <p title="${ props.studyDesc }">
+            ${ props.title }
+          </p>
+        </div>
+        <div class="studyAuthors">
+          ${ props.authors }
+        </div>
+      </div>
+    </a>
+    <a class="viewerLink" title="Open image in viewer" target="_blank"
+       href="">
+      <i class="fas fa-eye"></i>
+    </a>
+  </div>
+  `
+  var div = document.createElement( "div" );
+  div.innerHTML = html;
+  div.id = props.type + '-' + studyData['@id'];
+  div.dataset.obj_type = props.type;
+  div.dataset.obj_id = studyData['@id'];
+  div.className = "row study ";
+  return div;
+}
+
+function maprHtml(props, studyData) {
+  let html = `  
+    <td>
+      <a target="_blank" href="${ props.studyLink }" />
+        ${ props.idrId }
+      </a>
+    </td>
+    <td>${ model.getStudyValue(studyData, 'Organism')}</td>
+    <td>${ studyData.imageCount }</td>
+    <td title="${ props.studyDesc }">${ props.studyDesc.slice(0,40) }...</td>
+    <td class='exampleImages'>loading...</td>
+    <td class='exampleImagesLink'></td>
+  `
+  var tr = document.createElement( "tr" );
+  tr.innerHTML = html;
+  tr.id = props.type + '-' + studyData['@id'];
+  tr.dataset.obj_type = props.type;
+  tr.dataset.obj_id = studyData['@id'];
+  return tr;
+}
+
+
 function loadStudyThumbnails() {
 
   let ids = [];
@@ -533,7 +596,7 @@ function loadStudyThumbnails() {
   // Load images
   model.loadStudiesThumbnails(ids, (data) => {
     // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
-    for (id in data) {
+    for (let id in data) {
       if (!data[id]) continue;  // may be null
       let obj_type = id.split('-')[0];
       let obj_id = id.split('-')[1];

@@ -234,6 +234,18 @@ function renderStudy(studyData, elementId, linkFunc) {
 } // --------- Render utils -----------
 
 
+function studyHtml(props, studyData) {
+  var pubmed = model.getStudyValue(studyData, 'PubMed ID');
+
+  if (pubmed) {
+    pubmed = pubmed.split(" ")[1];
+  }
+
+  ;
+  var author = props.authors.split(',')[0] || '';
+  return "\n  <div style='white-space:nowrap'>\n    ".concat(props.idrId, "\n    ").concat(pubmed ? "<a class='pubmed' target=\"_blank\" href=\"".concat(pubmed, "\"> ").concat(author, " et al.</a>") : author, "\n  </div>\n  <div class=\"studyImage\">\n    <a target=\"_blank\" href=\"").concat(props.studyLink, "\">\n      <div style=\"height: 100%; width: 100%\">\n        <div class=\"studyText\">\n          <p title=\"").concat(props.studyDesc, "\">\n            ").concat(props.title, "\n          </p>\n        </div>\n        <div class=\"studyAuthors\">\n          ").concat(props.authors, "\n        </div>\n      </div>\n    </a>\n    <a class=\"viewerLink\" title=\"Open image in viewer\" target=\"_blank\"\n       href=\"\">\n      <i class=\"fas fa-eye\"></i>\n    </a>\n  </div>\n  ");
+}
+
 function loadStudyThumbnails() {
   var ids = []; // Collect study IDs 'project-1', 'screen-2' etc
 
@@ -248,7 +260,7 @@ function loadStudyThumbnails() {
 
   model.loadStudiesThumbnails(ids, function (data) {
     // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
-    for (id in data) {
+    for (var id in data) {
       var obj_type = id.split('-')[0];
       var obj_id = id.split('-')[1];
       var elements = document.querySelectorAll("div[data-obj_type=\"".concat(obj_type, "\"][data-obj_id=\"").concat(obj_id, "\"]"));

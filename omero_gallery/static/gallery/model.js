@@ -243,7 +243,7 @@ StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(id
     fetch(url + '?' + data).then(function (response) {
       return response.json();
     }).then(function (data) {
-      for (studyId in data) {
+      for (var studyId in data) {
         var study = _this3.getStudyById(studyId);
 
         if (data[studyId]) {
