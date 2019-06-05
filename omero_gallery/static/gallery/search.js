@@ -53,7 +53,6 @@ function populateInputsFromSearch() {
 populateInputsFromSearch(); // ------------ Handle MAPR searching or filtering --------------------- 
 
 function filterStudiesByMapr(value) {
-  console.log('filterStudiesByMapr', value);
   $('#studies').removeClass('studiesLayout');
   var configId = document.getElementById("maprConfig").value.replace("mapr_", "");
   document.getElementById('studies').innerHTML = "";
@@ -67,8 +66,7 @@ function filterStudiesByMapr(value) {
     });
     var termUrls = maprTerms.map(function (term) {
       return "".concat(BASE_URL, "mapr/api/").concat(configId, "/?value=").concat(term);
-    });
-    console.log(maprTerms, 'termUrls', termUrls); // Get results for All terms
+    }); // Get results for All terms
 
     Promise.all(termUrls.map(function (url) {
       return fetch(url);
@@ -77,8 +75,7 @@ function filterStudiesByMapr(value) {
         return res.json();
       }));
     }).then(function (responses) {
-      hideFilterSpinner();
-      console.log('responses', responses); // filter studies by each response
+      hideFilterSpinner(); // filter studies by each response
 
       var studiesByTerm = responses.map(function (data) {
         return filterStudiesByMaprResponse(data);
@@ -399,8 +396,9 @@ function renderMapr(maprData, term) {
     return renderStudy(s, elementSelector, linkFunc, maprHtml);
   }); // load images for each study...
 
-  document.querySelectorAll("[data-id=\"".concat(elementId, "\"] tr")).forEach(function (element) {
+  $("[data-id=\"".concat(elementId, "\"] tr")).each(function () {
     // load children in MAPR jsTree query to get images
+    var element = this;
     var studyId = element.id;
     var objId = studyId.split("-")[1];
     var objType = studyId.split("-")[0];
@@ -586,9 +584,9 @@ function maprHtml(props, studyData) {
 function loadStudyThumbnails() {
   var ids = []; // Collect study IDs 'project-1', 'screen-2' etc
 
-  document.querySelectorAll('div.study').forEach(function (element) {
-    var obj_id = element.dataset.obj_id;
-    var obj_type = element.dataset.obj_type;
+  $('div.study').each(function () {
+    var obj_id = $(this).attr('data-obj_id');
+    var obj_type = $(this).attr('data-obj_type');
 
     if (obj_id && obj_type) {
       ids.push(obj_type + '-' + obj_id);

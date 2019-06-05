@@ -51,7 +51,6 @@ populateInputsFromSearch();
 // ------------ Handle MAPR searching or filtering --------------------- 
 
 function filterStudiesByMapr(value) {
-  console.log('filterStudiesByMapr', value);
   $('#studies').removeClass('studiesLayout');
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
   document.getElementById('studies').innerHTML = "";
@@ -64,15 +63,12 @@ function filterStudiesByMapr(value) {
 
     let maprTerms = data.maps.map(term => term.id);
     let termUrls = maprTerms.map(term => `${ BASE_URL }mapr/api/${ configId }/?value=${ term }`);
-    
-    console.log(maprTerms, 'termUrls', termUrls);
 
     // Get results for All terms
     Promise.all(termUrls.map(url => fetch(url)))
     .then(responses => Promise.all(responses.map(res => res.json())))
     .then((responses) => {
       hideFilterSpinner();
-      console.log('responses', responses);
 
       // filter studies by each response
       let studiesByTerm = responses.map(data => filterStudiesByMaprResponse(data));
@@ -389,8 +385,9 @@ function renderMapr(maprData, term) {
   maprData.forEach(s => renderStudy(s, elementSelector, linkFunc, maprHtml));
 
   // load images for each study...
-  document.querySelectorAll(`[data-id="${ elementId }"] tr`).forEach(element => {
+  $(`[data-id="${ elementId }"] tr`).each(function() {
     // load children in MAPR jsTree query to get images
+    let element = this;
     let studyId = element.id;
     let objId = studyId.split("-")[1];
     let objType = studyId.split("-")[0];
@@ -604,9 +601,9 @@ function loadStudyThumbnails() {
 
   let ids = [];
   // Collect study IDs 'project-1', 'screen-2' etc
-  document.querySelectorAll('div.study').forEach(element => {
-    let obj_id = element.dataset.obj_id;
-    let obj_type = element.dataset.obj_type;
+  $('div.study').each(function() {
+    let obj_id = $(this).attr('data-obj_id');
+    let obj_type = $(this).attr('data-obj_type');
     if (obj_id && obj_type) {
       ids.push(obj_type + '-' + obj_id);
     }

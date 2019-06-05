@@ -249,9 +249,9 @@ function studyHtml(props, studyData) {
 function loadStudyThumbnails() {
   var ids = []; // Collect study IDs 'project-1', 'screen-2' etc
 
-  document.querySelectorAll('div.study').forEach(function (element) {
-    var obj_id = element.dataset.obj_id;
-    var obj_type = element.dataset.obj_type;
+  $('div.study').each(function () {
+    var obj_id = $(this).attr('data-obj_id');
+    var obj_type = $(this).attr('data-obj_type');
 
     if (obj_id && obj_type) {
       ids.push(obj_type + '-' + obj_id);
