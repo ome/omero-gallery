@@ -584,7 +584,7 @@ function maprHtml(props, studyData) {
     </td>
     <td>${ model.getStudyValue(studyData, 'Organism')}</td>
     <td>${ studyData.imageCount }</td>
-    <td title="${ props.studyDesc }">${ props.studyDesc.slice(0,40) }...</td>
+    <td title="${ props.title }">${ props.title.slice(0,40) }${ props.title.length > 40 ? '...' : '' }</td>
     <td class='exampleImages'>loading...</td>
     <td class='exampleImagesLink'></td>
   `
