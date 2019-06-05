@@ -482,4 +482,11 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
     callback(_this6.images[key]);
     return;
   });
-};
+}; // startsWith polyfill for IE
+
+
+if (!String.prototype.startsWith) {
+  String.prototype.startsWith = function (search, pos) {
+    return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+  };
+}
