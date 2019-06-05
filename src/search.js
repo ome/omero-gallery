@@ -51,32 +51,79 @@ populateInputsFromSearch();
 // ------------ Handle MAPR searching or filtering --------------------- 
 
 function filterStudiesByMapr(value) {
+  console.log('filterStudiesByMapr', value);
   $('#studies').removeClass('studiesLayout');
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
   document.getElementById('studies').innerHTML = "";
   let key = mapr_settings[value] ? mapr_settings[value].all.join(" or ") : value;
   showFilterSpinner(`Finding images with ${ configId }: ${ value }...`);
 
-  // First, get all terms that match (NOT case_sensitive)
-  // /mapr/api/gene/?value=TOP2&case_sensitive=false&orphaned=true
+  // Get all terms that match (NOT case_sensitive)
   let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ value }&case_sensitive=false&orphaned=true`;
   $.getJSON(url, (data) => {
-    renderMaprMessage(data.maps);
-    data.maps.forEach(termData => {
-      let term = termData.id;
 
-      renderMaprResults(term)
-    });
+    let maprTerms = data.maps.map(term => term.id);
+    let termUrls = maprTerms.map(term => `${ BASE_URL }mapr/api/${ configId }/?value=${ term }`);
+    
+    console.log(maprTerms, 'termUrls', termUrls);
+
+    // Get results for All terms
+    Promise.all(termUrls.map(url => fetch(url)))
+    .then(responses => Promise.all(responses.map(res => res.json())))
+    .then((responses) => {
+      hideFilterSpinner();
+      console.log('responses', responses);
+
+      // filter studies by each response
+      let studiesByTerm = responses.map(data => filterStudiesByMaprResponse(data));
+
+      renderMaprMessage(studiesByTerm, maprTerms);
+
+      // Show table for each...
+      studiesByTerm.forEach((studies, idx) => {
+        if (studies.length > 0) {
+          renderMaprResultsTable(studies, maprTerms[idx]);
+        }
+      });
+    })
+    // .fail(() => {
+    //   document.getElementById('filterCount').innerHTML = "Request failed. Server may be busy."
+    // })
   });
 }
 
 
-function renderMaprMessage(mapsData) {
-  let studyCount = mapsData.reduce((count, data) => count + data.childCount, 0);
-  let imageCount = mapsData.reduce((count, data) => count + data.extra.counter, 0);
-  let terms = mapsData.map(d => d.id).join('/');
+function filterStudiesByMaprResponse(data) {
+  // filter studies by 'screens' and 'projects'
+  let imageCounts = {};
+  data.screens.forEach(s => {imageCounts[`screen-${ s.id }`] = s.extra.counter});
+  data.projects.forEach(s => {imageCounts[`project-${ s.id }`] = s.extra.counter});
+
+  let filterFunc = study => {
+    let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+    return imageCounts.hasOwnProperty(studyId);
+  }
+
+  let filteredStudies = model.studies.filter(filterFunc).map(study => {
+    let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+    let studyData = Object.assign({}, study);
+    studyData.imageCount = imageCounts[studyId];
+    return studyData;
+  });
+  return filteredStudies;
+}
+
+
+function renderMaprMessage(studiesByTerm, maprTerms) {
+  // for each term e.g. TOP2, top2 etc sum image counts from each study
+  let imageCount = studiesByTerm.reduce((count, studies) => {
+    return count + studies.reduce((count, study) => count + study.imageCount, 0);
+  }, 0);
+  let studyCount = studiesByTerm.reduce((count, studies) => count + studies.length, 0);
+
+  let terms = maprTerms.join('/');
   let filterMessage = "";
-  if (mapsData.length === 0) {
+  if (studyCount === 0) {
     filterMessage = noStudiesMessage();
   } else {
     let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
@@ -93,9 +140,8 @@ function renderMaprMessage(mapsData) {
 }
 
 
-function renderMaprResults(term) {
+function renderMaprResultsTable(maprData, term) {
   let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-
   let elementId = 'maprResultsTable' + term;
   let html = `
     <h2>${ term }</h2>
@@ -112,34 +158,7 @@ function renderMaprResults(term) {
       </tbody>
     </table>`;
   $('#studies').append(html);
-
-
-  let url = `${ BASE_URL }mapr/api/${ configId }/?value=${ term }`;
-  $.getJSON(url, (data) => {
-    // filter studies by 'screens' and 'projects'
-    let imageCounts = {};
-    data.screens.forEach(s => {imageCounts[`screen-${ s.id }`] = s.extra.counter});
-    data.projects.forEach(s => {imageCounts[`project-${ s.id }`] = s.extra.counter});
-
-    let filterFunc = study => {
-      let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
-      return imageCounts.hasOwnProperty(studyId);
-    }
-
-    let maprData = model.studies.filter(filterFunc).map(study => {
-      let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
-      let studyData = Object.assign({}, study);
-      studyData.imageCount = imageCounts[studyId];
-      return studyData;
-    });
-    renderMapr(maprData, term);
-  })
-  .fail(() => {
-    document.getElementById('filterCount').innerHTML = "Request failed. Server may be busy."
-  })
-  .always(() => {
-    hideFilterSpinner();
-  });
+  renderMapr(maprData, term);
 }
 
 // ----- event handling --------

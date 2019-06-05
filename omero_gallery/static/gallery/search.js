@@ -53,36 +53,87 @@ function populateInputsFromSearch() {
 populateInputsFromSearch(); // ------------ Handle MAPR searching or filtering --------------------- 
 
 function filterStudiesByMapr(value) {
+  console.log('filterStudiesByMapr', value);
   $('#studies').removeClass('studiesLayout');
   var configId = document.getElementById("maprConfig").value.replace("mapr_", "");
   document.getElementById('studies').innerHTML = "";
   var key = mapr_settings[value] ? mapr_settings[value].all.join(" or ") : value;
-  showFilterSpinner("Finding images with ".concat(configId, ": ").concat(value, "...")); // First, get all terms that match (NOT case_sensitive)
-  // /mapr/api/gene/?value=TOP2&case_sensitive=false&orphaned=true
+  showFilterSpinner("Finding images with ".concat(configId, ": ").concat(value, "...")); // Get all terms that match (NOT case_sensitive)
 
   var url = "".concat(BASE_URL, "mapr/api/").concat(configId, "/?value=").concat(value, "&case_sensitive=false&orphaned=true");
   $.getJSON(url, function (data) {
-    renderMaprMessage(data.maps);
-    data.maps.forEach(function (termData) {
-      var term = termData.id;
-      renderMaprResults(term);
+    var maprTerms = data.maps.map(function (term) {
+      return term.id;
     });
+    var termUrls = maprTerms.map(function (term) {
+      return "".concat(BASE_URL, "mapr/api/").concat(configId, "/?value=").concat(term);
+    });
+    console.log(maprTerms, 'termUrls', termUrls); // Get results for All terms
+
+    Promise.all(termUrls.map(function (url) {
+      return fetch(url);
+    })).then(function (responses) {
+      return Promise.all(responses.map(function (res) {
+        return res.json();
+      }));
+    }).then(function (responses) {
+      hideFilterSpinner();
+      console.log('responses', responses); // filter studies by each response
+
+      var studiesByTerm = responses.map(function (data) {
+        return filterStudiesByMaprResponse(data);
+      });
+      renderMaprMessage(studiesByTerm, maprTerms); // Show table for each...
+
+      studiesByTerm.forEach(function (studies, idx) {
+        if (studies.length > 0) {
+          renderMaprResultsTable(studies, maprTerms[idx]);
+        }
+      });
+    }); // .fail(() => {
+    //   document.getElementById('filterCount').innerHTML = "Request failed. Server may be busy."
+    // })
   });
 }
 
-function renderMaprMessage(mapsData) {
-  var studyCount = mapsData.reduce(function (count, data) {
-    return count + data.childCount;
+function filterStudiesByMaprResponse(data) {
+  // filter studies by 'screens' and 'projects'
+  var imageCounts = {};
+  data.screens.forEach(function (s) {
+    imageCounts["screen-".concat(s.id)] = s.extra.counter;
+  });
+  data.projects.forEach(function (s) {
+    imageCounts["project-".concat(s.id)] = s.extra.counter;
+  });
+
+  var filterFunc = function filterFunc(study) {
+    var studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+    return imageCounts.hasOwnProperty(studyId);
+  };
+
+  var filteredStudies = model.studies.filter(filterFunc).map(function (study) {
+    var studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+    var studyData = Object.assign({}, study);
+    studyData.imageCount = imageCounts[studyId];
+    return studyData;
+  });
+  return filteredStudies;
+}
+
+function renderMaprMessage(studiesByTerm, maprTerms) {
+  // for each term e.g. TOP2, top2 etc sum image counts from each study
+  var imageCount = studiesByTerm.reduce(function (count, studies) {
+    return count + studies.reduce(function (count, study) {
+      return count + study.imageCount;
+    }, 0);
   }, 0);
-  var imageCount = mapsData.reduce(function (count, data) {
-    return count + data.extra.counter;
+  var studyCount = studiesByTerm.reduce(function (count, studies) {
+    return count + studies.length;
   }, 0);
-  var terms = mapsData.map(function (d) {
-    return d.id;
-  }).join('/');
+  var terms = maprTerms.join('/');
   var filterMessage = "";
 
-  if (mapsData.length === 0) {
+  if (studyCount === 0) {
     filterMessage = noStudiesMessage();
   } else {
     var configId = document.getElementById("maprConfig").value.replace('mapr_', '');
@@ -98,39 +149,12 @@ function renderMaprMessage(mapsData) {
   document.getElementById('filterCount').innerHTML = filterMessage;
 }
 
-function renderMaprResults(term) {
+function renderMaprResultsTable(maprData, term) {
   var configId = document.getElementById("maprConfig").value.replace("mapr_", "");
   var elementId = 'maprResultsTable' + term;
   var html = "\n    <h2>".concat(term, "</h2>\n    <table class='maprResultsTable' style='margin-top:20px'>\n      <tbody data-id='").concat(elementId, "'>\n        <tr>\n          <th>Study ID</th>\n          <th>Organism</th>\n          <th>Image count</th>\n          <th>Title</th>\n          <th>Sample Images</th>\n          <th>Link</th>\n        </tr>\n      </tbody>\n    </table>");
   $('#studies').append(html);
-  var url = "".concat(BASE_URL, "mapr/api/").concat(configId, "/?value=").concat(term);
-  $.getJSON(url, function (data) {
-    // filter studies by 'screens' and 'projects'
-    var imageCounts = {};
-    data.screens.forEach(function (s) {
-      imageCounts["screen-".concat(s.id)] = s.extra.counter;
-    });
-    data.projects.forEach(function (s) {
-      imageCounts["project-".concat(s.id)] = s.extra.counter;
-    });
-
-    var filterFunc = function filterFunc(study) {
-      var studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
-      return imageCounts.hasOwnProperty(studyId);
-    };
-
-    var maprData = model.studies.filter(filterFunc).map(function (study) {
-      var studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
-      var studyData = Object.assign({}, study);
-      studyData.imageCount = imageCounts[studyId];
-      return studyData;
-    });
-    renderMapr(maprData, term);
-  }).fail(function () {
-    document.getElementById('filterCount').innerHTML = "Request failed. Server may be busy.";
-  }).always(function () {
-    hideFilterSpinner();
-  });
+  renderMapr(maprData, term);
 } // ----- event handling --------
 
 
