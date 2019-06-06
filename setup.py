@@ -31,8 +31,7 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-
-VERSION = '3.2.0a4'
+VERSION = '3.2.0.dev5'
 HOMEPAGE = "https://github.com/ome/omero-gallery"
 
 setup(name="omero-gallery",
