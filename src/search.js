@@ -53,9 +53,9 @@ function populateInputsFromSearch() {
       document.getElementById("maprConfig").value = configId;
       document.getElementById("maprQuery").value = value;
       let key = configId.replace('mapr_', '');
-      let placeholder = key;
+      let placeholder = `Type to filter values...`;
       if (mapr_settings && mapr_settings[key]) {
-        placeholder = mapr_settings[key].all.join(", ");
+        placeholder = `Type ${ mapr_settings[key]['default'][0]}...`;
       }
       document.getElementById('maprQuery').placeholder = placeholder;
     }
@@ -178,7 +178,10 @@ function renderMaprResultsTable(maprData, term) {
 document.getElementById('maprConfig').onchange = (event) => {
   document.getElementById('maprQuery').value = '';
   let value = event.target.value.replace('mapr_', '');
-  let placeholder = mapr_settings[value] ? mapr_settings[value].all.join(", ") : value;
+  let placeholder = `Type to filter values...`;
+  if (mapr_settings[value]) {
+    placeholder = `Type ${ mapr_settings[value]['default'][0]}...`;
+  }
   document.getElementById('maprQuery').placeholder = placeholder;
   // Show all autocomplete options...
   $("#maprQuery").focus();

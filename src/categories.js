@@ -28,7 +28,10 @@ let model = new StudiesModel();
 document.getElementById('maprConfig').onchange = (event) => {
   document.getElementById('maprQuery').value = '';
   let value = event.target.value.replace('mapr_', '');
-  let placeholder = mapr_settings[value] ? mapr_settings[value].default[0] : value;
+  let placeholder = `Type to filter values...`;
+  if (mapr_settings[value]) {
+    placeholder = `Type ${ mapr_settings[value]['default'][0]}...`;
+  }
   document.getElementById('maprQuery').placeholder = placeholder;
   // Show all autocomplete options...
   $("#maprQuery").focus();
