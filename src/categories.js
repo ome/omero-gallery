@@ -233,7 +233,7 @@ function renderStudy(studyData, elementId, linkFunc) {
       .join('\n');
   }
 
-  let idrId = studyData.Name.split('-')[0];  // idr0001
+  let idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length-1];  // idr0001A
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
   // Function (and template) are defined where used in index.html
