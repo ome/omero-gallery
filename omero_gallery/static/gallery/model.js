@@ -120,7 +120,17 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
 
     if (key == "Publication Authors") {
       // Split surnames, ignoring AN initials.
-      var names = value.match(/\b([A-Z][a-z]\w+)\b/g) || [];
+      var names = value.split(/,| and | & /).map(function (n) {
+        // Want the surname from e.g. 'Jan Ellenberg' or 'Held M' or 'Øyvind Ødegård-Fougner'
+        var words = n.split(" ").filter(function (w) {
+          return w.match(/[a-z]/g);
+        });
+        if (words && words.length == 1) return words[0]; // Surname only
+
+        return words && words.length > 1 ? words.slice(1).join(" ") : '';
+      }).filter(function (w) {
+        return w.length > 0;
+      });
       matches = names.filter(function (name) {
         return name.toLowerCase().indexOf(inputText) > -1;
       });

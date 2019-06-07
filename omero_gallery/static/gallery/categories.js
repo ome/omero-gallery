@@ -21,7 +21,12 @@ var model = new StudiesModel(); // ----- event handling --------
 document.getElementById('maprConfig').onchange = function (event) {
   document.getElementById('maprQuery').value = '';
   var value = event.target.value.replace('mapr_', '');
-  var placeholder = mapr_settings[value] ? mapr_settings[value]["default"][0] : value;
+  var placeholder = "Type to filter values...";
+
+  if (mapr_settings[value]) {
+    placeholder = "Type ".concat(mapr_settings[value]['default'][0], "...");
+  }
+
   document.getElementById('maprQuery').placeholder = placeholder; // Show all autocomplete options...
 
   $("#maprQuery").focus();

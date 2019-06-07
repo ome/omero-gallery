@@ -91,7 +91,13 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
     let matches = [];
     if (key == "Publication Authors") {
       // Split surnames, ignoring AN initials.
-      let names = value.match(/\b([A-Z][a-z]\w+)\b/g) || [];
+      let names = value.split(/,| and | & /)
+        .map(n => {
+          // Want the surname from e.g. 'Jan Ellenberg' or 'Held M' or 'Øyvind Ødegård-Fougner'
+          let words = n.split(" ").filter(w => w.match(/[a-z]/g));
+          if (words && words.length == 1) return words[0];  // Surname only
+          return (words && words.length > 1) ? words.slice(1).join(" ") : '';
+      }).filter(w => w.length > 0);
       matches = names.filter(name => name.toLowerCase().indexOf(inputText) > -1);
     } else if (value.toLowerCase().indexOf(inputText) > -1) {
       matches.push(value);
