@@ -233,7 +233,7 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
   var _this3 = this;
 
-  var url = GALLERY_INDEX + "api/thumbnails/"; // remove duplicates
+  var url = GALLERY_INDEX + "gallery-api/thumbnails/"; // remove duplicates
 
   ids = _toConsumableArray(new Set(ids)); // find any thumbnails we already have in hand...
 
@@ -492,7 +492,7 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
     return;
   }
 
-  var url = "".concat(GALLERY_INDEX, "api/").concat(obj_type, "s/").concat(obj_id, "/images/?limit=1");
+  var url = "".concat(GALLERY_INDEX, "gallery-api/").concat(obj_type, "s/").concat(obj_id, "/images/?limit=1");
   fetch(url).then(function (response) {
     return response.json();
   }).then(function (data) {

@@ -38,12 +38,12 @@ urlpatterns = patterns(
     url(r'^search/$', views.search, {'super_category': None}),
 
     # list images within container. NB: not used but potentially useful
-    url(r'^api/(?P<obj_type>[screen|project]+)s/'
+    url(r'^gallery-api/(?P<obj_type>[screen|project]+)s/'
         r'(?P<obj_id>[0-9]+)/images/$',
         views.study_images, name='webgallery_study_image'),
 
     # Supports e.g. ?project=1&project=2&screen=3
-    url(r'^api/thumbnails/$', views.api_thumbnails,
+    url(r'^gallery-api/thumbnails/$', views.api_thumbnails,
         name='webgallery_api_thumbnails'),
 )
 

@@ -188,7 +188,7 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 
 
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
-  let url = GALLERY_INDEX + "api/thumbnails/";
+  let url = GALLERY_INDEX + "gallery-api/thumbnails/";
   // remove duplicates
   ids = [...new Set(ids)];
   // find any thumbnails we already have in hand...
@@ -415,7 +415,7 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
     return;
   }
 
-  let url = `${ GALLERY_INDEX }api/${obj_type}s/${ obj_id }/images/?limit=1`
+  let url = `${ GALLERY_INDEX }gallery-api/${obj_type}s/${ obj_id }/images/?limit=1`
   fetch(url)
     .then(response => response.json())
     .then(data => {
