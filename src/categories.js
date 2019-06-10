@@ -255,10 +255,14 @@ function studyHtml(props, studyData) {
     pubmed = pubmed.split(" ")[1];
   };
   let author = props.authors.split(',')[0] || '';
+  if (author) {
+    author = `${ author } et al.`;
+    author = author.length > 23 ? author.slice(0, 20) + '...' : author;
+  }
   return `
   <div style='white-space:nowrap'>
     ${ props.idrId }
-    ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author } et al.</a>` : author }
+    ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author }</a>` : author }
   </div>
   <div class="studyImage">
     <a target="_blank" href="${ props.studyLink }">
