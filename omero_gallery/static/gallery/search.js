@@ -553,6 +553,10 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
     }).filter(function (l) {
       return l !== 'Experiment Description' && l !== 'Screen Description';
     }).join('\n');
+
+    if (studyDesc.indexOf('Version History') > 1) {
+      studyDesc = studyDesc.split('Version History')[0];
+    }
   }
 
   var idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length - 1]; // idr0001A

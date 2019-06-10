@@ -543,6 +543,9 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
       .filter(l => l.length > 0)
       .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
       .join('\n');
+    if (studyDesc.indexOf('Version History') > 1) {
+      studyDesc = studyDesc.split('Version History')[0];
+    }
   }
 
   let idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length-1];  // idr0001A
