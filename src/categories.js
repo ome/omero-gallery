@@ -268,7 +268,7 @@ function studyHtml(props, studyData) {
     <a target="_blank" href="${ props.studyLink }">
       <div style="height: 100%; width: 100%">
         <div class="studyText">
-          <p title="${ props.studyDesc }">
+          <p title='${ props.studyDesc }'>
             ${ props.title }
           </p>
         </div>
