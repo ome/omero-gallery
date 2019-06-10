@@ -195,7 +195,7 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
   var _this2 = this;
 
   // Load Projects AND Screens, sort them and render...
-  Promise.all([fetch(this.base_url + "api/v0/m/projects/"), fetch(this.base_url + "api/v0/m/screens/")]).then(function (responses) {
+  Promise.all([fetch(this.base_url + "api/v0/m/projects/?childCount=true"), fetch(this.base_url + "api/v0/m/screens/?childCount=true")]).then(function (responses) {
     return Promise.all(responses.map(function (res) {
       return res.json();
     }));
@@ -205,7 +205,11 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
         screens = _ref2[1];
 
     _this2.studies = projects.data;
-    _this2.studies = _this2.studies.concat(screens.data); // sort by name, reverse
+    _this2.studies = _this2.studies.concat(screens.data); // ignore empty studies with no images
+
+    _this2.studies = _this2.studies.filter(function (study) {
+      return study['omero:childCount'] > 0;
+    }); // sort by name, reverse
 
     _this2.studies.sort(function (a, b) {
       var nameA = a.Name.toUpperCase();
@@ -233,7 +237,7 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
   var _this3 = this;
 
-  var url = GALLERY_INDEX + "api/thumbnails/"; // remove duplicates
+  var url = GALLERY_INDEX + "gallery-api/thumbnails/"; // remove duplicates
 
   ids = _toConsumableArray(new Set(ids)); // find any thumbnails we already have in hand...
 
@@ -492,7 +496,7 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
     return;
   }
 
-  var url = "".concat(GALLERY_INDEX, "api/").concat(obj_type, "s/").concat(obj_id, "/images/?limit=1");
+  var url = "".concat(GALLERY_INDEX, "gallery-api/").concat(obj_type, "s/").concat(obj_id, "/images/?limit=1");
   fetch(url).then(function (response) {
     return response.json();
   }).then(function (data) {

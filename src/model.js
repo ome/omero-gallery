@@ -155,13 +155,16 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 
   // Load Projects AND Screens, sort them and render...
   Promise.all([
-    fetch(this.base_url + "api/v0/m/projects/"),
-    fetch(this.base_url + "api/v0/m/screens/"),
+    fetch(this.base_url + "api/v0/m/projects/?childCount=true"),
+    fetch(this.base_url + "api/v0/m/screens/?childCount=true"),
   ]).then(responses =>
       Promise.all(responses.map(res => res.json()))
   ).then(([projects, screens]) => {
       this.studies = projects.data;
       this.studies = this.studies.concat(screens.data);
+
+      // ignore empty studies with no images
+      this.studies = this.studies.filter(study => study['omero:childCount'] > 0);
 
       // sort by name, reverse
       this.studies.sort(function(a, b) {
@@ -188,7 +191,7 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 
 
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
-  let url = GALLERY_INDEX + "api/thumbnails/";
+  let url = GALLERY_INDEX + "gallery-api/thumbnails/";
   // remove duplicates
   ids = [...new Set(ids)];
   // find any thumbnails we already have in hand...
@@ -415,7 +418,7 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
     return;
   }
 
-  let url = `${ GALLERY_INDEX }api/${obj_type}s/${ obj_id }/images/?limit=1`
+  let url = `${ GALLERY_INDEX }gallery-api/${obj_type}s/${ obj_id }/images/?limit=1`
   fetch(url)
     .then(response => response.json())
     .then(data => {
