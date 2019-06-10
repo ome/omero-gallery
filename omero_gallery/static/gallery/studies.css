@@ -4,6 +4,9 @@
 .super_categories img {
   margin-bottom: 0;
 }
+.search-by {
+  margin-top: 5px;
+}
 .category {
   width:100%;
   overflow:auto;
