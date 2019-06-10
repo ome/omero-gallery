@@ -545,7 +545,7 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
       .join('\n');
   }
 
-  let idrId = studyData.Name.split('-')[0];  // idr0001
+  let idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length-1];  // idr0001A
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
   let div = htmlFunc({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData);

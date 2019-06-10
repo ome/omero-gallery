@@ -555,7 +555,7 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
     }).join('\n');
   }
 
-  var idrId = studyData.Name.split('-')[0]; // idr0001
+  var idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length - 1]; // idr0001A
 
   var authors = model.getStudyValue(studyData, "Publication Authors") || "";
   var div = htmlFunc({
