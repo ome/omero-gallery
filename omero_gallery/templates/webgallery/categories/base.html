@@ -6,13 +6,13 @@
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>IDR: Image Data Resource</title>
-        <link rel="shortcut icon" type="image/x-icon" href="https://idr.openmicroscopy.org/about/img/logos/favicon-idr.ico">
+        <link rel="shortcut icon" type="image/x-icon" href="/about/img/logos/favicon-idr.ico">
 
         <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic">
         <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Nunito">
-        <link href="https://idr.openmicroscopy.org/about/css/foundation.min.css" rel="stylesheet">
-        <link href="https://idr.openmicroscopy.org/about/css/openmicroscopy.css" rel="stylesheet">
-        <link href="https://idr.openmicroscopy.org/about/css/idr.css" rel="stylesheet">
+        <link href="/about/css/foundation.min.css" rel="stylesheet">
+        <link href="/about/css/openmicroscopy.css" rel="stylesheet">
+        <link href="/about/css/idr.css" rel="stylesheet">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
         <!-- fetch polyfill for IE -->
         <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js"></script>
@@ -22,7 +22,7 @@
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
         <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
 
-        <script src="https://idr.openmicroscopy.org/about/js/vendor/foundation.min.js"></script>
+        <script src="/about/js/vendor/foundation.min.js"></script>
 
         <script src="{% static 'gallery/model.js' %}"></script>
         <link href="{% static 'gallery/studies.css' %}" rel="stylesheet">
@@ -43,7 +43,7 @@
             <div class="top-bar-left">
                 <ul class="dropdown menu" data-dropdown-menu>
                     <li><a class="logo" href="{% url 'webgallery_index' %}">
-                        <img src="https://idr.openmicroscopy.org/about/img/logos/logo-idr.svg" alt="IDR logo"></a>
+                        <img src="/about/img/logos/logo-idr.svg" alt="IDR logo"></a>
                     </li>
 
 
@@ -59,22 +59,22 @@
 
             <div class="top-bar-right">
                 <ul class="dropdown menu" data-dropdown-menu>
-                    <li class="has-submenu"><a href="https://idr.openmicroscopy.org/about/index.html">About</a>
+                    <li class="has-submenu"><a href="/about/index.html">About</a>
                         <ul class="submenu menu vertical" data-submenu>
-                            <li><a href="https://idr.openmicroscopy.org/about/index.html">Overview</a></li>
-                            <li><a href="https://idr.openmicroscopy.org/about/studies.html">Published studies</a></li>
-                            <li><a href="https://idr.openmicroscopy.org/about/api.html">API Access</a></li>
-                            <li><a href="https://idr.openmicroscopy.org/about/download.html">Data download</a></li>
-                            <li><a href="https://idr.openmicroscopy.org/about/itr.html">Image Tools Resource (ITR)</a></li>
-                            <li><a href="https://idr.openmicroscopy.org/jupyter">Virtual Analysis Environment (VAE)</a></li>
-                            <li><a href="https://idr.openmicroscopy.org/about/deployment.html">Deployment</a></li>
+                            <li><a href="/about/index.html">Overview</a></li>
+                            <li><a href="/about/studies.html">Published studies</a></li>
+                            <li><a href="/about/api.html">API Access</a></li>
+                            <li><a href="/about/download.html">Data download</a></li>
+                            <li><a href="/about/itr.html">Image Tools Resource (ITR)</a></li>
+                            <li><a href="/jupyter">Virtual Analysis Environment (VAE)</a></li>
+                            <li><a href="/about/deployment.html">Deployment</a></li>
                         </ul>
                     </li>
-                    <li class="has-submenu"><a href="https://idr.openmicroscopy.org/about/submission.html">Submissions</a>
+                    <li class="has-submenu"><a href="/about/submission.html">Submissions</a>
                         <ul class="submenu menu vertical" data-submenu>
-                            <li><a href="https://idr.openmicroscopy.org/about/submission.html">Overview</a></li>
-                            <li><a href="https://idr.openmicroscopy.org/about/screens.html">Screens</a></li>
-                            <li><a href="https://idr.openmicroscopy.org/about/experiments.html">Experiments</a></li>
+                            <li><a href="/about/submission.html">Overview</a></li>
+                            <li><a href="/about/screens.html">Screens</a></li>
+                            <li><a href="/about/experiments.html">Experiments</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -93,11 +93,11 @@
         <div class="callout large secondary">
             <div class="row">
                 <div class="row small-up-2 medium-up-5 large-up-5">
-                    <div class="column"><a href="https://www.openmicroscopy.org/" target="_blank"><img class="thumbnail their-logo" src="https://idr.openmicroscopy.org/about/img/logos/ome-logo-200.png?1554986584537045008" alt="OME"></a></div>
-                    <div class="column"><a href="http://www.eurobioimaging.eu/" target="_blank"><img class="thumbnail their-logo" src="https://idr.openmicroscopy.org/about/img/logos/eurobioimaging_logo.gif?1554986584537045008" alt="Euro-Bioimaging"></a></div>
-                    <div class="column"><a href="https://www.globalbioimaging.org/" target="_blank"><img class="thumbnail their-logo" src="https://idr.openmicroscopy.org/about/img/logos/globalbioimaging_logo.png?1554986584537045008" alt="Global-Bioimaging"></a></div>
-                    <div class="column"><a href="https://www.bbsrc.ac.uk/" target="_blank"><img class="thumbnail their-logo" src="https://idr.openmicroscopy.org/about/img/logos/bbsrc.png?1554986584537045008" alt="BBSRC"></a></div>
-                    <div class="column"><a href="https://ec.europa.eu/programmes/horizon2020/" target="_blank"><img class="thumbnail their-logo" src="https://idr.openmicroscopy.org/about/img/logos/h2020.png?1554986584537045008" alt="Horizon"></a></div>
+                    <div class="column"><a href="https://www.openmicroscopy.org/" target="_blank"><img class="thumbnail their-logo" src="/about/img/logos/ome-logo-200.png?1554986584537045008" alt="OME"></a></div>
+                    <div class="column"><a href="http://www.eurobioimaging.eu/" target="_blank"><img class="thumbnail their-logo" src="/about/img/logos/eurobioimaging_logo.gif?1554986584537045008" alt="Euro-Bioimaging"></a></div>
+                    <div class="column"><a href="https://www.globalbioimaging.org/" target="_blank"><img class="thumbnail their-logo" src="/about/img/logos/globalbioimaging_logo.png?1554986584537045008" alt="Global-Bioimaging"></a></div>
+                    <div class="column"><a href="https://www.bbsrc.ac.uk/" target="_blank"><img class="thumbnail their-logo" src="/about/img/logos/bbsrc.png?1554986584537045008" alt="BBSRC"></a></div>
+                    <div class="column"><a href="https://ec.europa.eu/programmes/horizon2020/" target="_blank"><img class="thumbnail their-logo" src="/about/img/logos/h2020.png?1554986584537045008" alt="Horizon"></a></div>
                 </div>
                 <hr class="whitespace">
                 <div class="large-12 columns text-center">
@@ -106,7 +106,7 @@
                 </div>
                 <hr class="whitespace">
                 <div class="small-12 columns text-center">
-                    <p class="version-number"><a href="https://idr.openmicroscopy.org/about/index.html"><img id="version-number" src="https://idr.openmicroscopy.org/about/img/logos/logo-idr.svg?1554986584537045008" alt="IDR logo"></a>
+                    <p class="version-number"><a href="/about/index.html"><img id="version-number" src="/about/img/logos/logo-idr.svg?1554986584537045008" alt="IDR logo"></a>
                         version: <span id="version-number-display">devel</span>.
                     Last updated: 2019-04-11.
                 </div>
