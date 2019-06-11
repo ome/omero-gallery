@@ -543,6 +543,9 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
       .filter(l => l.length > 0)
       .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
       .join('\n');
+    if (studyDesc.indexOf('Version History') > 1) {
+      studyDesc = studyDesc.split('Version History')[0];
+    }
   }
 
   let idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length-1];  // idr0001A
@@ -561,16 +564,20 @@ function studyHtml(props, studyData) {
     pubmed = pubmed.split(" ")[1];
   }
   let author = props.authors.split(',')[0] || '';
+  if (author) {
+    author = `${ author } et al.`;
+    author = author.length > 23 ? author.slice(0, 20) + '...' : author;
+  }
   let html = `
   <div style='white-space:nowrap'>
     ${ props.idrId }
-    ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author } et al.</a>` : author}
+    ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author }</a>` : author}
   </div>
   <div class="studyImage">
     <a target="_blank" href="${ props.studyLink }">
       <div style="height: 100%; width: 100%">
         <div class="studyText">
-          <p title="${ props.studyDesc }">
+          <p title='${ props.studyDesc }'>
             ${ props.title }
           </p>
         </div>

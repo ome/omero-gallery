@@ -228,6 +228,10 @@ function renderStudy(studyData, elementId, linkFunc) {
     }).filter(function (l) {
       return l !== 'Experiment Description' && l !== 'Screen Description';
     }).join('\n');
+
+    if (studyDesc.indexOf('Version History') > 1) {
+      studyDesc = studyDesc.split('Version History')[0];
+    }
   }
 
   var idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length - 1]; // idr0001A
@@ -261,7 +265,13 @@ function studyHtml(props, studyData) {
 
   ;
   var author = props.authors.split(',')[0] || '';
-  return "\n  <div style='white-space:nowrap'>\n    ".concat(props.idrId, "\n    ").concat(pubmed ? "<a class='pubmed' target=\"_blank\" href=\"".concat(pubmed, "\"> ").concat(author, " et al.</a>") : author, "\n  </div>\n  <div class=\"studyImage\">\n    <a target=\"_blank\" href=\"").concat(props.studyLink, "\">\n      <div style=\"height: 100%; width: 100%\">\n        <div class=\"studyText\">\n          <p title=\"").concat(props.studyDesc, "\">\n            ").concat(props.title, "\n          </p>\n        </div>\n        <div class=\"studyAuthors\">\n          ").concat(props.authors, "\n        </div>\n      </div>\n    </a>\n    <a class=\"viewerLink\" title=\"Open image in viewer\" target=\"_blank\"\n       href=\"\">\n      <i class=\"fas fa-eye\"></i>\n    </a>\n  </div>\n  ");
+
+  if (author) {
+    author = "".concat(author, " et al.");
+    author = author.length > 23 ? author.slice(0, 20) + '...' : author;
+  }
+
+  return "\n  <div style='white-space:nowrap'>\n    ".concat(props.idrId, "\n    ").concat(pubmed ? "<a class='pubmed' target=\"_blank\" href=\"".concat(pubmed, "\"> ").concat(author, "</a>") : author, "\n  </div>\n  <div class=\"studyImage\">\n    <a target=\"_blank\" href=\"").concat(props.studyLink, "\">\n      <div style=\"height: 100%; width: 100%\">\n        <div class=\"studyText\">\n          <p title='").concat(props.studyDesc, "'>\n            ").concat(props.title, "\n          </p>\n        </div>\n        <div class=\"studyAuthors\">\n          ").concat(props.authors, "\n        </div>\n      </div>\n    </a>\n    <a class=\"viewerLink\" title=\"Open image in viewer\" target=\"_blank\"\n       href=\"\">\n      <i class=\"fas fa-eye\"></i>\n    </a>\n  </div>\n  ");
 }
 
 function loadStudyThumbnails() {

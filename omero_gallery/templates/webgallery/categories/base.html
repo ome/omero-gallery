@@ -47,9 +47,10 @@
                     </li>
 
 
-                    {% for category, data in super_categories.items %}
+                    {% for c, data in super_categories.items %}
                     <li>
-                        <a href="{% url 'gallery_super_category' super_category=category %}">
+                        <a href="{% url 'gallery_super_category' super_category=c %}"
+                           {% if c == category %}style="color: #ff9800"{% endif %}>
                           {{ data.label }}
                         </a>
                     </li>
