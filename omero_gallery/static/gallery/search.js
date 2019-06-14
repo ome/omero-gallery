@@ -405,8 +405,7 @@ function renderMapr(maprData, term) {
   var linkFunc = function linkFunc(studyData) {
     var type = studyData['@type'].split('#')[1].toLowerCase();
     var maprKey = configId.replace('mapr_', '');
-    var maprValue = document.getElementById('maprQuery').value;
-    return "/mapr/".concat(maprKey, "/?value=").concat(maprValue, "&show=").concat(type, "-").concat(studyData['@id']);
+    return "/mapr/".concat(maprKey, "/?value=").concat(term, "&show=").concat(type, "-").concat(studyData['@id']);
   };
 
   var elementSelector = "[data-id=\"".concat(elementId, "\"]");

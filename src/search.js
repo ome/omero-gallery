@@ -396,8 +396,7 @@ function renderMapr(maprData, term) {
   let linkFunc = (studyData) => {
     let type = studyData['@type'].split('#')[1].toLowerCase();
     let maprKey = configId.replace('mapr_', '');
-    let maprValue = document.getElementById('maprQuery').value;
-    return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
+    return `/mapr/${ maprKey }/?value=${ term }&show=${ type }-${ studyData['@id'] }`;
   }
   let elementSelector = `[data-id="${ elementId }"]`;
 
