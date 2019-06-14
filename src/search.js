@@ -204,8 +204,6 @@ document.getElementById('maprQuery').onfocus = (event) => {
   showAutocomplete(event);
 }
 document.getElementById('maprQuery').onclick = (event) => {
-  // select all the text (easier to type new search term)
-  event.target.setSelectionRange(0, event.target.value.length);
   showAutocomplete(event);
 }
 
@@ -258,11 +256,7 @@ $("#maprQuery")
           }
           response(matches);
 
-          if (request.term.length === 0) {
-            render();
-            return;
-          }
-
+          // When not mapr, we filter while typing
           filterAndRender();
           return;
         }
@@ -396,8 +390,7 @@ function renderMapr(maprData, term) {
   let linkFunc = (studyData) => {
     let type = studyData['@type'].split('#')[1].toLowerCase();
     let maprKey = configId.replace('mapr_', '');
-    let maprValue = document.getElementById('maprQuery').value;
-    return `/mapr/${ maprKey }/?value=${ maprValue }&show=${ type }-${ studyData['@id'] }`;
+    return `/mapr/${ maprKey }/?value=${ term }&show=${ type }-${ studyData['@id'] }`;
   }
   let elementSelector = `[data-id="${ elementId }"]`;
 
