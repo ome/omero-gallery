@@ -204,8 +204,6 @@ document.getElementById('maprQuery').onfocus = (event) => {
   showAutocomplete(event);
 }
 document.getElementById('maprQuery').onclick = (event) => {
-  // select all the text (easier to type new search term)
-  event.target.setSelectionRange(0, event.target.value.length);
   showAutocomplete(event);
 }
 
@@ -258,11 +256,7 @@ $("#maprQuery")
           }
           response(matches);
 
-          if (request.term.length === 0) {
-            render();
-            return;
-          }
-
+          // When not mapr, we filter while typing
           filterAndRender();
           return;
         }
