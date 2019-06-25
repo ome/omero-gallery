@@ -88,7 +88,15 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.title":
         ["GALLERY_TITLE", "Welcome to OMERO.gallery", str,
-         "Title for the home page shown when category_queries is set."]
+         "Title for the home page shown when category_queries is set."],
+
+    "omero.web.gallery.top_right_links":
+        ["TOP_RIGHT_LINKS",
+         ('[]'),
+         json.loads,
+         ("List of {'text':'Text','href':'www.url'} links for top-right of page."
+          "If a link contains 'submenu':[ ] with more links, these will be"
+          " shown in a dropdown menu")],
 
 }
 

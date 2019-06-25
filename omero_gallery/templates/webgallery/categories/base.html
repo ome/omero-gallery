@@ -51,26 +51,20 @@
                 </ul>
             </div>
 
-            <div class="top-bar-right">
+            <div id="top-bar-right" class="top-bar-right">
                 <ul class="dropdown menu" data-dropdown-menu>
-                    <li class="has-submenu"><a href="{{ base_url }}about/index.html">About</a>
-                        <ul class="submenu menu vertical" data-submenu>
-                            <li><a href="{{ base_url }}about/index.html">Overview</a></li>
-                            <li><a href="{{ base_url }}about/studies.html">Published studies</a></li>
-                            <li><a href="{{ base_url }}about/api.html">API Access</a></li>
-                            <li><a href="{{ base_url }}about/download.html">Data download</a></li>
-                            <li><a href="{{ base_url }}about/itr.html">Image Tools Resource (ITR)</a></li>
-                            <li><a href="/jupyter">Virtual Analysis Environment (VAE)</a></li>
-                            <li><a href="{{ base_url }}about/deployment.html">Deployment</a></li>
-                        </ul>
+                {% for link in top_right_links %}
+                    <li class="{% if link.submenu %}has-submenu{% endif %}">
+                        <a href="{{ link.href }}">{{ link.text }}</a>
+                        {% if link.submenu %}
+                            <ul class='submenu menu vertical' data-submenu>
+                            {% for l in link.submenu %}
+                               <li><a href="{{ l.href }}">{{ l.text }}</a></li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
                     </li>
-                    <li class="has-submenu"><a href="{{ base_url }}about/submission.html">Submissions</a>
-                        <ul class="submenu menu vertical" data-submenu>
-                            <li><a href="{{ base_url }}about/submission.html">Overview</a></li>
-                            <li><a href="{{ base_url }}about/screens.html">Screens</a></li>
-                            <li><a href="{{ base_url }}about/experiments.html">Experiments</a></li>
-                        </ul>
-                    </li>
+                {% endfor %}
                 </ul>
             </div>
         </div>

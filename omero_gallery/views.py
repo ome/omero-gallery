@@ -32,6 +32,7 @@ def index(request, super_category=None):
     if len(category_queries) > 0:
         context = {'template': "webgallery/categories/index.html"}
         context['gallery_title'] = gallery_settings.GALLERY_TITLE
+        context['top_right_links'] = gallery_settings.TOP_RIGHT_LINKS
         context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
         context['TITLE_KEYS'] = json.dumps(gallery_settings.TITLE_KEYS)
         context['filter_mapr_keys'] = json.dumps(
@@ -275,6 +276,7 @@ def search(request, super_category=None, conn=None, **kwargs):
 
     context = {'template': "webgallery/categories/search.html"}
     context['gallery_title'] = gallery_settings.GALLERY_TITLE
+    context['top_right_links'] = gallery_settings.TOP_RIGHT_LINKS
     context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
     context['super_categories'] = gallery_settings.SUPER_CATEGORIES
     context['SUPER_CATEGORIES'] = json.dumps(gallery_settings.SUPER_CATEGORIES)
