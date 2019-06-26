@@ -6,8 +6,12 @@
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>IDR: Image Data Resource</title>
-        <link rel="shortcut icon" type="image/x-icon" href="{{ base_url }}about/img/logos/favicon-idr.ico">
 
+        {% if favicon %}
+        <link rel="shortcut icon" type="image/x-icon" href="{{ favicon }}">
+        {% else %}
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'gallery/images/favicon.ico' %}">
+        {% endif %}
         <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic">
         <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Nunito">
         <link href="{% static 'gallery/3rdparty/foundation/foundation.min.css' %}" rel="stylesheet">

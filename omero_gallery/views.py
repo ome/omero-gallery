@@ -31,6 +31,7 @@ def index(request, super_category=None):
     category_queries = gallery_settings.CATEGORY_QUERIES
     if len(category_queries) > 0:
         context = {'template': "webgallery/categories/index.html"}
+        context['favicon'] = gallery_settings.FAVICON
         context['gallery_title'] = gallery_settings.GALLERY_TITLE
         context['top_right_links'] = gallery_settings.TOP_RIGHT_LINKS
         context['top_left_logo'] = gallery_settings.TOP_LEFT_LOGO
@@ -283,6 +284,7 @@ def show_image(request, image_id, conn=None, **kwargs):
 def search(request, super_category=None, conn=None, **kwargs):
 
     context = {'template': "webgallery/categories/search.html"}
+    context['favicon'] = gallery_settings.FAVICON
     context['gallery_title'] = gallery_settings.GALLERY_TITLE
     context['top_right_links'] = gallery_settings.TOP_RIGHT_LINKS
     context['top_left_logo'] = gallery_settings.TOP_LEFT_LOGO

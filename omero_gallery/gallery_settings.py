@@ -120,6 +120,12 @@ GALLERY_SETTINGS_MAPPING = {
          str,
          ("HTML to show as a sub-heading, within a <p> tag.")],
 
+    "omero.web.gallery.favicon":
+        ["FAVICON",
+         (''),
+         str,
+         ("URL to favicon.")],
+
 }
 
 process_custom_settings(sys.modules[__name__], 'GALLERY_SETTINGS_MAPPING')
