@@ -21,15 +21,20 @@ let model = new StudiesModel();
 let mapr_settings;
 
 function renderStudyKeys() {
-  let html = FILTER_KEYS
-      .map(key => {
-        if (key.label && key.value) {
-          return `<option value="${ key.value }">${ key.label }</option>`
-        }
-        return `<option value="${ key }">${ key }</option>`
-      })
-      .join("\n");
-  document.getElementById('studyKeys').innerHTML = html;
+  if (FILTER_KEYS.length > 0) {
+    let html = FILTER_KEYS
+        .map(key => {
+          if (key.label && key.value) {
+            return `<option value="${ key.value }">${ key.label }</option>`
+          }
+          return `<option value="${ key }">${ key }</option>`
+        })
+        .join("\n");
+    document.getElementById('studyKeys').innerHTML = html;
+    // Show the <optgroup> and the whole form
+    document.getElementById('studyKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
 }
 renderStudyKeys();
 
@@ -678,15 +683,19 @@ fetch(BASE_URL + 'mapr/api/config/')
   .then(data => {
     mapr_settings = data;
 
-    let html = FILTER_MAPR_KEYS.map(key => {
+    let options = FILTER_MAPR_KEYS.map(key => {
       let config = mapr_settings[key];
       if (config) {
         return `<option value="mapr_${ key }">${ config.label }</option>`;
       } else {
         return "";
       }
-    }).join("\n");
-    document.getElementById('maprKeys').innerHTML = html;
-
+    });
+    if (options.length > 0) {
+      document.getElementById('maprKeys').innerHTML = options.join("\n");
+      // Show the <optgroup> and the whole form
+      document.getElementById('maprKeys').style.display = 'block';
+      document.getElementById('search-form').style.display = 'block';
+    }
     populateInputsFromSearch();
   });

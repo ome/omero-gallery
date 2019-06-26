@@ -308,14 +308,19 @@ function loadStudyThumbnails() {
 }
 
 function renderStudyKeys() {
-  var html = FILTER_KEYS.map(function (key) {
-    if (key.label && key.value) {
-      return "<option value=\"".concat(key.value, "\">").concat(key.label, "</option>");
-    }
+  if (FILTER_KEYS.length > 0) {
+    var html = FILTER_KEYS.map(function (key) {
+      if (key.label && key.value) {
+        return "<option value=\"".concat(key.value, "\">").concat(key.label, "</option>");
+      }
 
-    return "<option value=\"".concat(key, "\">").concat(key, "</option>");
-  }).join("\n");
-  document.getElementById('studyKeys').innerHTML = html;
+      return "<option value=\"".concat(key, "\">").concat(key, "</option>");
+    }).join("\n");
+    document.getElementById('studyKeys').innerHTML = html; // Show the <optgroup> and the whole form
+
+    document.getElementById('studyKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
 }
 
 renderStudyKeys(); // ----------- Load / Filter Studies --------------------
@@ -334,7 +339,7 @@ fetch(BASE_URL + 'mapr/api/config/').then(function (response) {
   return response.json();
 }).then(function (data) {
   mapr_settings = data;
-  var html = FILTER_MAPR_KEYS.map(function (key) {
+  var options = FILTER_MAPR_KEYS.map(function (key) {
     var config = mapr_settings[key];
 
     if (config) {
@@ -342,6 +347,12 @@ fetch(BASE_URL + 'mapr/api/config/').then(function (response) {
     } else {
       return "";
     }
-  }).join("\n");
-  document.getElementById('maprKeys').innerHTML = html;
+  });
+
+  if (options.length > 0) {
+    document.getElementById('maprKeys').innerHTML = options.join("\n"); // Show the <optgroup> and the whole form
+
+    document.getElementById('maprKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
 });
