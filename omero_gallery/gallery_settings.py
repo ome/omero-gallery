@@ -94,9 +94,9 @@ GALLERY_SETTINGS_MAPPING = {
         ["TOP_RIGHT_LINKS",
          ('[]'),
          json.loads,
-         ("List of {'text':'Text','href':'www.url'} links for top-right of page."
-          "If a link contains 'submenu':[ ] with more links, these will be"
-          " shown in a dropdown menu")],
+         ("List of {'text':'Text','href':'www.url'} links for top-right of"
+          " page. If a link contains 'submenu':[ ] with more links,"
+          " these will be shown in a dropdown menu")],
 
     "omero.web.gallery.top_left_logo":
         ["TOP_LEFT_LOGO",
