@@ -107,6 +107,13 @@ GALLERY_SETTINGS_MAPPING = {
           " href can be URL name for reverse(url_name). If href is omitted,"
           " it will default to 'webgallery_index'")],
 
+    "omero.web.gallery.footer_html":
+        ["FOOTER_HTML",
+         (''),
+         str,
+         ("HTML to go in the footer. If this is set to 'IDR' then"
+          " we show the footer for the IDR site.")],
+
 }
 
 process_custom_settings(sys.modules[__name__], 'GALLERY_SETTINGS_MAPPING')

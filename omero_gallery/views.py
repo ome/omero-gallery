@@ -39,6 +39,7 @@ def index(request, super_category=None):
             context['top_left_logo']['href'] = reverse(href)
         except NoReverseMatch:
             pass
+        context['footer_html'] = gallery_settings.FOOTER_HTML
         context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
         context['TITLE_KEYS'] = json.dumps(gallery_settings.TITLE_KEYS)
         context['filter_mapr_keys'] = json.dumps(
@@ -283,6 +284,13 @@ def search(request, super_category=None, conn=None, **kwargs):
     context = {'template': "webgallery/categories/search.html"}
     context['gallery_title'] = gallery_settings.GALLERY_TITLE
     context['top_right_links'] = gallery_settings.TOP_RIGHT_LINKS
+    context['top_left_logo'] = gallery_settings.TOP_LEFT_LOGO
+    try:
+        href = context['top_left_logo'].get('href', 'webgallery_index')
+        context['top_left_logo']['href'] = reverse(href)
+    except NoReverseMatch:
+        pass
+    context['footer_html'] = gallery_settings.FOOTER_HTML
     context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
     context['super_categories'] = gallery_settings.SUPER_CATEGORIES
     context['SUPER_CATEGORIES'] = json.dumps(gallery_settings.SUPER_CATEGORIES)
