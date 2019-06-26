@@ -98,6 +98,15 @@ GALLERY_SETTINGS_MAPPING = {
           "If a link contains 'submenu':[ ] with more links, these will be"
           " shown in a dropdown menu")],
 
+    "omero.web.gallery.top_left_logo":
+        ["TOP_LEFT_LOGO",
+         ('{}'),
+         json.loads,
+         ("Logo image and link. e.g."
+          " {'src':'url.png','href':'www.url', 'alt':'Image alt text'}"
+          " href can be URL name for reverse(url_name). If href is omitted,"
+          " it will default to 'webgallery_index'")],
+
 }
 
 process_custom_settings(sys.modules[__name__], 'GALLERY_SETTINGS_MAPPING')

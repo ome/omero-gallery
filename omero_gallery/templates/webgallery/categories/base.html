@@ -35,8 +35,18 @@
         <div class="main-nav-bar top-bar" id="main-menu">
             <div class="top-bar-left">
                 <ul class="dropdown menu" data-dropdown-menu>
-                    <li><a class="logo" href="{% url 'webgallery_index' %}">
-                        <img src="{{ base_url }}about/img/logos/logo-idr.svg" alt="IDR logo"></a>
+                    <li>
+                        {% if top_left_logo.href %}
+                        <a class="logo" href="{{ top_left_logo.href }}">
+                        {% endif %}
+                            {% if top_left_logo.src %}
+                            <img src="{{ top_left_logo.src }}" alt="{{ top_left_logo.alt }}"/>
+                            {% else %}
+                            <img src="{% static 'gallery/images/idr.svg' %}" alt="{{ top_left_logo.alt }}"/>
+                            {% endif %}
+                        {% if top_left_logo.href %}
+                        </a>
+                        {% endif %}
                     </li>
 
 
