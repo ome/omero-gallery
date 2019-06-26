@@ -353,7 +353,12 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
     var sorted = this.studies.filter(function (study) {
       return study[attr] !== undefined;
     }).sort(function (a, b) {
-      return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
+      var aVal = a[attr];
+      var bVal = b[attr]; // If string, use lowercase
+
+      aVal = aVal.toLowerCase ? aVal.toLowerCase() : aVal;
+      bVal = bVal.toLowerCase ? bVal.toLowerCase() : bVal;
+      return aVal < bVal ? desc : aVal > bVal ? -desc : 0;
     });
     return sorted.slice(0, limit);
   }

@@ -288,7 +288,12 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
     let sorted = this.studies
       .filter(study => study[attr] !== undefined)
       .sort((a, b) => {
-        return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
+        let aVal = a[attr];
+        let bVal = b[attr];
+        // If string, use lowercase
+        aVal = aVal.toLowerCase ? aVal.toLowerCase() : aVal;
+        bVal = bVal.toLowerCase ? bVal.toLowerCase() : bVal;
+        return aVal < bVal ? desc : aVal > bVal ? -desc : 0;
       });
     return sorted.slice(0, limit);
   }
