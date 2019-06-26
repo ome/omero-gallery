@@ -39,6 +39,7 @@ def index(request, super_category=None):
             context['top_left_logo']['href'] = reverse(href)
         except NoReverseMatch:
             pass
+        context['subheading_html'] = gallery_settings.SUBHEADING_HTML
         context['footer_html'] = gallery_settings.FOOTER_HTML
         context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
         context['TITLE_KEYS'] = json.dumps(gallery_settings.TITLE_KEYS)
@@ -290,6 +291,7 @@ def search(request, super_category=None, conn=None, **kwargs):
         context['top_left_logo']['href'] = reverse(href)
     except NoReverseMatch:
         pass
+    context['subheading_html'] = gallery_settings.SUBHEADING_HTML
     context['footer_html'] = gallery_settings.FOOTER_HTML
     context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
     context['super_categories'] = gallery_settings.SUPER_CATEGORIES

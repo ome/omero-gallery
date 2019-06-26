@@ -114,6 +114,12 @@ GALLERY_SETTINGS_MAPPING = {
          ("HTML to go in the footer. If this is set to 'IDR' then"
           " we show the footer for the IDR site.")],
 
+    "omero.web.gallery.subheading_html":
+        ["SUBHEADING_HTML",
+         (''),
+         str,
+         ("HTML to show as a sub-heading, within a <p> tag.")],
+
 }
 
 process_custom_settings(sys.modules[__name__], 'GALLERY_SETTINGS_MAPPING')
