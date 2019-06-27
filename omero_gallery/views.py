@@ -121,7 +121,7 @@ def gallery_settings(request):
              'FOOTER_HTML',
              'SUBHEADING_HTML',
              'FAVICON',
-            ]
+             ]
 
     context = {}
     for attr in attrs:
