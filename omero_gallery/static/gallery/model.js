@@ -315,8 +315,11 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
     }); // Add mapValues to studies...
 
     _this4.studies = _this4.studies.map(function (study) {
-      var key = "".concat(study['@type'].split('#')[1].toLowerCase(), "-").concat(study['@id']);
-      var values = annsByParentId[key];
+      // Also set 'type':'screen', 'objId': 'screen-123'
+      study.type = study['@type'].split('#')[1].toLowerCase();
+      study.id = study['@id'];
+      study.objId = "".concat(study.type, "-").concat(study['@id']);
+      var values = annsByParentId[study.objId];
 
       if (values) {
         study.mapValues = values;

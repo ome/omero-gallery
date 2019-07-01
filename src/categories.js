@@ -169,6 +169,12 @@ function render() {
     let idxB = CATEGORY_QUERIES[b].index;
     return (idxA > idxB ? 1 : idxA < idxB ? -1 : 0);
   });
+
+  // Link to the study in webclient...
+  let linkFunc = (studyData) => {
+    let type = studyData['@type'].split('#')[1].toLowerCase();
+    return `${ BASE_URL }webclient/?show=${ type }-${ studyData['@id'] }`;
+  }
   
   categories.forEach(category => {
     let cat = CATEGORY_QUERIES[category];
@@ -178,22 +184,25 @@ function render() {
     let matches = model.filterStudiesByMapQuery(query);
     if (matches.length == 0) return;
 
+    let elementId = cat.label;
+
     var div = document.createElement( "div" );
-    div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
-      <div class="category">
-        <div id="${cat.label}"></div>
-      </div>
-    `;
+
+    // If only ONE category...
+    if (categories.length == 1) {
+      // list studies in a grid, without category.label
+      div.innerHTML = `<div id="${elementId}" class="row horizontal studiesLayout"></div>`;
+    } else {
+      div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
+        <div class="category">
+          <div id="${elementId}"></div>
+        </div>
+      `;
+    }
     div.className = "row";
     document.getElementById('studies').appendChild(div);
 
-    // By default, we link to the study itself in IDR...
-    let linkFunc = (studyData) => {
-      let type = studyData['@type'].split('#')[1].toLowerCase();
-      return `${ BASE_URL }webclient/?show=${ type }-${ studyData['@id'] }`;
-    }
-
-    matches.forEach(study => renderStudy(study, cat.label, linkFunc));
+    matches.forEach(study => renderStudy(study, elementId, linkFunc));
   });
 
   // Now we iterate all Studies in DOM, loading image ID for link and thumbnail

@@ -168,25 +168,33 @@ function render() {
     var idxA = CATEGORY_QUERIES[a].index;
     var idxB = CATEGORY_QUERIES[b].index;
     return idxA > idxB ? 1 : idxA < idxB ? -1 : 0;
-  });
+  }); // Link to the study in webclient...
+
+  var linkFunc = function linkFunc(studyData) {
+    var type = studyData['@type'].split('#')[1].toLowerCase();
+    return "".concat(BASE_URL, "webclient/?show=").concat(type, "-").concat(studyData['@id']);
+  };
+
   categories.forEach(function (category) {
     var cat = CATEGORY_QUERIES[category];
     var query = cat.query; // Find matching studies
 
     var matches = model.filterStudiesByMapQuery(query);
     if (matches.length == 0) return;
-    var div = document.createElement("div");
-    div.innerHTML = "<h1 title=\"".concat(query, "\">").concat(cat.label, " (").concat(matches.length, ")</h1>\n      <div class=\"category\">\n        <div id=\"").concat(cat.label, "\"></div>\n      </div>\n    ");
+    var elementId = cat.label;
+    var div = document.createElement("div"); // If only ONE category...
+
+    if (categories.length == 1) {
+      // list studies in a grid, without category.label
+      div.innerHTML = "<div id=\"".concat(elementId, "\" class=\"row horizontal studiesLayout\"></div>");
+    } else {
+      div.innerHTML = "<h1 title=\"".concat(query, "\">").concat(cat.label, " (").concat(matches.length, ")</h1>\n        <div class=\"category\">\n          <div id=\"").concat(elementId, "\"></div>\n        </div>\n      ");
+    }
+
     div.className = "row";
-    document.getElementById('studies').appendChild(div); // By default, we link to the study itself in IDR...
-
-    var linkFunc = function linkFunc(studyData) {
-      var type = studyData['@type'].split('#')[1].toLowerCase();
-      return "".concat(BASE_URL, "webclient/?show=").concat(type, "-").concat(studyData['@id']);
-    };
-
+    document.getElementById('studies').appendChild(div);
     matches.forEach(function (study) {
-      return renderStudy(study, cat.label, linkFunc);
+      return renderStudy(study, elementId, linkFunc);
     });
   }); // Now we iterate all Studies in DOM, loading image ID for link and thumbnail
 

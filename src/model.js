@@ -255,8 +255,11 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
       });
       // Add mapValues to studies...
       this.studies = this.studies.map(study => {
-        let key = `${ study['@type'].split('#')[1].toLowerCase() }-${ study['@id'] }`;
-        let values = annsByParentId[key];
+        // Also set 'type':'screen', 'objId': 'screen-123'
+        study.type = study['@type'].split('#')[1].toLowerCase();
+        study.id = study['@id'];
+        study.objId = `${ study.type }-${ study['@id'] }`;
+        let values = annsByParentId[study.objId];
         if (values) {
           study.mapValues = values;
           let releaseDate = this.getStudyValue(study, 'Release Date');
