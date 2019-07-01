@@ -245,11 +245,11 @@ function renderStudy(studyData, elementId, linkFunc) {
     }
   }
 
-  let idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length-1];  // idr0001A
+  let shortName = getStudyShortName(studyData);
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
   // Function (and template) are defined where used in index.html
-  let html = studyHtml({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData)
+  let html = studyHtml({studyLink, studyDesc, shortName, title, authors, BASE_URL, type}, studyData)
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
@@ -273,7 +273,7 @@ function studyHtml(props, studyData) {
   }
   return `
   <div style='white-space:nowrap'>
-    ${ props.idrId }
+    ${ props.shortName }
     ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author }</a>` : author }
   </div>
   <div class="studyImage">

@@ -440,6 +440,47 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
   
 }
 
+
+function toTitleCase(text) {
+  if (!text || text.length == 0) return text;
+  return text[0].toUpperCase() + text.slice(1);
+}
+
+
+let getStudyShortName = function (study) {
+  let shortName = `${toTitleCase(study.type)}: ${study.id}`;
+  if (STUDY_SHORT_NAME) {
+    for (let i=0; i < STUDY_SHORT_NAME.length; i++) {
+      let key = STUDY_SHORT_NAME[i]['key'];
+      let value;
+      let newShortName;
+      if (key === 'Name' || key === 'Description') {
+        value = study[key];
+      }
+      if (!value) {
+        value = model.getStudyValue(study, key);
+      }
+      if (!value) {
+        continue;
+      }
+      if (STUDY_SHORT_NAME[i]['regex']) {
+        let re = new RegExp(STUDY_SHORT_NAME[i]['regex']);
+        let match = re.exec(value);
+        if (match && match.length > 1) {
+          newShortName = match.slice(1).join("");
+        }
+      } else {
+        newShortName = value;
+      }
+      if (newShortName) {
+        shortName = newShortName;
+        break;
+      }
+    }
+  }
+  return shortName;
+}
+
 // startsWith polyfill for IE
 if (!String.prototype.startsWith) {
   String.prototype.startsWith = function(search, pos) {

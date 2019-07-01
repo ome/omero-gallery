@@ -546,10 +546,10 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
     }
   }
 
-  let idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length-1];  // idr0001A
+  let shortName = getStudyShortName(studyData);
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
-  let div = htmlFunc({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData);
+  let div = htmlFunc({studyLink, studyDesc, shortName, title, authors, BASE_URL, type}, studyData);
   document.querySelector(elementSelector).appendChild(div);
 }
 
@@ -568,7 +568,7 @@ function studyHtml(props, studyData) {
   }
   let html = `
   <div style='white-space:nowrap'>
-    ${ props.idrId }
+    ${ props.shortName }
     ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author }</a>` : author}
   </div>
   <div class="studyImage">

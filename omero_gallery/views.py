@@ -44,6 +44,7 @@ def index(request, super_category=None):
         context['footer_html'] = settings.FOOTER_HTML
         context['filter_keys'] = json.dumps(settings.FILTER_KEYS)
         context['TITLE_KEYS'] = json.dumps(settings.TITLE_KEYS)
+        context['STUDY_SHORT_NAME'] = json.dumps(settings.STUDY_SHORT_NAME)
         context['filter_mapr_keys'] = json.dumps(
             settings.FILTER_MAPR_KEYS)
         context['super_categories'] = settings.SUPER_CATEGORIES
@@ -121,6 +122,7 @@ def gallery_settings(request):
              'FOOTER_HTML',
              'SUBHEADING_HTML',
              'FAVICON',
+             'STUDY_SHORT_NAME',
              ]
 
     context = {}
@@ -327,6 +329,7 @@ def search(request, super_category=None, conn=None, **kwargs):
     context['super_categories'] = settings.SUPER_CATEGORIES
     context['SUPER_CATEGORIES'] = json.dumps(settings.SUPER_CATEGORIES)
     context['TITLE_KEYS'] = json.dumps(settings.TITLE_KEYS)
+    context['STUDY_SHORT_NAME'] = json.dumps(settings.STUDY_SHORT_NAME)
     context['filter_mapr_keys'] = json.dumps(
             settings.FILTER_MAPR_KEYS)
     category = settings.SUPER_CATEGORIES.get(super_category)

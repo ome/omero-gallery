@@ -517,6 +517,53 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
     callback(_this6.images[key]);
     return;
   });
+};
+
+function toTitleCase(text) {
+  if (!text || text.length == 0) return text;
+  return text[0].toUpperCase() + text.slice(1);
+}
+
+var getStudyShortName = function getStudyShortName(study) {
+  var shortName = "".concat(toTitleCase(study.type), ": ").concat(study.id);
+
+  if (STUDY_SHORT_NAME) {
+    for (var i = 0; i < STUDY_SHORT_NAME.length; i++) {
+      var key = STUDY_SHORT_NAME[i]['key'];
+      var value = void 0;
+      var newShortName = void 0;
+
+      if (key === 'Name' || key === 'Description') {
+        value = study[key];
+      }
+
+      if (!value) {
+        value = model.getStudyValue(study, key);
+      }
+
+      if (!value) {
+        continue;
+      }
+
+      if (STUDY_SHORT_NAME[i]['regex']) {
+        var re = new RegExp(STUDY_SHORT_NAME[i]['regex']);
+        var match = re.exec(value);
+
+        if (match && match.length > 1) {
+          newShortName = match.slice(1).join("");
+        }
+      } else {
+        newShortName = value;
+      }
+
+      if (newShortName) {
+        shortName = newShortName;
+        break;
+      }
+    }
+  }
+
+  return shortName;
 }; // startsWith polyfill for IE
 
 

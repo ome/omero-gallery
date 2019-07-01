@@ -125,6 +125,19 @@ GALLERY_SETTINGS_MAPPING = {
          (''),
          str,
          ("URL to favicon.")],
+    
+    "omero.web.gallery.study_short_name":
+        ["STUDY_SHORT_NAME",
+         ('[{"key":"Name", "regex": "^(.*?)-.*?(.)$"}]'),
+         json.loads,
+         ("Gets a short name for Screen or Project to show above the"
+          " study Image in the categories or search page, instead of"
+          " 'Project: 123'. The list allows us"
+          " to try multiple methods, using the first that works. Each object"
+          " in the list has e.g. {'key': 'Name'}. The 'key' can be Name,"
+          " Description or the key for a Key:Value pair on the object."
+          " If a 'regex' is also specified, we apply that to the value,"
+          " e.g. ^(.*?)-.*?(.)$ for IDR")],
 
 }
 
