@@ -125,7 +125,7 @@ GALLERY_SETTINGS_MAPPING = {
          (''),
          str,
          ("URL to favicon.")],
-    
+
     "omero.web.gallery.study_short_name":
         ["STUDY_SHORT_NAME",
          ('[{"key":"Name", "regex": "^(.*?)-.*?(.)$"}]'),
