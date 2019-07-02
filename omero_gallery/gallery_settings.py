@@ -128,7 +128,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.study_short_name":
         ["STUDY_SHORT_NAME",
-         ('[{"key":"Name", "regex": "^(.*?)-.*?(.)$"}]'),
+         ('[]'),
          json.loads,
          ("Gets a short name for Screen or Project to show above the"
           " study Image in the categories or search page, instead of"
