@@ -136,8 +136,11 @@ GALLERY_SETTINGS_MAPPING = {
           " to try multiple methods, using the first that works. Each object"
           " in the list has e.g. {'key': 'Name'}. The 'key' can be Name,"
           " Description or the key for a Key:Value pair on the object."
-          " If a 'regex' is also specified, we apply that to the value,"
-          " e.g. ^(.*?)-.*?(.)$ for IDR")],
+          " If a 'regex' and 'template' are specified, we match the regex to"
+          " the value and use matching groups in the template."
+          " E.g. if ^(.*?)-.*?(.)$ matches 3 groups, we can use them in a"
+          " template like '{{1}}-{{2}}'. Any unused {{n}} in the template"
+          " will be removed.")],
 
 }
 
