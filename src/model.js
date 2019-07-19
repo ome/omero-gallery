@@ -465,16 +465,8 @@ let getStudyShortName = function (study) {
       }
       if (STUDY_SHORT_NAME[i]['regex'] && STUDY_SHORT_NAME[i]['template']) {
         let re = new RegExp(STUDY_SHORT_NAME[i]['regex']);
-        let groups = re.exec(value);
-        if (groups && groups.length > 1) {
-          // template e.g. "{{1}}-{{2}}"
-          let template = STUDY_SHORT_NAME[i]['template'];
-          for (let g=0; g<groups.length; g++) {
-            template = template.replace(`{{${g}}}`, groups[g]);
-          }
-          // strip out any unused {{2}} etc.
-          newShortName = template.replace(/{{\d+}}/g, "");
-        }
+        let template = STUDY_SHORT_NAME[i]['template'];
+        newShortName = value.replace(re, template);
       } else {
         newShortName = value;
       }

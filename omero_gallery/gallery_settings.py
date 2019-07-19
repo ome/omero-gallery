@@ -132,15 +132,12 @@ GALLERY_SETTINGS_MAPPING = {
          json.loads,
          ("Gets a short name for Screen or Project to show above the"
           " study Image in the categories or search page, instead of"
-          " 'Project: 123'. The list allows us"
+          " the default 'Project: 123'. The list allows us"
           " to try multiple methods, using the first that works. Each object"
           " in the list has e.g. {'key': 'Name'}. The 'key' can be Name,"
           " Description or the key for a Key:Value pair on the object."
-          " If a 'regex' and 'template' are specified, we match the regex to"
-          " the value and use matching groups in the template."
-          " E.g. if ^(.*?)-.*?(.)$ matches 3 groups, we can use them in a"
-          " template like '{{1}}-{{2}}'. Any unused {{n}} in the template"
-          " will be removed.")],
+          " If a 'regex' and 'template' are specified, we try"
+          " name.replace(regex, template).")],
 
 }
 
