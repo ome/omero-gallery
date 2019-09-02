@@ -596,7 +596,7 @@ function studyHtml(props, studyData) {
 }
 
 function maprHtml(props, studyData) {
-  var html = "  \n    <td>\n      <a target=\"_blank\" href=\"".concat(props.studyLink, "\" />\n        ").concat(props.idrId, "\n      </a>\n    </td>\n    <td>").concat(model.getStudyValue(studyData, 'Organism'), "</td>\n    <td>").concat(studyData.imageCount, "</td>\n    <td title=\"").concat(props.title, "\">").concat(props.title.slice(0, 40)).concat(props.title.length > 40 ? '...' : '', "</td>\n    <td class='exampleImages'>loading...</td>\n    <td class='exampleImagesLink'></td>\n  ");
+  var html = "  \n    <td>\n      <a target=\"_blank\" href=\"".concat(props.studyLink, "\" />\n        ").concat(props.shortName, "\n      </a>\n    </td>\n    <td>").concat(model.getStudyValue(studyData, 'Organism'), "</td>\n    <td>").concat(studyData.imageCount, "</td>\n    <td title=\"").concat(props.title, "\">").concat(props.title.slice(0, 40)).concat(props.title.length > 40 ? '...' : '', "</td>\n    <td class='exampleImages'>loading...</td>\n    <td class='exampleImagesLink'></td>\n  ");
   var tr = document.createElement("tr");
   tr.innerHTML = html;
   tr.id = props.type + '-' + studyData['@id'];

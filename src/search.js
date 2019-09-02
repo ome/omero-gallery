@@ -603,7 +603,7 @@ function maprHtml(props, studyData) {
   let html = `  
     <td>
       <a target="_blank" href="${ props.studyLink }" />
-        ${ props.idrId }
+        ${ props.shortName }
       </a>
     </td>
     <td>${ model.getStudyValue(studyData, 'Organism')}</td>
