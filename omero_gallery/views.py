@@ -33,6 +33,7 @@ def index(request, super_category=None):
         context = {'template': "webgallery/categories/index.html"}
         context['favicon'] = settings.FAVICON
         context['gallery_title'] = settings.GALLERY_TITLE
+        context['gallery_heading'] = settings.GALLERY_HEADING
         context['top_right_links'] = settings.TOP_RIGHT_LINKS
         context['top_left_logo'] = settings.TOP_LEFT_LOGO
         try:
@@ -50,9 +51,9 @@ def index(request, super_category=None):
         context['super_categories'] = settings.SUPER_CATEGORIES
         category = settings.SUPER_CATEGORIES.get(super_category)
         if category is not None:
-            label = category.get('label', context['gallery_title'])
+            label = category.get('label', context['gallery_heading'])
             title = category.get('title', label)
-            context['gallery_title'] = title
+            context['gallery_heading'] = title
             context['super_category'] = json.dumps(category)
             context['category'] = super_category
         base_url = reverse('index')
@@ -112,6 +113,7 @@ def gallery_settings(request):
 
     attrs = ['CATEGORY_QUERIES',
              'GALLERY_TITLE',
+             'GALLERY_HEADING',
              'FILTER_KEYS',
              'TITLE_KEYS',
              'FILTER_MAPR_KEYS',
@@ -316,6 +318,7 @@ def search(request, super_category=None, conn=None, **kwargs):
     context = {'template': "webgallery/categories/search.html"}
     context['favicon'] = settings.FAVICON
     context['gallery_title'] = settings.GALLERY_TITLE
+    context['gallery_heading'] = settings.GALLERY_HEADING
     context['top_right_links'] = settings.TOP_RIGHT_LINKS
     context['top_left_logo'] = settings.TOP_LEFT_LOGO
     try:
@@ -334,9 +337,9 @@ def search(request, super_category=None, conn=None, **kwargs):
             settings.FILTER_MAPR_KEYS)
     category = settings.SUPER_CATEGORIES.get(super_category)
     if category is not None:
-        label = category.get('label', context['gallery_title'])
+        label = category.get('label', context['gallery_heading'])
         title = category.get('title', label)
-        context['gallery_title'] = title
+        context['gallery_heading'] = title
         context['super_category'] = json.dumps(category)
         context['category'] = super_category
     base_url = reverse('index')

@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>IDR: Image Data Resource</title>
+        <title>{{ gallery_title|default_if_none:"OMERO.gallery" }}</title>
 
         {% if favicon %}
         <link rel="shortcut icon" type="image/x-icon" href="{{ favicon }}">

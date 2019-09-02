@@ -87,8 +87,12 @@ GALLERY_SETTINGS_MAPPING = {
           " can be used for page title, otherwise the 'label' is used.")],
 
     "omero.web.gallery.title":
-        ["GALLERY_TITLE", "Welcome to OMERO.gallery", str,
-         "Title for the home page shown when category_queries is set."],
+        ["GALLERY_TITLE", "OMERO.gallery", str,
+         "Page <title> for gallery, shown when category_queries is set."],
+
+    "omero.web.gallery.heading":
+        ["GALLERY_HEADING", "Welcome to OMERO.gallery", str,
+         "Main heading on the home page shown when category_queries is set."],
 
     "omero.web.gallery.top_right_links":
         ["TOP_RIGHT_LINKS",
