@@ -9,6 +9,9 @@ urlpatterns = patterns(
     # index 'home page' of the webgallery app
     url(r'^$', views.index, name='webgallery_index'),
 
+    # All settings as JSON
+    url(r'^gallery_settings/$', views.gallery_settings),
+
     # group view
     url(r'show_group/(?P<group_id>[0-9]+)/$',
         views.show_group,

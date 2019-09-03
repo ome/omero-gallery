@@ -41,12 +41,6 @@
   .filterMessage strong {
     color: #1976d2;
   }
-
-  #studies.studiesLayout {
-    width: 86%;
-    margin-left: auto;
-    margin-right: auto;
-  }
 </style>
 
 <hr class="whitespace" style="height: 0">
@@ -55,17 +49,17 @@
 
 <div class="small-12 small-centered medium-12 medium-centered columns">
 
-    <div class="row horizontal">
+    <div id='search-form' class="row horizontal" style='display:none'>
 
       <div class="small-12 medium-12 large-2 columns">
         <h2 class="search-by">Search by:</h2>
       </div>
       <div style="padding:0" class="small-12 medium-4 large-3 columns">
         <select id="maprConfig">
-          <optgroup id="studyKeys" label="Study Attributes">
+          <optgroup id="studyKeys" style='display:none' label="Study Attributes">
             <!-- Map-Annotation keys loaded here -->
           </optgroup>
-          <optgroup id="maprKeys" label="Image Attributes">
+          <optgroup id="maprKeys" style='display:none' label="Image Attributes">
           </optgroup>
         </select>
       </div>
@@ -100,6 +94,7 @@
   const BASE_URL = "{{ base_url }}";
   const CATEGORY_QUERIES = {{ category_queries|escape|safe }};
   var TITLE_KEYS = {{ TITLE_KEYS|escape|safe }};
+  var STUDY_SHORT_NAME = {{ STUDY_SHORT_NAME|escape|safe }};
   var SUPER_CATEGORIES = {{ SUPER_CATEGORIES|escape|safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
   var STATIC_DIR = "{% static 'gallery/' %}";

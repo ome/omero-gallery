@@ -18,14 +18,19 @@ var model = new StudiesModel();
 var mapr_settings;
 
 function renderStudyKeys() {
-  var html = FILTER_KEYS.map(function (key) {
-    if (key.label && key.value) {
-      return "<option value=\"".concat(key.value, "\">").concat(key.label, "</option>");
-    }
+  if (FILTER_KEYS.length > 0) {
+    var html = FILTER_KEYS.map(function (key) {
+      if (key.label && key.value) {
+        return "<option value=\"".concat(key.value, "\">").concat(key.label, "</option>");
+      }
 
-    return "<option value=\"".concat(key, "\">").concat(key, "</option>");
-  }).join("\n");
-  document.getElementById('studyKeys').innerHTML = html;
+      return "<option value=\"".concat(key, "\">").concat(key, "</option>");
+    }).join("\n");
+    document.getElementById('studyKeys').innerHTML = html; // Show the <optgroup> and the whole form
+
+    document.getElementById('studyKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
 }
 
 renderStudyKeys(); // FIRST, populate forms from query string
@@ -551,13 +556,12 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
     }
   }
 
-  var idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length - 1]; // idr0001A
-
+  var shortName = getStudyShortName(studyData);
   var authors = model.getStudyValue(studyData, "Publication Authors") || "";
   var div = htmlFunc({
     studyLink: studyLink,
     studyDesc: studyDesc,
-    idrId: idrId,
+    shortName: shortName,
     title: title,
     authors: authors,
     BASE_URL: BASE_URL,
@@ -581,7 +585,7 @@ function studyHtml(props, studyData) {
     author = author.length > 23 ? author.slice(0, 20) + '...' : author;
   }
 
-  var html = "\n  <div style='white-space:nowrap'>\n    ".concat(props.idrId, "\n    ").concat(pubmed ? "<a class='pubmed' target=\"_blank\" href=\"".concat(pubmed, "\"> ").concat(author, "</a>") : author, "\n  </div>\n  <div class=\"studyImage\">\n    <a target=\"_blank\" href=\"").concat(props.studyLink, "\">\n      <div style=\"height: 100%; width: 100%\">\n        <div class=\"studyText\">\n          <p title='").concat(props.studyDesc, "'>\n            ").concat(props.title, "\n          </p>\n        </div>\n        <div class=\"studyAuthors\">\n          ").concat(props.authors, "\n        </div>\n      </div>\n    </a>\n    <a class=\"viewerLink\" title=\"Open image in viewer\" target=\"_blank\"\n       href=\"\">\n      <i class=\"fas fa-eye\"></i>\n    </a>\n  </div>\n  ");
+  var html = "\n  <div style='white-space:nowrap'>\n    ".concat(props.shortName, "\n    ").concat(pubmed ? "<a class='pubmed' target=\"_blank\" href=\"".concat(pubmed, "\"> ").concat(author, "</a>") : author, "\n  </div>\n  <div class=\"studyImage\">\n    <a target=\"_blank\" href=\"").concat(props.studyLink, "\">\n      <div style=\"height: 100%; width: 100%\">\n        <div class=\"studyText\">\n          <p title='").concat(props.studyDesc, "'>\n            ").concat(props.title, "\n          </p>\n        </div>\n        <div class=\"studyAuthors\">\n          ").concat(props.authors, "\n        </div>\n      </div>\n    </a>\n    <a class=\"viewerLink\" title=\"Open image in viewer\" target=\"_blank\"\n       href=\"\">\n      <i class=\"fas fa-eye\"></i>\n    </a>\n  </div>\n  ");
   var div = document.createElement("div");
   div.innerHTML = html;
   div.id = props.type + '-' + studyData['@id'];
@@ -592,7 +596,7 @@ function studyHtml(props, studyData) {
 }
 
 function maprHtml(props, studyData) {
-  var html = "  \n    <td>\n      <a target=\"_blank\" href=\"".concat(props.studyLink, "\" />\n        ").concat(props.idrId, "\n      </a>\n    </td>\n    <td>").concat(model.getStudyValue(studyData, 'Organism'), "</td>\n    <td>").concat(studyData.imageCount, "</td>\n    <td title=\"").concat(props.title, "\">").concat(props.title.slice(0, 40)).concat(props.title.length > 40 ? '...' : '', "</td>\n    <td class='exampleImages'>loading...</td>\n    <td class='exampleImagesLink'></td>\n  ");
+  var html = "  \n    <td>\n      <a target=\"_blank\" href=\"".concat(props.studyLink, "\" />\n        ").concat(props.shortName, "\n      </a>\n    </td>\n    <td>").concat(model.getStudyValue(studyData, 'Organism'), "</td>\n    <td>").concat(studyData.imageCount, "</td>\n    <td title=\"").concat(props.title, "\">").concat(props.title.slice(0, 40)).concat(props.title.length > 40 ? '...' : '', "</td>\n    <td class='exampleImages'>loading...</td>\n    <td class='exampleImagesLink'></td>\n  ");
   var tr = document.createElement("tr");
   tr.innerHTML = html;
   tr.id = props.type + '-' + studyData['@id'];
@@ -663,7 +667,7 @@ fetch(BASE_URL + 'mapr/api/config/').then(function (response) {
   return response.json();
 }).then(function (data) {
   mapr_settings = data;
-  var html = FILTER_MAPR_KEYS.map(function (key) {
+  var options = FILTER_MAPR_KEYS.map(function (key) {
     var config = mapr_settings[key];
 
     if (config) {
@@ -671,7 +675,14 @@ fetch(BASE_URL + 'mapr/api/config/').then(function (response) {
     } else {
       return "";
     }
-  }).join("\n");
-  document.getElementById('maprKeys').innerHTML = html;
+  });
+
+  if (options.length > 0) {
+    document.getElementById('maprKeys').innerHTML = options.join("\n"); // Show the <optgroup> and the whole form
+
+    document.getElementById('maprKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
+
   populateInputsFromSearch();
 });

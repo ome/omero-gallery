@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 import json
 import logging
 import base64
@@ -15,7 +15,7 @@ try:
 except ImportError:
     get_encoder = None
 
-from . import gallery_settings
+from . import gallery_settings as settings
 
 logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
@@ -28,25 +28,37 @@ def index(request, super_category=None):
     user-configured queries.
     """
 
-    category_queries = gallery_settings.CATEGORY_QUERIES
+    category_queries = settings.CATEGORY_QUERIES
     if len(category_queries) > 0:
         context = {'template': "webgallery/categories/index.html"}
-        context['gallery_title'] = gallery_settings.GALLERY_TITLE
-        context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
-        context['TITLE_KEYS'] = json.dumps(gallery_settings.TITLE_KEYS)
+        context['favicon'] = settings.FAVICON
+        context['gallery_title'] = settings.GALLERY_TITLE
+        context['gallery_heading'] = settings.GALLERY_HEADING
+        context['top_right_links'] = settings.TOP_RIGHT_LINKS
+        context['top_left_logo'] = settings.TOP_LEFT_LOGO
+        try:
+            href = context['top_left_logo'].get('href', 'webgallery_index')
+            context['top_left_logo']['href'] = reverse(href)
+        except NoReverseMatch:
+            pass
+        context['subheading_html'] = settings.SUBHEADING_HTML
+        context['footer_html'] = settings.FOOTER_HTML
+        context['filter_keys'] = json.dumps(settings.FILTER_KEYS)
+        context['TITLE_KEYS'] = json.dumps(settings.TITLE_KEYS)
+        context['STUDY_SHORT_NAME'] = json.dumps(settings.STUDY_SHORT_NAME)
         context['filter_mapr_keys'] = json.dumps(
-            gallery_settings.FILTER_MAPR_KEYS)
-        context['super_categories'] = gallery_settings.SUPER_CATEGORIES
-        category = gallery_settings.SUPER_CATEGORIES.get(super_category)
+            settings.FILTER_MAPR_KEYS)
+        context['super_categories'] = settings.SUPER_CATEGORIES
+        category = settings.SUPER_CATEGORIES.get(super_category)
         if category is not None:
-            label = category.get('label', context['gallery_title'])
+            label = category.get('label', context['gallery_heading'])
             title = category.get('title', label)
-            context['gallery_title'] = title
+            context['gallery_heading'] = title
             context['super_category'] = json.dumps(category)
             context['category'] = super_category
         base_url = reverse('index')
-        if gallery_settings.BASE_URL is not None:
-            base_url = gallery_settings.BASE_URL
+        if settings.BASE_URL is not None:
+            base_url = settings.BASE_URL
         context['base_url'] = base_url
         context['category_queries'] = json.dumps(category_queries)
         return context
@@ -91,6 +103,36 @@ def index_with_login(request, conn=None, **kwargs):
     # This is used by @render_response
     context = {'template': "webgallery/index.html"}
     context['groups'] = groups
+
+    return context
+
+
+@render_response()
+def gallery_settings(request):
+    """Return all settings as JSON."""
+
+    attrs = ['CATEGORY_QUERIES',
+             'GALLERY_TITLE',
+             'GALLERY_HEADING',
+             'FILTER_KEYS',
+             'TITLE_KEYS',
+             'FILTER_MAPR_KEYS',
+             'SUPER_CATEGORIES',
+             'BASE_URL',
+             'TOP_RIGHT_LINKS',
+             'TOP_LEFT_LOGO',
+             'FOOTER_HTML',
+             'SUBHEADING_HTML',
+             'FAVICON',
+             'STUDY_SHORT_NAME',
+             ]
+
+    context = {}
+    for attr in attrs:
+        try:
+            context[attr] = getattr(settings, attr)
+        except AttributeError:
+            pass
 
     return context
 
@@ -274,25 +316,37 @@ def show_image(request, image_id, conn=None, **kwargs):
 def search(request, super_category=None, conn=None, **kwargs):
 
     context = {'template': "webgallery/categories/search.html"}
-    context['gallery_title'] = gallery_settings.GALLERY_TITLE
-    context['filter_keys'] = json.dumps(gallery_settings.FILTER_KEYS)
-    context['super_categories'] = gallery_settings.SUPER_CATEGORIES
-    context['SUPER_CATEGORIES'] = json.dumps(gallery_settings.SUPER_CATEGORIES)
-    context['TITLE_KEYS'] = json.dumps(gallery_settings.TITLE_KEYS)
+    context['favicon'] = settings.FAVICON
+    context['gallery_title'] = settings.GALLERY_TITLE
+    context['gallery_heading'] = settings.GALLERY_HEADING
+    context['top_right_links'] = settings.TOP_RIGHT_LINKS
+    context['top_left_logo'] = settings.TOP_LEFT_LOGO
+    try:
+        href = context['top_left_logo'].get('href', 'webgallery_index')
+        context['top_left_logo']['href'] = reverse(href)
+    except NoReverseMatch:
+        pass
+    context['subheading_html'] = settings.SUBHEADING_HTML
+    context['footer_html'] = settings.FOOTER_HTML
+    context['filter_keys'] = json.dumps(settings.FILTER_KEYS)
+    context['super_categories'] = settings.SUPER_CATEGORIES
+    context['SUPER_CATEGORIES'] = json.dumps(settings.SUPER_CATEGORIES)
+    context['TITLE_KEYS'] = json.dumps(settings.TITLE_KEYS)
+    context['STUDY_SHORT_NAME'] = json.dumps(settings.STUDY_SHORT_NAME)
     context['filter_mapr_keys'] = json.dumps(
-            gallery_settings.FILTER_MAPR_KEYS)
-    category = gallery_settings.SUPER_CATEGORIES.get(super_category)
+            settings.FILTER_MAPR_KEYS)
+    category = settings.SUPER_CATEGORIES.get(super_category)
     if category is not None:
-        label = category.get('label', context['gallery_title'])
+        label = category.get('label', context['gallery_heading'])
         title = category.get('title', label)
-        context['gallery_title'] = title
+        context['gallery_heading'] = title
         context['super_category'] = json.dumps(category)
         context['category'] = super_category
     base_url = reverse('index')
-    if gallery_settings.BASE_URL is not None:
-        base_url = gallery_settings.BASE_URL
+    if settings.BASE_URL is not None:
+        base_url = settings.BASE_URL
     context['base_url'] = base_url
-    context['category_queries'] = json.dumps(gallery_settings.CATEGORY_QUERIES)
+    context['category_queries'] = json.dumps(settings.CATEGORY_QUERIES)
     return context
 
 

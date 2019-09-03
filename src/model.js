@@ -255,8 +255,11 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
       });
       // Add mapValues to studies...
       this.studies = this.studies.map(study => {
-        let key = `${ study['@type'].split('#')[1].toLowerCase() }-${ study['@id'] }`;
-        let values = annsByParentId[key];
+        // Also set 'type':'screen', 'objId': 'screen-123'
+        study.type = study['@type'].split('#')[1].toLowerCase();
+        study.id = study['@id'];
+        study.objId = `${ study.type }-${ study['@id'] }`;
+        let values = annsByParentId[study.objId];
         if (values) {
           study.mapValues = values;
           let releaseDate = this.getStudyValue(study, 'Release Date');
@@ -288,7 +291,12 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
     let sorted = this.studies
       .filter(study => study[attr] !== undefined)
       .sort((a, b) => {
-        return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
+        let aVal = a[attr];
+        let bVal = b[attr];
+        // If string, use lowercase
+        aVal = aVal.toLowerCase ? aVal.toLowerCase() : aVal;
+        bVal = bVal.toLowerCase ? bVal.toLowerCase() : bVal;
+        return aVal < bVal ? desc : aVal > bVal ? -desc : 0;
       });
     return sorted.slice(0, limit);
   }
@@ -430,6 +438,45 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
       return;
     })
   
+}
+
+
+function toTitleCase(text) {
+  if (!text || text.length == 0) return text;
+  return text[0].toUpperCase() + text.slice(1);
+}
+
+
+let getStudyShortName = function (study) {
+  let shortName = `${toTitleCase(study.type)}: ${study.id}`;
+  if (STUDY_SHORT_NAME) {
+    for (let i=0; i < STUDY_SHORT_NAME.length; i++) {
+      let key = STUDY_SHORT_NAME[i]['key'];
+      let value;
+      let newShortName;
+      if (key === 'Name' || key === 'Description') {
+        value = study[key];
+      }
+      if (!value) {
+        value = model.getStudyValue(study, key);
+      }
+      if (!value) {
+        continue;
+      }
+      if (STUDY_SHORT_NAME[i]['regex'] && STUDY_SHORT_NAME[i]['template']) {
+        let re = new RegExp(STUDY_SHORT_NAME[i]['regex']);
+        let template = STUDY_SHORT_NAME[i]['template'];
+        newShortName = value.replace(re, template);
+      } else {
+        newShortName = value;
+      }
+      if (newShortName) {
+        shortName = newShortName;
+        break;
+      }
+    }
+  }
+  return shortName;
 }
 
 // startsWith polyfill for IE

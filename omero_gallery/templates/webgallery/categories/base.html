@@ -5,14 +5,18 @@
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>IDR: Image Data Resource</title>
-        <link rel="shortcut icon" type="image/x-icon" href="{{ base_url }}about/img/logos/favicon-idr.ico">
+        <title>{{ gallery_title|default_if_none:"OMERO.gallery" }}</title>
 
+        {% if favicon %}
+        <link rel="shortcut icon" type="image/x-icon" href="{{ favicon }}">
+        {% else %}
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'gallery/images/favicon.ico' %}">
+        {% endif %}
         <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic">
         <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Nunito">
-        <link href="{{ base_url }}about/css/foundation.min.css" rel="stylesheet">
-        <link href="{{ base_url }}about/css/openmicroscopy.css" rel="stylesheet">
-        <link href="{{ base_url }}about/css/idr.css" rel="stylesheet">
+        <link href="{% static 'gallery/3rdparty/foundation/foundation.min.css' %}" rel="stylesheet">
+        <link href="{% static 'gallery/css/openmicroscopy.css' %}" rel="stylesheet">
+        <link href="{% static 'gallery/css/idr.css' %}" rel="stylesheet">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
         <!-- fetch polyfill for IE -->
         <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js"></script>
@@ -22,7 +26,7 @@
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
         <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
 
-        <script src="{{ base_url }}about/js/vendor/foundation.min.js"></script>
+        <script src="{% static 'gallery/3rdparty/foundation/foundation.min.js' %}"></script>
         <script src="{{ base_url }}about/js/version.js"></script>
 
 
@@ -35,8 +39,18 @@
         <div class="main-nav-bar top-bar" id="main-menu">
             <div class="top-bar-left">
                 <ul class="dropdown menu" data-dropdown-menu>
-                    <li><a class="logo" href="{% url 'webgallery_index' %}">
-                        <img src="{{ base_url }}about/img/logos/logo-idr.svg" alt="IDR logo"></a>
+                    <li>
+                        {% if top_left_logo.href %}
+                        <a class="logo" href="{{ top_left_logo.href }}">
+                        {% endif %}
+                            {% if top_left_logo.src %}
+                            <img src="{{ top_left_logo.src }}" alt="{{ top_left_logo.alt }}"/>
+                            {% else %}
+                            <img src="{% static 'gallery/images/omero.svg' %}" alt="{{ top_left_logo.alt }}"/>
+                            {% endif %}
+                        {% if top_left_logo.href %}
+                        </a>
+                        {% endif %}
                     </li>
 
 
@@ -51,26 +65,20 @@
                 </ul>
             </div>
 
-            <div class="top-bar-right">
+            <div id="top-bar-right" class="top-bar-right">
                 <ul class="dropdown menu" data-dropdown-menu>
-                    <li class="has-submenu"><a href="{{ base_url }}about/index.html">About</a>
-                        <ul class="submenu menu vertical" data-submenu>
-                            <li><a href="{{ base_url }}about/index.html">Overview</a></li>
-                            <li><a href="{{ base_url }}about/studies.html">Published studies</a></li>
-                            <li><a href="{{ base_url }}about/api.html">API Access</a></li>
-                            <li><a href="{{ base_url }}about/download.html">Data download</a></li>
-                            <li><a href="{{ base_url }}about/itr.html">Image Tools Resource (ITR)</a></li>
-                            <li><a href="/jupyter">Virtual Analysis Environment (VAE)</a></li>
-                            <li><a href="{{ base_url }}about/deployment.html">Deployment</a></li>
-                        </ul>
+                {% for link in top_right_links %}
+                    <li class="{% if link.submenu %}has-submenu{% endif %}">
+                        <a href="{{ link.href }}">{{ link.text }}</a>
+                        {% if link.submenu %}
+                            <ul class='submenu menu vertical' data-submenu>
+                            {% for l in link.submenu %}
+                               <li><a href="{{ l.href }}">{{ l.text }}</a></li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
                     </li>
-                    <li class="has-submenu"><a href="{{ base_url }}about/submission.html">Submissions</a>
-                        <ul class="submenu menu vertical" data-submenu>
-                            <li><a href="{{ base_url }}about/submission.html">Overview</a></li>
-                            <li><a href="{{ base_url }}about/screens.html">Screens</a></li>
-                            <li><a href="{{ base_url }}about/experiments.html">Experiments</a></li>
-                        </ul>
-                    </li>
+                {% endfor %}
                 </ul>
             </div>
         </div>
@@ -84,8 +92,10 @@
 
         <hr class="whitespace">
 
+        {% if footer_html %}
         <div class="callout large secondary">
             <div class="row">
+                {% if footer_html == 'IDR' %}
                 <div class="row small-up-2 medium-up-5 large-up-5">
                     <div class="column"><a href="https://www.openmicroscopy.org/" target="_blank"><img class="thumbnail their-logo" src="{{ base_url }}about/img/logos/ome-logo-200.png" alt="OME"></a></div>
                     <div class="column"><a href="http://www.eurobioimaging.eu/" target="_blank"><img class="thumbnail their-logo" src="{{ base_url }}about/img/logos/eurobioimaging_logo.gif" alt="Euro-Bioimaging"></a></div>
@@ -109,8 +119,12 @@
                         <a href="https://www.twitter.com/idrstatus" target="_blank"><i class="fab fa-fw fa-twitter"></i> @IDRstatus</a></li>
                     </div>
                 </div>
+                {% else %}
+                    {{ footer_html|safe }}
+                {% endif %}
             </div>
         </div>
+        {% endif %}
 
         <script>
             $(document).foundation();

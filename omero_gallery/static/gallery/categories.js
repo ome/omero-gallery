@@ -168,25 +168,33 @@ function render() {
     var idxA = CATEGORY_QUERIES[a].index;
     var idxB = CATEGORY_QUERIES[b].index;
     return idxA > idxB ? 1 : idxA < idxB ? -1 : 0;
-  });
+  }); // Link to the study in webclient...
+
+  var linkFunc = function linkFunc(studyData) {
+    var type = studyData['@type'].split('#')[1].toLowerCase();
+    return "".concat(BASE_URL, "webclient/?show=").concat(type, "-").concat(studyData['@id']);
+  };
+
   categories.forEach(function (category) {
     var cat = CATEGORY_QUERIES[category];
     var query = cat.query; // Find matching studies
 
     var matches = model.filterStudiesByMapQuery(query);
     if (matches.length == 0) return;
-    var div = document.createElement("div");
-    div.innerHTML = "<h1 title=\"".concat(query, "\">").concat(cat.label, " (").concat(matches.length, ")</h1>\n      <div class=\"category\">\n        <div id=\"").concat(cat.label, "\"></div>\n      </div>\n    ");
+    var elementId = cat.label;
+    var div = document.createElement("div"); // If only ONE category...
+
+    if (categories.length == 1) {
+      // list studies in a grid, without category.label
+      div.innerHTML = "<div id=\"".concat(elementId, "\" class=\"row horizontal studiesLayout\"></div>");
+    } else {
+      div.innerHTML = "<h1 title=\"".concat(query, "\">").concat(cat.label, " (").concat(matches.length, ")</h1>\n        <div class=\"category\">\n          <div id=\"").concat(elementId, "\"></div>\n        </div>\n      ");
+    }
+
     div.className = "row";
-    document.getElementById('studies').appendChild(div); // By default, we link to the study itself in IDR...
-
-    var linkFunc = function linkFunc(studyData) {
-      var type = studyData['@type'].split('#')[1].toLowerCase();
-      return "".concat(BASE_URL, "webclient/?show=").concat(type, "-").concat(studyData['@id']);
-    };
-
+    document.getElementById('studies').appendChild(div);
     matches.forEach(function (study) {
-      return renderStudy(study, cat.label, linkFunc);
+      return renderStudy(study, elementId, linkFunc);
     });
   }); // Now we iterate all Studies in DOM, loading image ID for link and thumbnail
 
@@ -234,14 +242,13 @@ function renderStudy(studyData, elementId, linkFunc) {
     }
   }
 
-  var idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length - 1]; // idr0001A
-
+  var shortName = getStudyShortName(studyData);
   var authors = model.getStudyValue(studyData, "Publication Authors") || ""; // Function (and template) are defined where used in index.html
 
   var html = studyHtml({
     studyLink: studyLink,
     studyDesc: studyDesc,
-    idrId: idrId,
+    shortName: shortName,
     title: title,
     authors: authors,
     BASE_URL: BASE_URL,
@@ -271,7 +278,7 @@ function studyHtml(props, studyData) {
     author = author.length > 23 ? author.slice(0, 20) + '...' : author;
   }
 
-  return "\n  <div style='white-space:nowrap'>\n    ".concat(props.idrId, "\n    ").concat(pubmed ? "<a class='pubmed' target=\"_blank\" href=\"".concat(pubmed, "\"> ").concat(author, "</a>") : author, "\n  </div>\n  <div class=\"studyImage\">\n    <a target=\"_blank\" href=\"").concat(props.studyLink, "\">\n      <div style=\"height: 100%; width: 100%\">\n        <div class=\"studyText\">\n          <p title='").concat(props.studyDesc, "'>\n            ").concat(props.title, "\n          </p>\n        </div>\n        <div class=\"studyAuthors\">\n          ").concat(props.authors, "\n        </div>\n      </div>\n    </a>\n    <a class=\"viewerLink\" title=\"Open image in viewer\" target=\"_blank\"\n       href=\"\">\n      <i class=\"fas fa-eye\"></i>\n    </a>\n  </div>\n  ");
+  return "\n  <div style='white-space:nowrap'>\n    ".concat(props.shortName, "\n    ").concat(pubmed ? "<a class='pubmed' target=\"_blank\" href=\"".concat(pubmed, "\"> ").concat(author, "</a>") : author, "\n  </div>\n  <div class=\"studyImage\">\n    <a target=\"_blank\" href=\"").concat(props.studyLink, "\">\n      <div style=\"height: 100%; width: 100%\">\n        <div class=\"studyText\">\n          <p title='").concat(props.studyDesc || '', "'>\n            ").concat(props.title, "\n          </p>\n        </div>\n        <div class=\"studyAuthors\">\n          ").concat(props.authors, "\n        </div>\n      </div>\n    </a>\n    <a class=\"viewerLink\" title=\"Open image in viewer\" target=\"_blank\"\n       href=\"\">\n      <i class=\"fas fa-eye\"></i>\n    </a>\n  </div>\n  ");
 }
 
 function loadStudyThumbnails() {
@@ -308,14 +315,19 @@ function loadStudyThumbnails() {
 }
 
 function renderStudyKeys() {
-  var html = FILTER_KEYS.map(function (key) {
-    if (key.label && key.value) {
-      return "<option value=\"".concat(key.value, "\">").concat(key.label, "</option>");
-    }
+  if (FILTER_KEYS.length > 0) {
+    var html = FILTER_KEYS.map(function (key) {
+      if (key.label && key.value) {
+        return "<option value=\"".concat(key.value, "\">").concat(key.label, "</option>");
+      }
 
-    return "<option value=\"".concat(key, "\">").concat(key, "</option>");
-  }).join("\n");
-  document.getElementById('studyKeys').innerHTML = html;
+      return "<option value=\"".concat(key, "\">").concat(key, "</option>");
+    }).join("\n");
+    document.getElementById('studyKeys').innerHTML = html; // Show the <optgroup> and the whole form
+
+    document.getElementById('studyKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
 }
 
 renderStudyKeys(); // ----------- Load / Filter Studies --------------------
@@ -334,7 +346,7 @@ fetch(BASE_URL + 'mapr/api/config/').then(function (response) {
   return response.json();
 }).then(function (data) {
   mapr_settings = data;
-  var html = FILTER_MAPR_KEYS.map(function (key) {
+  var options = FILTER_MAPR_KEYS.map(function (key) {
     var config = mapr_settings[key];
 
     if (config) {
@@ -342,6 +354,12 @@ fetch(BASE_URL + 'mapr/api/config/').then(function (response) {
     } else {
       return "";
     }
-  }).join("\n");
-  document.getElementById('maprKeys').innerHTML = html;
+  });
+
+  if (options.length > 0) {
+    document.getElementById('maprKeys').innerHTML = options.join("\n"); // Show the <optgroup> and the whole form
+
+    document.getElementById('maprKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
 });

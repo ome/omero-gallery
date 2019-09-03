@@ -315,8 +315,11 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
     }); // Add mapValues to studies...
 
     _this4.studies = _this4.studies.map(function (study) {
-      var key = "".concat(study['@type'].split('#')[1].toLowerCase(), "-").concat(study['@id']);
-      var values = annsByParentId[key];
+      // Also set 'type':'screen', 'objId': 'screen-123'
+      study.type = study['@type'].split('#')[1].toLowerCase();
+      study.id = study['@id'];
+      study.objId = "".concat(study.type, "-").concat(study['@id']);
+      var values = annsByParentId[study.objId];
 
       if (values) {
         study.mapValues = values;
@@ -353,7 +356,12 @@ StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuer
     var sorted = this.studies.filter(function (study) {
       return study[attr] !== undefined;
     }).sort(function (a, b) {
-      return a[attr] < b[attr] ? desc : a[attr] > b[attr] ? -desc : 0;
+      var aVal = a[attr];
+      var bVal = b[attr]; // If string, use lowercase
+
+      aVal = aVal.toLowerCase ? aVal.toLowerCase() : aVal;
+      bVal = bVal.toLowerCase ? bVal.toLowerCase() : bVal;
+      return aVal < bVal ? desc : aVal > bVal ? -desc : 0;
     });
     return sorted.slice(0, limit);
   }
@@ -509,6 +517,50 @@ StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, 
     callback(_this6.images[key]);
     return;
   });
+};
+
+function toTitleCase(text) {
+  if (!text || text.length == 0) return text;
+  return text[0].toUpperCase() + text.slice(1);
+}
+
+var getStudyShortName = function getStudyShortName(study) {
+  var shortName = "".concat(toTitleCase(study.type), ": ").concat(study.id);
+
+  if (STUDY_SHORT_NAME) {
+    for (var i = 0; i < STUDY_SHORT_NAME.length; i++) {
+      var key = STUDY_SHORT_NAME[i]['key'];
+      var value = void 0;
+      var newShortName = void 0;
+
+      if (key === 'Name' || key === 'Description') {
+        value = study[key];
+      }
+
+      if (!value) {
+        value = model.getStudyValue(study, key);
+      }
+
+      if (!value) {
+        continue;
+      }
+
+      if (STUDY_SHORT_NAME[i]['regex'] && STUDY_SHORT_NAME[i]['template']) {
+        var re = new RegExp(STUDY_SHORT_NAME[i]['regex']);
+        var template = STUDY_SHORT_NAME[i]['template'];
+        newShortName = value.replace(re, template);
+      } else {
+        newShortName = value;
+      }
+
+      if (newShortName) {
+        shortName = newShortName;
+        break;
+      }
+    }
+  }
+
+  return shortName;
 }; // startsWith polyfill for IE
 
 

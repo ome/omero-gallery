@@ -1,0 +1,199 @@
+code {
+    background-color: transparent;
+    border: none;
+    color: #1a237e;
+    font-family: Courier, serif;
+    font-weight: normal;
+    padding: 0.125rem 0.3125rem 0.0625rem;
+    width: 200px;
+}
+
+.highlight {
+    background-color: #e8eaf6;
+    border-radius: 3px;
+    overflow-x: scroll;
+    padding: 1rem;
+}
+
+.bold {
+    color: #37474F;
+    font-weight: bold;
+}
+
+body {
+    background-color: #f4f5f9;
+    color: #455a64;
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1,h2,h3,h4,h5,h6 {
+    color: #1976d2;
+    font-family: 'Nunito', sans-serif;
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 1.5rem; }
+
+h2 {
+  font-size: 1.25rem; }
+
+h3 {
+  font-size: 1.0625em; }
+
+h4 {
+  font-size: 1.0312rem;
+  margin-top: 4rem;
+}
+
+h5 {
+  font-size: 1rem; }
+
+h6 {
+  font-size: 0.875rem; }
+
+hr {
+    border-style: dashed;
+}
+
+a.button {
+    background-color: #ff9800;
+    font-weight: bold;
+}
+
+a.button:hover {
+    background-color: #ffc107;
+}
+
+a {
+    color: #3949ab;
+    font-weight: bold;
+}
+
+.logo.centered { margin: 20px auto; }
+.logo.sidebar { margin: 20px 0 20px 15px; }
+
+.menu.documentation {
+    background: transparent none repeat scroll 0 0;
+    margin-top: 0.5rem;
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+}
+
+.content {
+    background-color: #fff;
+    border-left: 1px solid #cfd8dc;
+    margin-bottom: -50px;  
+    padding-bottom: 50px;
+}   
+ 
+.marketing-hero {
+    background-color: #e8eaf6;
+    background-image: url('../img/bg/11001_Well_A07_Field_1.jpg');
+    background-position: top left;
+    padding: 80px 10px 80px;
+}
+
+.marketing-hero h1, .marketing-hero h2, .marketing-hero p {
+    color: #fff;
+}
+
+.marketing-hero h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.marketing-hero p > a {
+    border-bottom: 1px dashed #fefefe;
+    color: #fefefe;
+}
+
+.marketing-hero p > a:hover {
+    border-bottom: none;
+    color: #fff;
+}
+
+#page-anchor {
+    font-size: .8rem;
+    margin-top: 50px;
+    text-align: center;   
+}
+
+.callout.secondary {
+    background-color: #fff;
+    border: 1px solid #cfd8dc;
+    color: #90a4ae;
+}
+
+.centered {
+    margin: auto;
+}
+
+/* ---------- main navigation ----------*/
+.logo {
+    display: inline;
+}
+
+.logo img {
+    height: 33px;
+    max-width: 200px;
+}
+
+.top-bar {
+    background-color: #263238;
+    border-bottom: 1px solid #000;
+}
+
+.top-bar ul {
+    background-color: #263238;
+}
+
+.top-bar ul li {
+    vertical-align: middle;
+}
+
+.nav-secondary, .nav-secondary ul {
+    background-color: #37474f;
+    border-bottom: 1px solid #000;
+    font-size: 0.875em;
+    height: 36px;
+}
+
+.nav-secondary > .top-bar-right > .menu > li > a {
+    color: #eceff1;
+}
+
+.nav-secondary > .top-bar-right > .menu > li > a:hover {
+    color: #fff;
+}
+
+.nav-secondary > .top-bar-right > .menu > li > a i {
+    vertical-align: top;
+}
+
+#main-menu .is-dropdown-submenu {
+    border-color: #000;
+}
+#main-menu a {
+    color: #eceff1;
+    font-family: 'Montserrat', Helvetica, Roboto, Arial, sans-serif;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+}
+
+#main-menu a:hover {
+    color: #fff;
+}
+
+#main-menu .dropdown.menu > li.is-dropdown-submenu-parent > a::after {
+    border-color: #eceff1 transparent transparent;
+}
+
+#version-number { 
+    margin-right: 5px;
+    width: 50px;
+}
+.version-number {
+    font-size: 11px;
+    font-weight: bold;
+}

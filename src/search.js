@@ -21,15 +21,20 @@ let model = new StudiesModel();
 let mapr_settings;
 
 function renderStudyKeys() {
-  let html = FILTER_KEYS
-      .map(key => {
-        if (key.label && key.value) {
-          return `<option value="${ key.value }">${ key.label }</option>`
-        }
-        return `<option value="${ key }">${ key }</option>`
-      })
-      .join("\n");
-  document.getElementById('studyKeys').innerHTML = html;
+  if (FILTER_KEYS.length > 0) {
+    let html = FILTER_KEYS
+        .map(key => {
+          if (key.label && key.value) {
+            return `<option value="${ key.value }">${ key.label }</option>`
+          }
+          return `<option value="${ key }">${ key }</option>`
+        })
+        .join("\n");
+    document.getElementById('studyKeys').innerHTML = html;
+    // Show the <optgroup> and the whole form
+    document.getElementById('studyKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
 }
 renderStudyKeys();
 
@@ -541,10 +546,10 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
     }
   }
 
-  let idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length-1];  // idr0001A
+  let shortName = getStudyShortName(studyData);
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
-  let div = htmlFunc({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData);
+  let div = htmlFunc({studyLink, studyDesc, shortName, title, authors, BASE_URL, type}, studyData);
   document.querySelector(elementSelector).appendChild(div);
 }
 
@@ -563,7 +568,7 @@ function studyHtml(props, studyData) {
   }
   let html = `
   <div style='white-space:nowrap'>
-    ${ props.idrId }
+    ${ props.shortName }
     ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author }</a>` : author}
   </div>
   <div class="studyImage">
@@ -598,7 +603,7 @@ function maprHtml(props, studyData) {
   let html = `  
     <td>
       <a target="_blank" href="${ props.studyLink }" />
-        ${ props.idrId }
+        ${ props.shortName }
       </a>
     </td>
     <td>${ model.getStudyValue(studyData, 'Organism')}</td>
@@ -678,15 +683,19 @@ fetch(BASE_URL + 'mapr/api/config/')
   .then(data => {
     mapr_settings = data;
 
-    let html = FILTER_MAPR_KEYS.map(key => {
+    let options = FILTER_MAPR_KEYS.map(key => {
       let config = mapr_settings[key];
       if (config) {
         return `<option value="mapr_${ key }">${ config.label }</option>`;
       } else {
         return "";
       }
-    }).join("\n");
-    document.getElementById('maprKeys').innerHTML = html;
-
+    });
+    if (options.length > 0) {
+      document.getElementById('maprKeys').innerHTML = options.join("\n");
+      // Show the <optgroup> and the whole form
+      document.getElementById('maprKeys').style.display = 'block';
+      document.getElementById('search-form').style.display = 'block';
+    }
     populateInputsFromSearch();
   });

@@ -87,8 +87,61 @@ GALLERY_SETTINGS_MAPPING = {
           " can be used for page title, otherwise the 'label' is used.")],
 
     "omero.web.gallery.title":
-        ["GALLERY_TITLE", "Welcome to OMERO.gallery", str,
-         "Title for the home page shown when category_queries is set."]
+        ["GALLERY_TITLE", "OMERO.gallery", str,
+         "Page <title> for gallery, shown when category_queries is set."],
+
+    "omero.web.gallery.heading":
+        ["GALLERY_HEADING", "Welcome to OMERO.gallery", str,
+         "Main heading on the home page shown when category_queries is set."],
+
+    "omero.web.gallery.top_right_links":
+        ["TOP_RIGHT_LINKS",
+         ('[]'),
+         json.loads,
+         ("List of {'text':'Text','href':'www.url'} links for top-right of"
+          " page. If a link contains 'submenu':[ ] with more links,"
+          " these will be shown in a dropdown menu")],
+
+    "omero.web.gallery.top_left_logo":
+        ["TOP_LEFT_LOGO",
+         ('{}'),
+         json.loads,
+         ("Logo image and link. e.g."
+          " {'src':'url.png','href':'www.url', 'alt':'Image alt text'}"
+          " href can be URL name for reverse(url_name). If href is omitted,"
+          " it will default to 'webgallery_index'")],
+
+    "omero.web.gallery.footer_html":
+        ["FOOTER_HTML",
+         (''),
+         str,
+         ("HTML to go in the footer. If this is set to 'IDR' then"
+          " we show the footer for the IDR site.")],
+
+    "omero.web.gallery.subheading_html":
+        ["SUBHEADING_HTML",
+         (''),
+         str,
+         ("HTML to show as a sub-heading, within a <p> tag.")],
+
+    "omero.web.gallery.favicon":
+        ["FAVICON",
+         (''),
+         str,
+         ("URL to favicon.")],
+
+    "omero.web.gallery.study_short_name":
+        ["STUDY_SHORT_NAME",
+         ('[]'),
+         json.loads,
+         ("Gets a short name for Screen or Project to show above the"
+          " study Image in the categories or search page, instead of"
+          " the default 'Project: 123'. The list allows us"
+          " to try multiple methods, using the first that works. Each object"
+          " in the list has e.g. {'key': 'Name'}. The 'key' can be Name,"
+          " Description or the key for a Key:Value pair on the object."
+          " If a 'regex' and 'template' are specified, we try"
+          " name.replace(regex, template).")],
 
 }
 

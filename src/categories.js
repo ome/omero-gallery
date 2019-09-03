@@ -169,6 +169,12 @@ function render() {
     let idxB = CATEGORY_QUERIES[b].index;
     return (idxA > idxB ? 1 : idxA < idxB ? -1 : 0);
   });
+
+  // Link to the study in webclient...
+  let linkFunc = (studyData) => {
+    let type = studyData['@type'].split('#')[1].toLowerCase();
+    return `${ BASE_URL }webclient/?show=${ type }-${ studyData['@id'] }`;
+  }
   
   categories.forEach(category => {
     let cat = CATEGORY_QUERIES[category];
@@ -178,22 +184,25 @@ function render() {
     let matches = model.filterStudiesByMapQuery(query);
     if (matches.length == 0) return;
 
+    let elementId = cat.label;
+
     var div = document.createElement( "div" );
-    div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
-      <div class="category">
-        <div id="${cat.label}"></div>
-      </div>
-    `;
+
+    // If only ONE category...
+    if (categories.length == 1) {
+      // list studies in a grid, without category.label
+      div.innerHTML = `<div id="${elementId}" class="row horizontal studiesLayout"></div>`;
+    } else {
+      div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
+        <div class="category">
+          <div id="${elementId}"></div>
+        </div>
+      `;
+    }
     div.className = "row";
     document.getElementById('studies').appendChild(div);
 
-    // By default, we link to the study itself in IDR...
-    let linkFunc = (studyData) => {
-      let type = studyData['@type'].split('#')[1].toLowerCase();
-      return `${ BASE_URL }webclient/?show=${ type }-${ studyData['@id'] }`;
-    }
-
-    matches.forEach(study => renderStudy(study, cat.label, linkFunc));
+    matches.forEach(study => renderStudy(study, elementId, linkFunc));
   });
 
   // Now we iterate all Studies in DOM, loading image ID for link and thumbnail
@@ -236,11 +245,11 @@ function renderStudy(studyData, elementId, linkFunc) {
     }
   }
 
-  let idrId = studyData.Name.split('-')[0] + studyData.Name[studyData.Name.length-1];  // idr0001A
+  let shortName = getStudyShortName(studyData);
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
   // Function (and template) are defined where used in index.html
-  let html = studyHtml({studyLink, studyDesc, idrId, title, authors, BASE_URL, type}, studyData)
+  let html = studyHtml({studyLink, studyDesc, shortName, title, authors, BASE_URL, type}, studyData)
 
   var div = document.createElement( "div" );
   div.innerHTML = html;
@@ -264,14 +273,14 @@ function studyHtml(props, studyData) {
   }
   return `
   <div style='white-space:nowrap'>
-    ${ props.idrId }
+    ${ props.shortName }
     ${ pubmed ? `<a class='pubmed' target="_blank" href="${ pubmed }"> ${ author }</a>` : author }
   </div>
   <div class="studyImage">
     <a target="_blank" href="${ props.studyLink }">
       <div style="height: 100%; width: 100%">
         <div class="studyText">
-          <p title='${ props.studyDesc }'>
+          <p title='${ props.studyDesc || '' }'>
             ${ props.title }
           </p>
         </div>
@@ -323,15 +332,20 @@ function loadStudyThumbnails() {
 }
 
 function renderStudyKeys() {
-  let html = FILTER_KEYS
-      .map(key => {
-        if (key.label && key.value) {
-          return `<option value="${ key.value }">${ key.label }</option>`
-        }
-        return `<option value="${ key }">${ key }</option>`
-      })
-      .join("\n");
-  document.getElementById('studyKeys').innerHTML = html;
+  if (FILTER_KEYS.length > 0) {
+    let html = FILTER_KEYS
+        .map(key => {
+          if (key.label && key.value) {
+            return `<option value="${ key.value }">${ key.label }</option>`
+          }
+          return `<option value="${ key }">${ key }</option>`
+        })
+        .join("\n");
+    document.getElementById('studyKeys').innerHTML = html;
+    // Show the <optgroup> and the whole form
+    document.getElementById('studyKeys').style.display = 'block';
+    document.getElementById('search-form').style.display = 'block';
+  }
 }
 renderStudyKeys();
 
@@ -354,13 +368,18 @@ fetch(BASE_URL + 'mapr/api/config/')
   .then(data => {
     mapr_settings = data;
 
-    let html = FILTER_MAPR_KEYS.map(key => {
+    let options = FILTER_MAPR_KEYS.map(key => {
       let config = mapr_settings[key];
       if (config) {
         return `<option value="mapr_${ key }">${ config.label }</option>`;
       } else {
         return "";
       }
-    }).join("\n");
-    document.getElementById('maprKeys').innerHTML = html;
+    });
+    if (options.length > 0) {
+      document.getElementById('maprKeys').innerHTML = options.join("\n");
+      // Show the <optgroup> and the whole form
+      document.getElementById('maprKeys').style.display = 'block';
+      document.getElementById('search-form').style.display = 'block';
+    }
   });
