@@ -1,11 +1,9 @@
-from django.conf.urls import url, patterns
-from gallery_settings import SUPER_CATEGORIES
+from django.conf.urls import url
+from .gallery_settings import SUPER_CATEGORIES
 
 from . import views
 
-urlpatterns = patterns(
-    'django.views.generic.simple',
-
+urlpatterns = [
     # index 'home page' of the webgallery app
     url(r'^$', views.index, name='webgallery_index'),
 
@@ -48,10 +46,10 @@ urlpatterns = patterns(
     # Supports e.g. ?project=1&project=2&screen=3
     url(r'^gallery-api/thumbnails/$', views.api_thumbnails,
         name='webgallery_api_thumbnails'),
-)
+]
 
 for c in SUPER_CATEGORIES:
-    urlpatterns += (url(r'^%s/$' % c, views.index, {'super_category': c},
-                        name="gallery_super_category"),
-                    url(r'^%s/search/$' % c, views.search, {'super_category':
-                        c}),)
+    urlpatterns.append(url(r'^%s/$' % c, views.index, {'super_category': c},
+                           name="gallery_super_category"))
+    urlpatterns.append(url(r'^%s/search/$' % c, views.search,
+                           {'super_category': c}))

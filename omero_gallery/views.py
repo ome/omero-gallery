@@ -148,7 +148,7 @@ def show_group(request, group_id, conn=None, **kwargs):
     group = conn.getObject("ExperimenterGroup", group_id)
 
     # Get NEW user_id, OR current user_id from session OR 'All Members' (-1)
-    user_id = request.REQUEST.get(
+    user_id = request.GET.get(
         'user_id', request.session.get('user_id', -1))
     user_ids = [u.id for u in group_owners]
     user_ids.extend([u.id for u in group_members])
