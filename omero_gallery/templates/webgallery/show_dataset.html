@@ -21,7 +21,7 @@
 
     {% for i in dataset.listChildren %}
         <a href="{% url 'webgateway_full_viewer' i.id %}">
-            <img title="{{ i.getName }}" src="{% url 'webgateway.views.render_thumbnail' i.id 96 %}" />
+            <img title="{{ i.getName }}" src="{% url 'webgateway_render_thumbnail' i.id 96 %}" />
         </a>
     {% endfor %}
 
