@@ -32,7 +32,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-VERSION = '3.2.0dev9'
+VERSION = '3.3.dev1'
 HOMEPAGE = "https://github.com/ome/omero-gallery"
 
 setup(name="omero-gallery",
@@ -50,6 +50,7 @@ setup(name="omero-gallery",
           'Operating System :: OS Independent',
           'Programming Language :: JavaScript',
           'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 3',
           'Topic :: Internet :: WWW/HTTP',
           'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
           'Topic :: Internet :: WWW/HTTP :: WSGI',
