@@ -430,8 +430,9 @@ def api_thumbnails(request, conn=None, **kwargs):
             t = thumbnails[i]
             if len(t) > 0:
                 # replace thumbnail urls by base64 encoded image
-                rv[obj_id]["thumbnail"] = ("data:image/jpeg;base64,%s"
-                                           % base64.b64encode(t))
+                rv[obj_id]["thumbnail"] = ("data:image/jpeg;base64,%s" %
+                                           base64.b64encode(t).decode("utf-8"))
+
         except KeyError:
             logger.error("Thumbnail not available. (img id: %d)" % i)
     return rv
