@@ -1,3 +1,18 @@
+3.3.dev2 (Nov 2019)
+-------------------
+
+- Fix thumbnails on Python 3 (#50)
+
+3.3.dev1 (Nov 2019)
+-------------------
+
+- Migration to Python 3 (#47)
+
+3.2.0a8 (Sep 2019)
+------------------
+
+- Alternate version of the UI in use on IDR
+
 3.1.1 (October 2017)
 --------------------
 
