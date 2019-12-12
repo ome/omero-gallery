@@ -49,8 +49,8 @@ OMERO.gallery overview
 This application supports 2 alternative views of your data in OMERO, which can
 be chosen and customised via config settings:
 
- - Default UI (no config): Browse `Group > Project > Dataset > Image`
- - Categories UI: Show categories of interest. Allow filtering by map annotations.
+* Default UI (no config): Browse `Group > Project > Dataset > Image`
+* Categories UI: Show categories of interest. Allow filtering by map annotations.
 
 For both views, public access can be enabled
 `as described here <https://docs.openmicroscopy.org/latest/omero/sysadmins/public.html>`_,
@@ -96,19 +96,19 @@ and they are annotated with Key-Value data in the form of Map Annotations,
 for example ``Study Type: 3D-tracking``.
 The UI supports several features based on these Key-Value attributes:
 
- - Home page shows 'Categories' that are defined by queries on Map Annotations.
- - Filter studies by Map Annotations.
+* Home page shows 'Categories' that are defined by queries on Map Annotations.
+* Filter studies by Map Annotations.
 
 If Images are also annotated with Map Annotations and
 https://github.com/ome/omero-mapr/ is installed then you can:
 
- - Find Studies containing Images that match queries on their Map Annotations.
+* Find Studies containing Images that match queries on their Map Annotations.
 
 
 Configuring the Categories UI
 -----------------------------
 
-*omero.web.gallery.category_queries*
+**omero.web.gallery.category_queries**
 
 To enable the Categories UI, you must set ``omero.web.gallery.category_queries``.
 Each Category is defined by a display ``label``, a ``query`` to select the Projects
