@@ -111,6 +111,9 @@ Configuring the Categories UI
 **omero.web.gallery.category_queries**
 
 To enable the Categories UI, you must set ``omero.web.gallery.category_queries``.
+If this is not set, you will see the Default UI shown above and the other
+settings described below will be ignored.
+
 Each Category is defined by a display ``label``, a ``query`` to select the Projects
 and Screens and an ``index`` to specify the order they appear on the page.
 Most of the examples below are used in the IDR. You can view the Categories
@@ -124,23 +127,39 @@ Screens), you can simply sort by Name or creation Date. This example defines
 
     $ omero config set omero.web.gallery.category_queries '{ \
       "all":{"label":"All Studies", "index":0, "query":"FIRST50:Name"}, \
-      "recent":{"label":"Recent", "index":1, "query":"LAST20:Date"}, \
+      "recent":{"label":"Recent", "index":1, "query":"LAST20:Date"} \
       }'
 
 Other categories are defined by queries on Map Annotations. For example, to
 show all Studies that have Key:Value of ``Study Type: 3D-tracking``::
 
     $ omero config set omero.web.gallery.category_queries '{ \
-      "tracking":{"label":"3D tracking", "index":0, "query":"Study Type: 3D-tracking"}, \
+      "tracking":{"label":"3D tracking", "index":0, "query":"Study Type: 3D-tracking"} \
       }'
 
 Queries can use the ``AND`` and ``OR`` keywords to combine queries::
 
     $ omero config set omero.web.gallery.category_queries '{ \
       "time":{"label":"Time-lapse imaging", "index":0, "query":"Study Type: 3D-tracking OR Study Type: time"}, \
-      "screens":{"label":"High-content screening (human)", "index":1, "query":"Organism:Homo sapiens AND Study Type:high content screen"}, \
+      "screens":{"label":"High-content screening (human)", "index":1, "query":"Organism:Homo sapiens AND Study Type:high content screen"} \
       }'
 
+**omero.web.gallery.filter_keys**
+
+If this is configured then the gallery will allow filtering of Screens and
+Projects by Key:Value pairs linked to them. This list defines which Keys the
+user can choose in the UI. On selecting a Key, the user will be able to
+filter by Values typed into an auto-complete field.
+
+Each item is a simple string (matching the Key) or an object with a ``label``
+and ``value``, where ``value`` matches the Key. An example based on IDR::
+
+    $ omero config set omero.web.gallery.filter_keys '[
+        {"label": "Name (IDR number)", "value": "Name"}, \
+        "Imaging Method", \
+        "Organism", \
+        "Publication Authors"\
+    ]'
 
 License
 -------
