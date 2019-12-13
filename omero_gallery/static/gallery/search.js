@@ -472,7 +472,7 @@ function render(filterFunc) {
     filterMessage = noStudiesMessage();
   } else if (studiesToRender.length < model.studies.length) {
     var configId = document.getElementById("maprConfig").value.replace('mapr_', '');
-    configId = mapr_settings[configId] || configId;
+    configId = mapr_settings && mapr_settings[configId] || configId;
     var maprValue = document.getElementById('maprQuery').value;
     filterMessage = "<p class=\"filterMessage\">\n      Found <strong>".concat(studiesToRender.length, "</strong> studies with\n      <strong>").concat(configId, "</strong>: <strong>").concat(maprValue, "</strong></p>");
   }
