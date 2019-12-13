@@ -125,23 +125,23 @@ Screens), you can simply sort by Name or creation Date. This example defines
 2 Categories: "All Studies" to show the first 50 studies by Name and
 "Recent" to list the last 20 studies by Date (most recent)::
 
-    $ omero config set omero.web.gallery.category_queries '{ \
-      "all":{"label":"All Studies", "index":0, "query":"FIRST50:Name"}, \
-      "recent":{"label":"Recent", "index":1, "query":"LAST20:Date"} \
+    $ omero config set omero.web.gallery.category_queries '{
+      "all":{"label":"All Studies", "index":0, "query":"FIRST50:Name"},
+      "recent":{"label":"Recent", "index":1, "query":"LAST20:Date"}
       }'
 
 Other categories are defined by queries on Map Annotations. For example, to
 show all Studies that have Key:Value of ``Study Type: 3D-tracking``::
 
-    $ omero config set omero.web.gallery.category_queries '{ \
-      "tracking":{"label":"3D tracking", "index":0, "query":"Study Type: 3D-tracking"} \
+    $ omero config set omero.web.gallery.category_queries '{
+      "tracking":{"label":"3D tracking", "index":0, "query":"Study Type: 3D-tracking"}
       }'
 
 Queries can use the ``AND`` and ``OR`` keywords to combine queries::
 
-    $ omero config set omero.web.gallery.category_queries '{ \
-      "time":{"label":"Time-lapse imaging", "index":0, "query":"Study Type: 3D-tracking OR Study Type: time"}, \
-      "screens":{"label":"High-content screening (human)", "index":1, "query":"Organism:Homo sapiens AND Study Type:high content screen"} \
+    $ omero config set omero.web.gallery.category_queries '{
+      "time":{"label":"Time-lapse imaging", "index":0, "query":"Study Type: 3D-tracking OR Study Type: time"},
+      "screens":{"label":"High-content screening (human)", "index":1, "query":"Organism:Homo sapiens AND Study Type:high content screen"}
       }'
 
 **omero.web.gallery.filter_keys**
@@ -155,10 +155,10 @@ Each item is a simple string (matching the Key) or an object with a ``label``
 and ``value``, where ``value`` matches the Key. An example based on IDR::
 
     $ omero config set omero.web.gallery.filter_keys '[
-        {"label": "Name (IDR number)", "value": "Name"}, \
-        "Imaging Method", \
-        "Organism", \
-        "Publication Authors"\
+        {"label": "Name (IDR number)", "value": "Name"},
+        "Imaging Method",
+        "Organism",
+        "Publication Authors"
     ]'
 
 License
