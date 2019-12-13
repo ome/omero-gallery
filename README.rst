@@ -160,6 +160,15 @@ and ``value``, where ``value`` matches the Key. An example based on IDR::
         {"label": "Publication Authors", "value": "Authors"}
     ]'
 
+**omero.web.gallery.top_left_logo**
+
+This setting can be used to replace the 'OMERO' logo at the top-left of the
+page with an image hosted elsewhere (png, jpeg or svg). It will be displayed
+with height of 33 pixels and maximum width of 200 pixels.
+
+    $ omero config set omero.web.gallery.top_left_logo '{"src": "https://www.openmicroscopy.org/img/logos/ome-main-nav.svg"}'
+
+
 License
 -------
 
