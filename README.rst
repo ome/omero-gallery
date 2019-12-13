@@ -145,18 +145,19 @@ Queries can use the ``AND`` and ``OR`` keywords to combine queries::
 **omero.web.gallery.filter_keys**
 
 If this is configured then the gallery will allow filtering of Screens and
-Projects by Key:Value pairs linked to them. This list defines which Keys the
-user can choose in the UI. On selecting a Key, the user will be able to
-filter by Values typed into an auto-complete field.
+Projects by Key:Value pairs linked to them, or use ``Name`` to filter by Name.
+This list defines which Keys the user can choose in the UI.
+On selecting a Key, the user will be able to filter by Values typed into
+an auto-complete field.
 
 Each item is a simple string (matching the Key) or an object with a ``label``
 and ``value``, where ``value`` matches the Key. An example based on IDR::
 
     $ omero config set omero.web.gallery.filter_keys '[
-        {"label": "Name (IDR number)", "value": "Name"},
+        "Name",
         "Imaging Method",
         "Organism",
-        "Publication Authors"
+        {"label": "Publication Authors", "value": "Authors"}
     ]'
 
 License
