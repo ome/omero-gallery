@@ -121,13 +121,11 @@ at https://idr.openmicroscopy.org/ and see the query for each as a tooltip on
 the label of each category.
 
 In the simplest case, if you do not have Map Annotations on Studies (Projects and
-Screens), you can simply sort by Name or creation Date. This example defines
-2 Categories: "All Studies" to show the first 50 studies by Name and
-"Recent" to list the last 20 studies by Date (most recent)::
+Screens), you can simply sort by Name. This example defines
+a Category: "All Studies" to show the first 50 studies by Name::
 
     $ omero config set omero.web.gallery.category_queries '{
-      "all":{"label":"All Studies", "index":0, "query":"FIRST50:Name"},
-      "recent":{"label":"Recent", "index":1, "query":"LAST20:Date"}
+      "all":{"label":"All Studies", "index":0, "query":"FIRST50:Name"}
       }'
 
 Other categories are defined by queries on Map Annotations. For example, to
