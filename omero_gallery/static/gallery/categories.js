@@ -362,4 +362,6 @@ fetch(BASE_URL + 'mapr/api/config/').then(function (response) {
     document.getElementById('maprKeys').style.display = 'block';
     document.getElementById('search-form').style.display = 'block';
   }
+})["catch"](function (err) {
+  console.log("mapr not installed (config not available)");
 });
