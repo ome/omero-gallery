@@ -108,8 +108,7 @@ https://github.com/ome/omero-mapr/ is installed then you can:
 Configuring the Categories UI
 -----------------------------
 
-**omero.web.gallery.category_queries**
-
+**omero.web.gallery.category_queries:**
 To enable the Categories UI, you must set ``omero.web.gallery.category_queries``.
 If this is not set, you will see the Default UI shown above and the other
 settings described below will be ignored.
@@ -142,8 +141,7 @@ Queries can use the ``AND`` and ``OR`` keywords to combine queries::
       "screens":{"label":"High-content screening (human)", "index":1, "query":"Organism:Homo sapiens AND Study Type:high content screen"}
       }'
 
-**omero.web.gallery.filter_keys**
-
+**omero.web.gallery.filter_keys:**
 If this is configured then the gallery will allow filtering of Screens and
 Projects by Key:Value pairs linked to them, or use ``Name`` to filter by Name.
 This list defines which Keys the user can choose in the UI.
@@ -161,13 +159,11 @@ and ``value``, where ``value`` matches the Key. An example based on IDR::
     ]'
 
 
-**omero.web.gallery.title**
+**omero.web.gallery.title:**
+Sets the html page ```<title>title</title>``` for gallery pages.
 
-    Sets the html page ```<title>title</title>``` for gallery pages.
 
-
-**omero.web.gallery.top_left_logo**
-
+**omero.web.gallery.top_left_logo:**
 This setting can be used to replace the 'OMERO' logo at the top-left of the
 page with an image hosted elsewhere (png, jpeg or svg). It will be displayed
 with height of 33 pixels and maximum width of 200 pixels::
@@ -175,13 +171,11 @@ with height of 33 pixels and maximum width of 200 pixels::
     $ omero config set omero.web.gallery.top_left_logo '{"src": "https://www.openmicroscopy.org/img/logos/ome-main-nav.svg"}'
 
 
-**omero.web.gallery.heading**
-
+**omero.web.gallery.heading:**
 Replace the "Welcome to OMERO.gallery" heading on the home page.
 
 
-**omero.web.gallery.top_right_links**
-
+**omero.web.gallery.top_right_links:**
 This specifies a list of links as {'text':'Text','href':'www.url'} for the
 top-right of each page. If a link contains 'submenu':[ ] with more links,
 these will be shown in a dropdown menu"::
@@ -190,24 +184,20 @@ these will be shown in a dropdown menu"::
         {"text":"OME", "href":"https://www.openmicroscopy.org/"}
     ]'
 
-**omero.web.gallery.favicon**
-
+**omero.web.gallery.favicon:**
 Set a URL to a favicon to use for the browser.
 
-**omero.web.gallery.subheading_html**
-
+**omero.web.gallery.subheading_html:**
 Set some HTML to show as a sub-heading on the home page, within a <p> tag::
 
     $ omero config set omero.web.gallery.subheading_html "This is an image gallery using <b>OMERO</b>."
 
-**omero.web.gallery.footer_html**
-
+**omero.web.gallery.footer_html:**
 Set some HTML to show as a footer on each page::
 
     $ omero config set omero.web.gallery.footer_html "<a href='https://blog.openmicroscopy.org/'>Blog</a>"
 
-**omero.web.gallery.study_short_name**
-
+**omero.web.gallery.study_short_name:**
 This specifies a short name for Screen or Project to show above the study Image
 in the categories or search page, instead of the default 'Project: 123'.
 The list allows us to try multiple methods, using the first that works.
