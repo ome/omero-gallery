@@ -160,14 +160,69 @@ and ``value``, where ``value`` matches the Key. An example based on IDR::
         {"label": "Publication Authors", "value": "Authors"}
     ]'
 
+
+**omero.web.gallery.title**
+
+    Sets the html page ```<title>title</title>``` for gallery pages.
+
+
 **omero.web.gallery.top_left_logo**
 
 This setting can be used to replace the 'OMERO' logo at the top-left of the
 page with an image hosted elsewhere (png, jpeg or svg). It will be displayed
-with height of 33 pixels and maximum width of 200 pixels.
+with height of 33 pixels and maximum width of 200 pixels::
 
     $ omero config set omero.web.gallery.top_left_logo '{"src": "https://www.openmicroscopy.org/img/logos/ome-main-nav.svg"}'
 
+
+**omero.web.gallery.heading**
+
+Replace the "Welcome to OMERO.gallery" heading on the home page.
+
+
+**omero.web.gallery.top_right_links**
+
+This specifies a list of links as {'text':'Text','href':'www.url'} for the
+top-right of each page. If a link contains 'submenu':[ ] with more links,
+these will be shown in a dropdown menu"::
+
+    $ omero config set omero.web.gallery.top_right_links '[
+        {"text":"OME", "href":"https://www.openmicroscopy.org/"}
+    ]'
+
+**omero.web.gallery.favicon**
+
+Set a URL to a favicon to use for the browser.
+
+**omero.web.gallery.subheading_html**
+
+Set some HTML to show as a sub-heading on the home page, within a <p> tag::
+
+    $ omero config set omero.web.gallery.subheading_html "This is an image gallery using <b>OMERO</b>."
+
+**omero.web.gallery.footer_html**
+
+Set some HTML to show as a footer on each page::
+
+    $ omero config set omero.web.gallery.footer_html "<a href='https://blog.openmicroscopy.org/'>Blog</a>"
+
+**omero.web.gallery.study_short_name**
+
+This specifies a short name for Screen or Project to show above the study Image
+in the categories or search page, instead of the default 'Project: 123'.
+The list allows us to try multiple methods, using the first that works.
+Each object in the list has e.g. {'key': 'Name'}. The 'key' can be Name,
+Description or the key for a Key:Value pair on the object.
+If a 'regex' and 'template' are specified, we try name.replace(regex, template).
+In this example, we check for a Key:Value named "Title". If that is not found,
+then we use a regex based on the object's Name. This example is from the IDR,
+where we want to create a short name like ``idr0001A`` from a Name
+like: ``idr0001-graml-sysgro/screenA``::
+
+    $ omero config set omero.web.gallery.study_short_name '[
+        {"key":"Title"},
+        {"key":"Name", "regex": "^(.*?)-.*?(.)$", "template": "$1$2"},
+    ]'
 
 License
 -------
