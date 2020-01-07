@@ -14,7 +14,7 @@ Also see `SUPPORT.md <https://github.com/ome/omero-gallery/blob/master/SUPPORT.m
 Requirements
 ============
 
-* OMERO 5.6.0 or newer.
+* OMERO.web 5.6.0 or newer.
 
 Installing from PyPI
 ====================
