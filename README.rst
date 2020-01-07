@@ -14,7 +14,7 @@ Also see `SUPPORT.md <https://github.com/ome/omero-gallery/blob/master/SUPPORT.m
 Requirements
 ============
 
-* OMERO 5.2.6 or newer.
+* OMERO.web 5.6.0 or newer.
 
 Installing from PyPI
 ====================
@@ -31,16 +31,9 @@ Add gallery custom app to your installed web apps:
 
 ::
 
-    $ bin/omero config append omero.web.apps '"omero_gallery"'
+    $ omero config append omero.web.apps '"omero_gallery"'
 
 Now restart OMERO.web as normal.
-
-
-**Warning**:
-
-OMERO.gallery version 2.x or newer requires OMERO.web **5.2.6 or newer**.
-This is due to a Django Framework compatibility and to a required package reorganization in OMERO.gallery in version 2.0 so the application can be distributed from Python Package Index `PyPI <https://pypi.org>`_.
-
 
 
 OMERO.gallery overview
@@ -80,5 +73,5 @@ OMERO.gallery is released under the AGPL.
 Copyright
 ---------
 
-2016-2017, The Open Microscopy Environment
+2016-2020, The Open Microscopy Environment
 
