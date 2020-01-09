@@ -21,8 +21,9 @@ logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
 
 
+@login_required()
 @render_response()
-def index(request, super_category=None):
+def index(request, super_category=None, conn=None, **kwargs):
     """
     Home page shows a list of groups OR a set of 'categories' from
     user-configured queries.
@@ -63,12 +64,6 @@ def index(request, super_category=None):
         context['category_queries'] = json.dumps(category_queries)
         return context
 
-    return index_with_login(request)
-
-
-@login_required()
-@render_response()
-def index_with_login(request, conn=None, **kwargs):
     my_groups = list(conn.getGroupsMemberOf())
 
     # Need a custom query to get 1 (random) image per Project
