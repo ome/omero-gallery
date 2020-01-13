@@ -1,11 +1,8 @@
-3.3.dev2 (Nov 2019)
--------------------
+3.3.0 (Jan 2020)
+----------------
 
+- Drop support for Python 2
 - Fix thumbnails on Python 3 (#50)
-
-3.3.dev1 (Nov 2019)
--------------------
-
 - Migration to Python 3 (#47)
 
 3.2.0a8 (Sep 2019)
