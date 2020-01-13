@@ -178,7 +178,7 @@ Replace the "Welcome to OMERO.gallery" heading on the home page.
 **omero.web.gallery.top_right_links:**
 This specifies a list of links as {'text':'Text','href':'www.url'} for the
 top-right of each page. If a link contains 'submenu':[ ] with more links,
-these will be shown in a dropdown menu"::
+these will be shown in a dropdown menu::
 
     $ omero config set omero.web.gallery.top_right_links '[
         {"text":"OME", "href":"https://www.openmicroscopy.org/"}
