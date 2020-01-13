@@ -469,7 +469,7 @@ function render(filterFunc) {
     filterMessage = noStudiesMessage();
   } else if (studiesToRender.length < model.studies.length) {
     let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
-    configId = mapr_settings[configId] || configId;
+    configId = (mapr_settings && mapr_settings[configId]) || configId;
     let maprValue = document.getElementById('maprQuery').value;
     filterMessage = `<p class="filterMessage">
       Found <strong>${ studiesToRender.length }</strong> studies with
@@ -698,4 +698,6 @@ fetch(BASE_URL + 'mapr/api/config/')
       document.getElementById('search-form').style.display = 'block';
     }
     populateInputsFromSearch();
+  }).catch(function(err) {
+    console.log("mapr not installed (config not available)");
   });
