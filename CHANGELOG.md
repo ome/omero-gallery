@@ -1,3 +1,8 @@
+3.3.1 (Apr 2020)
+----------------
+
+- Update EuroBioimaging logo in alternate version of the UI in use on IDR
+
 3.3.0 (Jan 2020)
 ----------------
 
