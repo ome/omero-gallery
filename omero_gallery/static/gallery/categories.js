@@ -188,10 +188,10 @@ function render() {
       // list studies in a grid, without category.label
       div.innerHTML = "<div id=\"".concat(elementId, "\" class=\"row horizontal studiesLayout\"></div>");
     } else {
-      div.innerHTML = "<h1 title=\"".concat(query, "\">").concat(cat.label, " (").concat(matches.length, ")</h1>\n        <div class=\"category\">\n          <div id=\"").concat(elementId, "\"></div>\n        </div>\n      ");
-    }
+      div.innerHTML = "\n        <h1 title=\"".concat(query, "\" style=\"margin-left:10px\">\n          ").concat(cat.label, " (").concat(matches.length, ")\n        </h1>\n        <div class=\"category\">\n          <div id=\"").concat(elementId, "\"></div>\n        </div>\n      ");
+    } // div.className = "row";
 
-    div.className = "row";
+
     document.getElementById('studies').appendChild(div);
     matches.forEach(function (study) {
       return renderStudy(study, elementId, linkFunc);
