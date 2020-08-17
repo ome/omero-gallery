@@ -193,13 +193,15 @@ function render() {
       // list studies in a grid, without category.label
       div.innerHTML = `<div id="${elementId}" class="row horizontal studiesLayout"></div>`;
     } else {
-      div.innerHTML = `<h1 title="${query}">${cat.label} (${ matches.length })</h1>
+      div.innerHTML = `
+        <h1 title="${query}" style="margin-left:10px">
+          ${cat.label} (${ matches.length })
+        </h1>
         <div class="category">
           <div id="${elementId}"></div>
         </div>
       `;
     }
-    div.className = "row";
     document.getElementById('studies').appendChild(div);
 
     matches.forEach(study => renderStudy(study, elementId, linkFunc));
