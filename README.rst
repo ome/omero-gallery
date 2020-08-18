@@ -207,6 +207,17 @@ like: ``idr0001-graml-sysgro/screenA``::
         {"key":"Name", "regex": "^(.*?)-.*?(.)$", "template": "$1$2"},
     ]'
 
+Release process
+---------------
+
+- review and update the CHANGELOG
+- run `bumpversion release` to remove the dev suffix and create a signed tag
+- run `bumpversion --no-tag patch` to bump the version to the next dev suffix
+- push the newly created tag and `master` to `origin`. e.g. `git push origin master v3.3.3`
+- the Travis CI build for the tag will also include a PyPI deployment step
+
+https://github.com/ome/omero-gallery/blob/352a9bcc227bf35ca63a3735b19d1a641dab0af5/.travis.yml#L17-L23
+
 License
 -------
 
