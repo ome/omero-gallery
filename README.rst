@@ -216,8 +216,6 @@ Release process
 - push the newly created tag and `master` to `origin`. e.g. `git push origin master v3.3.3`
 - the Travis CI build for the tag will also include a PyPI deployment step
 
-https://github.com/ome/omero-gallery/blob/352a9bcc227bf35ca63a3735b19d1a641dab0af5/.travis.yml#L17-L23
-
 License
 -------
 
