@@ -207,6 +207,15 @@ like: ``idr0001-graml-sysgro/screenA``::
         {"key":"Name", "regex": "^(.*?)-.*?(.)$", "template": "$1$2"},
     ]'
 
+Release process
+---------------
+
+- review and update the [CHANGELOG](https://github.com/ome/omero-gallery/blob/master/CHANGELOG.md)
+- run ``bumpversion release`` to remove the dev suffix and create a signed tag
+- run ``bumpversion --no-tag patch`` to bump the version to the next dev suffix
+- push the newly created tag and ``master`` to ``origin``. e.g. ``git push origin master v3.3.3``
+- the Travis CI build for the tag includes a PyPI deployment step, so no need to deploy on PyPi manually
+
 License
 -------
 
@@ -216,4 +225,3 @@ Copyright
 ---------
 
 2016-2020, The Open Microscopy Environment
-
