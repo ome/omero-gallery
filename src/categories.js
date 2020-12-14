@@ -192,6 +192,7 @@ function render() {
     if (categories.length == 1) {
       // list studies in a grid, without category.label
       div.innerHTML = `<div id="${elementId}" class="row horizontal studiesLayout"></div>`;
+      div.className = "row"
     } else {
       div.innerHTML = `
         <h1 title="${query}" style="margin-left:10px">
