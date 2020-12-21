@@ -136,7 +136,8 @@ Queries can use the ``AND`` and ``OR`` keywords to combine queries::
 
 **omero.web.gallery.filter_keys:**
 If this is configured then the gallery will allow filtering of Screens and
-Projects by Key:Value pairs linked to them, or use ``Name`` to filter by Name.
+Projects by Key:Value pairs linked to them, or use ``Name`` to filter by Name
+or ``Group`` to filter by Group.
 This list defines which Keys the user can choose in the UI.
 On selecting a Key, the user will be able to filter by Values typed into
 an auto-complete field.

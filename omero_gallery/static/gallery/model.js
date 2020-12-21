@@ -16,7 +16,7 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-//   Copyright (C) 2019 University of Dundee & Open Microscopy Environment.
+//   Copyright (C) 2019-2020 University of Dundee & Open Microscopy Environment.
 //   All rights reserved.
 //   This program is free software: you can redistribute it and/or modify
 //   it under the terms of the GNU Affero General Public License as
@@ -55,6 +55,28 @@ StudiesModel.prototype.getStudyById = function getStudyById(typeId) {
 StudiesModel.prototype.getStudiesNames = function getStudiesNames(filterQuery) {
   var names = this.studies.map(function (s) {
     return s.Name;
+  });
+
+  if (filterQuery) {
+    names = names.filter(function (name) {
+      return name.toLowerCase().indexOf(filterQuery) > -1;
+    });
+  }
+
+  names.sort(function (a, b) {
+    return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
+  });
+  return names;
+};
+
+StudiesModel.prototype.getStudiesGroups = function getStudiesGroups(filterQuery) {
+  var names = [];
+  this.studies.forEach(function (study) {
+    var groupName = study['omero:details'].group.Name;
+
+    if (names.indexOf(groupName) === -1) {
+      names.push(groupName);
+    }
   });
 
   if (filterQuery) {
