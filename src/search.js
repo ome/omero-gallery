@@ -1,4 +1,4 @@
-//   Copyright (C) 2019 University of Dundee & Open Microscopy Environment.
+//   Copyright (C) 2019-2020 University of Dundee & Open Microscopy Environment.
 //   All rights reserved.
 
 //   This program is free software: you can redistribute it and/or modify
@@ -256,6 +256,8 @@ $("#maprQuery")
           let matches;
           if (configId === 'Name') {
             matches = model.getStudiesNames(request.term);
+          } else if (configId === 'Group') {
+            matches = model.getStudiesGroups(request.term);
           } else {
             matches = model.getKeyValueAutoComplete(configId, request.term);
           }
@@ -365,6 +367,10 @@ function filterAndRender() {
       let toMatch = value.toLowerCase();
       if (configId === 'Name') {
         return study.Name.toLowerCase().indexOf(toMatch) > -1;
+      }
+      if (configId === 'Group') {
+        var group = study['omero:details'].group;
+        return group.Name.toLowerCase().indexOf(toMatch) > -1;
       }
       // Filter by Map-Annotation Key-Value
       let show = false;

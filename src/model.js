@@ -1,4 +1,4 @@
-//   Copyright (C) 2019 University of Dundee & Open Microscopy Environment.
+//   Copyright (C) 2019-2020 University of Dundee & Open Microscopy Environment.
 //   All rights reserved.
 
 //   This program is free software: you can redistribute it and/or modify
@@ -47,6 +47,21 @@ StudiesModel.prototype.getStudiesNames = function getStudiesNames(filterQuery) {
     names = names.filter(name => name.toLowerCase().indexOf(filterQuery) > -1);
   }
   names.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1: -1);
+  return names;
+}
+
+StudiesModel.prototype.getStudiesGroups = function getStudiesGroups(filterQuery) {
+  let names = [];
+  this.studies.forEach(study => {
+    var groupName = study['omero:details'].group.Name;
+    if (names.indexOf(groupName) === -1) {
+      names.push(groupName);
+    }
+  });
+  if (filterQuery) {
+    names = names.filter(name => name.toLowerCase().indexOf(filterQuery) > -1);
+  }
+  names.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1);
   return names;
 }
 

@@ -27,7 +27,7 @@
     "images"
   ],
   "author": "OME",
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/ome/omero-gallery/issues"
   },
