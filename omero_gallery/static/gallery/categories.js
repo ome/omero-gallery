@@ -189,10 +189,10 @@ function render() {
     if (categories.length == 1) {
       // list studies in a grid, without category.label
       div.innerHTML = "<div id=\"".concat(elementId, "\" class=\"row horizontal studiesLayout\"></div>");
+      div.className = "row";
     } else {
       div.innerHTML = "\n        <h1 title=\"".concat(query, "\" style=\"margin-left:10px\">\n          ").concat(cat.label, " (").concat(matches.length, ")\n        </h1>\n        <div class=\"category\">\n          <div id=\"").concat(elementId, "\"></div>\n        </div>\n      ");
-    } // div.className = "row";
-
+    }
 
     document.getElementById('studies').appendChild(div);
     matches.forEach(function (study) {
