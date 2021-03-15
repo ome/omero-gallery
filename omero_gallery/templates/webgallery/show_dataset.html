@@ -20,7 +20,7 @@
     <hr>
 
     {% for i in dataset.listChildren %}
-        <a href="{% url 'webgateway_full_viewer' i.id %}">
+        <a href="{% url 'web_image_viewer' i.id %}">
             <img title="{{ i.getName }}" src="{% url 'webgateway_render_thumbnail' i.id 96 %}" />
         </a>
     {% endfor %}
