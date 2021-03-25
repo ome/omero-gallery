@@ -5,6 +5,7 @@
 - Filter studies by Group [#75](https://github.com/ome/omero-gallery/pull/75)
 - Clear searches button [#77](https://github.com/ome/omero-gallery/pull/77)
 - Default UI uses configured viewer [#83](https://github.com/ome/omero-gallery/pull/83)
+- Add release process to README [#69](https://github.com/ome/omero-gallery/pull/69)
 
 3.3.3 (August 2020)
 -------------------
