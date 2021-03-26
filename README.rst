@@ -225,4 +225,4 @@ OMERO.gallery is released under the AGPL.
 Copyright
 ---------
 
-2016-2020, The Open Microscopy Environment
+2016-2021, The Open Microscopy Environment
