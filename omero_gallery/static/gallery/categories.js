@@ -289,7 +289,7 @@ function render() {
     "project-1304": { "image": 10502961, },  // idr0089B
     "screen-2851": { "image": 12540310, },  // idr0090
     "project-1351": { "image": 10647409, },  // idr0091
-    "project-2451": { "image": 10340801, },  // idr0092
+    "screen-2451": { "image": 10340801, },  // idr0092
     "screen-2751": { "image": 12570400, },  // idr0093
     "screen-2602": { "image": 10532657, },  // idr0094A
     "screen-2603": { "image": 10560362, },  // idr0094B
