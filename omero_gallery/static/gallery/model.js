@@ -259,7 +259,7 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
   var _this3 = this;
 
-  var url = GALLERY_INDEX + "gallery-api/thumbnails/"; // remove duplicates
+  var url = "https://idr.openmicroscopy.org/gallery-api/thumbnails/"; // remove duplicates
 
   ids = _toConsumableArray(new Set(ids)); // find any thumbnails we already have in hand...
 
