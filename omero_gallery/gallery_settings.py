@@ -38,7 +38,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
-         ('{}'),
+         ('{"others":{ "label": "Others", "query": "LAST200:date", "index": 10 },"infection":{"label":"Infection studies","index":1,"query":"Study Type:infection"},"timelapse":{"label":"Time-lapse imaging","index":2,"query":"Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},"lightsheet":{"label":"Light sheet fluorescence microscopy","index":3,"query":"Study Type:light sheet"},"proteinlocalization":{"label":"Protein localization studies","index":4,"query":"Study Type:protein localization"},"histology":{"label":"Digital pathology imaging","index":5,"query":"Study Type:histology"},"yeast":{"label":"Yeast studies","index":6,"query":"Organism: Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},"humancellscreen":{"label":"High-content screening (human)","index":7,"query":"Organism:Homo sapiens AND Study Type:high content screen"}}'),
          json.loads,
          ("If this is configured then the gallery Home Page shows a list"
           " of categories containing Projects and Screens that match the"

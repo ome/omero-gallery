@@ -321,61 +321,87 @@ function render() {
     "project-2053": { "image": 13457674, },  // idr0116
     "project-2001": { "image": 13441324, },  // idr0117
     "project-2101": { "image": 13461595, },  // idr0118
+    "project-2201": { "image": 13965767, },  // idr0124
   }
 
-  let html = model.studies.map(study => {
-    let idrId = study.objId;
-    let src = `${ BASE_URL }webgateway/render_thumbnail/${studyThumbs[idrId]?.image}/`;
-    console.log("idrId", idrId, src);
-  return `
-    <div class="row study " title="${study.Name}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-      <img class="studyImage" src="${src}"/>
-    </div>
-  `}).join("");
-  document.getElementById('studies').innerHTML = html;
+  // let idrIds = [];
 
-  // loadStudyThumbnails();
-  return;
+  // let html = model.studies.map(study => {
+  //   let idrId = study.Name.split("-")[0];
+  //   // Ignore multiple projects/screens from same study/publication
+  //   if (idrIds.includes(idrId)) {
+  //     return '';
+  //   }
+  //   idrIds.push(idrId);
+  //   let src = `${BASE_URL}webgateway/render_thumbnail/${studyThumbs[study.objId]?.image}/`;
+  //   console.log("idrId", idrId, src);
+  // return `
+  //   <div class="row study " title="${study.Name}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+  //     <img class="studyImage" src="${src}"/>
+  //   </div>
+  // `}).join("");
 
+  // document.getElementById('studies').innerHTML = html;
 
-  
-  var categories = Object.keys(CATEGORY_QUERIES); // Sort by index
+  // CATEGORY_QUERIES.push({ "label": "Others", "query": "LAST200:date", "index": 10 });
 
+  let categories = Object.keys(CATEGORY_QUERIES);
+  // Sort by index
   categories.sort(function (a, b) {
-    var idxA = CATEGORY_QUERIES[a].index;
-    var idxB = CATEGORY_QUERIES[b].index;
-    return idxA > idxB ? 1 : idxA < idxB ? -1 : 0;
-  }); // Link to the study in webclient...
+    let idxA = CATEGORY_QUERIES[a].index;
+    let idxB = CATEGORY_QUERIES[b].index;
+    return (idxA > idxB ? 1 : idxA < idxB ? -1 : 0);
+  });
 
-  var linkFunc = function linkFunc(studyData) {
-    var type = studyData['@type'].split('#')[1].toLowerCase();
-    return "".concat(BASE_URL, "webclient/?show=").concat(type, "-").concat(studyData['@id']);
-  };
+  // Link to the study in webclient...
+  let linkFunc = (studyData) => {
+    let type = studyData['@type'].split('#')[1].toLowerCase();
+    return `${BASE_URL}webclient/?show=${type}-${studyData['@id']}`;
+  }
 
-  categories.forEach(function (category) {
-    var cat = CATEGORY_QUERIES[category];
-    var query = cat.query; // Find matching studies
+  let allIds = [];
 
-    var matches = model.filterStudiesByMapQuery(query);
-    if (matches.length == 0) return;
-    var elementId = cat.label;
-    var div = document.createElement("div"); // If only ONE category...
+  let html = categories.map(category => {
+  
+    let cat = CATEGORY_QUERIES[category];
+    let query = cat.query;
 
-    if (categories.length == 1) {
-      // list studies in a grid, without category.label
-      div.innerHTML = "<div id=\"".concat(elementId, "\" class=\"row horizontal studiesLayout\"></div>");
-      div.className = "row";
-    } else {
-      div.innerHTML = "\n        <h1 title=\"".concat(query, "\" style=\"margin-left:10px\">\n          ").concat(cat.label, " (").concat(matches.length, ")\n        </h1>\n        <div class=\"category\">\n          <div id=\"").concat(elementId, "\"></div>\n        </div>\n      ");
-    }
+    // Find matching studies
+    let matches = model.filterStudiesByMapQuery(query);
+    console.log("query", cat.label, matches.length)
+    if (matches.length == 0) return '';
 
-    document.getElementById('studies').appendChild(div);
-    matches.forEach(function (study) {
-      return renderStudy(study, elementId, linkFunc);
-    });
-  }); // Now we iterate all Studies in DOM, loading image ID for link and thumbnail
+    let catIds = [];
 
-  loadStudyThumbnails();
+    let catThumbs = matches.map(study => {
+      let idrId = study.Name.split("-")[0];
+      // Ignore multiple projects/screens from same study/publication
+      if (cat.label !== "Others" && catIds.includes(idrId)) {
+        return '';
+      }
+      if (cat.label === "Others" && allIds.includes(idrId)) {
+        return '';
+      }
+      catIds.push(idrId);
+      allIds.push(idrId);
+      let src = `${BASE_URL}webgateway/render_thumbnail/${studyThumbs[study.objId]?.image}/`;
+      return `
+        <div class="row study " title="${study.Name}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+          <img class="studyImage" src="${src}"/>
+        </div>
+      `
+    }).join("");
+
+    return `
+      <div style="clear:left">
+        <div style="color:#666">${cat.label}</div>
+        <div>
+        ${catThumbs}
+        </div>
+      </div>`
+  }).join("");
+
+  document.getElementById('studies').innerHTML = html;
 }
 
 function renderStudy(studyData, elementId, linkFunc) {
