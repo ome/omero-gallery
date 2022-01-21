@@ -29,7 +29,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.base_url":
         ["BASE_URL",
-         None,
+         "https://idr.openmicroscopy.org",
          str_slash,
          ("Base URL to use for JSON AJAX requests."
           " e.g. 'https://demo.openmicroscopy.org'."
@@ -38,7 +38,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
-         ('{}'),
+         ('{"others":{ "label": "Others", "query": "LAST200:date", "index": 10 },"infection":{"label":"Infection studies","index":1,"query":"Study Type:infection"},"timelapse":{"label":"Time-lapse imaging","index":2,"query":"Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},"lightsheet":{"label":"Light sheet fluorescence microscopy","index":3,"query":"Study Type:light sheet"},"proteinlocalization":{"label":"Protein localization studies","index":4,"query":"Study Type:protein localization"},"histology":{"label":"Digital pathology imaging","index":5,"query":"Study Type:histology"},"yeast":{"label":"Yeast studies","index":6,"query":"Organism: Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},"humancellscreen":{"label":"High-content screening (human)","index":7,"query":"Organism:Homo sapiens AND Study Type:high content screen"}}'),
          json.loads,
          ("If this is configured then the gallery Home Page shows a list"
           " of categories containing Projects and Screens that match the"
@@ -51,7 +51,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.filter_keys":
         ["FILTER_KEYS",
-         ('[]'),
+         ('[{"label": "Name (IDR number)", "value": "Name" }, "Imaging Method", "License", "Organism", "Publication Authors", "Publication Title", "Screen Technology Type", "Screen Type", "Study Type"]'),
          json.loads,
          ("If this is configured then we allow filtering of Screens and"
           " Projects by Key:Value pairs linked to them. This list allows us"
@@ -60,7 +60,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.filter_mapr_keys":
         ["FILTER_MAPR_KEYS",
-         ('[]'),
+         ('["antibody","cellline","compound","gene","phenotype","sirna"]'),
          json.loads,
          ("If this is configured then we allow filtering of Screens and"
           " Projects by OMERO.mapr. This is a list of mapr_config IDs, such"
@@ -78,7 +78,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
-         ('{}'),
+         ('{"cell": {"label": "Cell - IDR","title": "Welcome to Cell-IDR","query": "Sample Type:cell","image": "https://idr.openmicroscopy.org/webgateway/render_image/122770/0/0/"},"tissue": {"label": "Tissue - IDR","title": "Welcome to Tissue-IDR","query": "Sample Type:tissue","image": "https://idr.openmicroscopy.org/webgateway/render_image_region/5470164/0/0/?region=1024,1024,696,520"}}'),
          json.loads,
          ("Optional config to provide top-level categories, similar to"
           " category_queries, using the same config format and 'query' syntax."
@@ -96,7 +96,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.top_right_links":
         ["TOP_RIGHT_LINKS",
-         ('[]'),
+         ('[{"text":"About","href":"https://idr.openmicroscopy.org/about/index.html","submenu":[{"text":"Overview","href":"https://idr.openmicroscopy.org/about/index.html"},{"text":"Published studies","href":"https://idr.openmicroscopy.org/about/studies.html"},{"text":"Linked resources","href":"https://idr.openmicroscopy.org/about/linked-resources.html"},{"text":"API Access","href":"https://idr.openmicroscopy.org/about/api.html"},{"text":"Data download","href":"https://idr.openmicroscopy.org/about/download.html"},{"text":"Image Tools Resource (ITR)","href":"https://idr.openmicroscopy.org/about/itr.html"},{"text":"Analysis Environments","href":"https://idr.openmicroscopy.org/about/analysis-environments.html"},{"text":"Deployment","href":"https://idr.openmicroscopy.org/about/deployment.html"},{"text":"FAQ","href":"https://idr.openmicroscopy.org/about/faq/"}]},{"text":"Submissions","href":"https://idr.openmicroscopy.org/about/submission.html","submenu":[{"text":"Overview","href":"https://idr.openmicroscopy.org/about/submission.html"},{"text":"Screens","href":"https://idr.openmicroscopy.org/about/screens.html"},{"text":"Experiments","href":"https://idr.openmicroscopy.org/about/experiments.html"}]}]'),
          json.loads,
          ("List of {'text':'Text','href':'www.url'} links for top-right of"
           " page. If a link contains 'submenu':[ ] with more links,"
@@ -104,7 +104,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.top_left_logo":
         ["TOP_LEFT_LOGO",
-         ('{}'),
+         ('{"src": "https://idr.openmicroscopy.org/about/img/logos/logo-idr.svg","href": "/"}'),
          json.loads,
          ("Logo image and link. e.g."
           " {'src':'url.png','href':'www.url', 'alt':'Image alt text'}"
@@ -113,14 +113,14 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.footer_html":
         ["FOOTER_HTML",
-         (''),
+         ('IDR'),
          str,
          ("HTML to go in the footer. If this is set to 'IDR' then"
           " we show the footer for the IDR site.")],
 
     "omero.web.gallery.subheading_html":
         ["SUBHEADING_HTML",
-         (''),
+         ("The Image Data Resource (IDR) is a public repository of image datasets from published scientific studies,<br/>where the community can submit, search and access high-quality bio-image data."),
          str,
          ("HTML to show as a sub-heading, within a <p> tag.")],
 
