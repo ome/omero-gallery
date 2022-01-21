@@ -9,70 +9,194 @@
   var FILTER_MAPR_KEYS = {{ filter_mapr_keys|escape|safe }};
   var TITLE_KEYS = {{ TITLE_KEYS|escape|safe }};
   var STUDY_SHORT_NAME = {{ STUDY_SHORT_NAME|escape|safe }};
-  const GALLERY_INDEX = "{% url 'webgallery_index' %}";
+  const GALLERY_INDEX = "https://idr.openmicroscopy.org/"    // "{% url 'webgallery_index' %}";
   const BASE_URL = "{{ base_url }}";
   const CATEGORY_QUERIES = {{ category_queries|escape|safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
 </script>
 
-<hr class="whitespace" style="height:0; margin:8px">
+<style>
 
-<div class="row column text-center">
-  {% if gallery_heading %}<h1>{{ gallery_heading }}</h1>{% endif %}
+  a.sites-button.large {
+    min-width: 150px;
+    font-size: 1.15rem;
+    display: block;
+    width: fit-content;
+    margin: 15px 7px;
+  }
+  .cats {
+    display: flex;
+    justify-content: center;
+  }
+  #search-form {
+    padding-top: 10px;
+  }
+  .hero-subheader {
+    margin-bottom: 5px;
+    font-size: 1.15rem;
+  }
+  .stats {
+    position: relative;
+    text-align: center;
+    font-size: 1.7rem;
+    color: black;
+  }
+  .stats span {
+    color: #dddddd;
+  }
+  .studyThumb {
+    float: left;
+    position: relative;
+    margin: 1px;
+    margin-top: 1px;
+    height: 49px;
+    width: 49px;
+    overflow: hidden;
+  }
+  .studyImage {
+    position: relative;
+    height: 100%;
+    width: fit-content;
+    max-width: none;
+    background: no-repeat center;
+    background-size: cover;
+    position: relative;
+    border-radius: 0;
+  }
 
-  <p>
-    {% if not super_category %}
-      {{ subheading_html|safe }}
-    {% endif %}
-  </p>
-</div>
+  .switchLabel {
+    font-size: 1.0rem;
+    display: inline;
+    vertical-align: middle;
+    position: relative;
+    bottom: 1px;
+    color: #999;
+  }
 
-<div class="small-10 small-centered medium-10 medium-centered columns">
+  /* https://www.w3schools.com/howto/howto_css_switch.asp */
+  /* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 33px;
+  height: 20px;
+}
 
-    <div id='search-form' class="row horizontal" style='display:none'>
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
 
-      <div class="small-12 medium-12 large-2 columns">
-        <h2 class="search-by">Search by:</h2>
-      </div>
-      <div style="padding:0" class="small-12 medium-4 large-3 columns">
-        <select id="maprConfig">
-          <optgroup id="studyKeys" style='display:none' label="Study Attributes">
-            <!-- Study keys loaded here -->
-          </optgroup>
-          <optgroup id="maprKeys" style='display:none' label="Image Attributes">
-            <!-- Map-Annotation keys loaded here -->
-          </optgroup>
-        </select>
-      </div>
-      <div style="position: relative" class="small-12 medium-8 large-7 columns">
-        <input id="maprQuery" type="text" placeholder="Type to filter values...">
-        <svg id="spinner" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>
-      </div>
+/* The slider */
+.sliderToggle {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.sliderToggle:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .sliderToggle {
+  background-color: #333333;
+}
+
+input:checked + .sliderToggle:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+
+/* Rounded sliders */
+.sliderToggle.round {
+  border-radius: 9px;
+}
+
+.sliderToggle.round:before {
+  border-radius: 50%;
+}
+
+</style>
+
+
+<header class="marketing-hero" style="padding: 40px 10px 25px; background-position: center; background-image: url('https://idr.openmicroscopy.org/webclient/render_image/4007804/0/477/');">
+  <div class="row homepage text-center">
+    <div class="medium-12 columns">
+      <img style="width:160px; margin-bottom: 20px;" src="https://idr.openmicroscopy.org/about/img/logos/logo-idr-white.svg" alt="IDR logo" class="logo-hero">
+      <!-- <h1 class="hero-main-header">Image Data Resource</h1> -->
+      <h2 class="hero-subheader small-10 medium-10 large-10 small-offset-1 medium-offset-1 large-offset-1">
+        The Image Data Resource (IDR) is a public repository of image datasets from published scientific studies,
+        where the community can submit, search and access high-quality bio-image data.
+      </h2>
+      {% if not super_category %}
+        <div class="cats">
+        {% for category, data in super_categories.items %}
+        <a href="{{ category }}/" class="large button sites-button" style="margin-right: 10px">{{ data.label }}</a>
+        {% endfor %}
+        </div>
+      {% endif %}
     </div>
+  </div>
 
-    {% if not super_category %}
-      <div class="row horizontal super_categories">
-        <div class="small-0 medium-1 large-2 columns">&nbsp</div>
-      {% for category, data in super_categories.items %}
-        <a href="{{ category }}/">
-          <div class="small-12 medium-5 large-4 columns" style="position: relative;">
-            <img class="thumbnail" src="{{ data.image }}" />
-            <div class="img_overlay">
-              <span class="overlay_text">{{ data.label }}</span>
-            </div>
-          </div>
-        </a>
-      {% endfor %}
-        <div class="small-2 medium-2 large-2 columns"></div>
-      </div>
-    {% endif %}
-
-    <div id="filterCount" class="row horizontal">
+  <div id='search-form' class="row horizontal">
+    <div class="small-12 medium-4 large-4 columns">
+      <select id="maprConfig">
+        <optgroup id="studyKeys" style='display:none' label="Study Attributes">
+          <!-- Study keys loaded here -->
+        </optgroup>
+        <optgroup id="maprKeys" style='display:none' label="Image Attributes">
+          <!-- Map-Annotation keys loaded here -->
+        </optgroup>
+      </select>
     </div>
-</div>
+    <div style="position: relative" class="small-12 medium-8 large-8 columns">
+      <input id="maprQuery" type="text" placeholder="Type to filter values...">
+      <svg id="spinner" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img"
+        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg">
+        <path fill="currentColor"
+          d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z"
+          class=""></path>
+      </svg>
+    </div>
+  </div>
+</header>
 
-<div id="studies" class="row horizontal">
-  Loading Studies...
+<div class="row horizontal" style="position: relative; margin-top: 15px; margin-bottom: 15px">
+  <div class="small-12 medium-1 large-2 columns">&nbsp</div>
+  <div class="stats small-12 medium-9 large-8 columns" style="position: relative">
+    12 Million Images <span>|</span> 300 TB <span>|</span> 102 Studies
+  </div>
+  <div class="stats small-12 medium-2 large-2 columns" >&nbsp
+    <div style="position: absolute; top: 0; right: 15px; width: max-content;">
+      <label class="switchLabel">Group by type</label>
+      <label class="switch">
+        <input id="groupByType" type="checkbox">
+        <span class="sliderToggle round"></span>
+      </label>
+    </div>
+  </div>
+</div>
+<div class="row horizontal" style="position: relative">
+  <div id="studies" class="small-12 medium-12 large-12 columns">
+    Loading Studies...
+  </div>
 </div>
 
 </div>
