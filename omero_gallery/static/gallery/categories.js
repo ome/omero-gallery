@@ -320,6 +320,7 @@ function render(groupByType) {
   }
 
   let idrIds = [];
+  console.log("model.studies", model.studies)
 
   let html = "";
   if (!groupByType) {
@@ -332,9 +333,11 @@ function render(groupByType) {
       }
       idrIds.push(idrId);
       let src = `${BASE_URL}webgateway/render_thumbnail/${studyThumbs[study.objId]?.image}/`;
-      console.log("idrId", idrId, src);
+
+      let title = escapeHTML(getStudyTitle(model, study));
+      console.log(title);
       return `
-        <div class="studyThumb" title="${study.Name}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+        <div class="studyThumb" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
           <img class="studyImage" src="${src}"/>
         </div>
     `}).join("");
@@ -375,7 +378,7 @@ function render(groupByType) {
         allIds.push(idrId);
         let src = `${BASE_URL}webgateway/render_thumbnail/${studyThumbs[study.objId]?.image}/`;
         return `
-          <div class="studyThumb" title="${study.Name}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+          <div class="studyThumb" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
             <img class="studyImage" src="${src}"/>
           </div>
         `
@@ -393,6 +396,23 @@ function render(groupByType) {
 
   document.getElementById('studies').innerHTML = html;
 
+  tippy('.studyThumb', {
+    // content: '<div style="width:max-content"><p> tooltip!<br>Test<p><div>',
+    content: (reference) => {
+      let src = reference.children[0].src;
+      let studyName = reference.getAttribute('title');
+      let title = reference.dataset.title;
+      return `<div style="width:max-content; padding:2px 0 3px; margin:0">
+        <div>${studyName}</div>
+        <div style="max-width:300px; margin-bottom: 5px">${title}</div>
+        <img src="${src}"/>
+        </div>`;
+    },
+    theme: 'light-border',
+    allowHTML: true,
+    moveTransition: 'transform 2s ease-out',
+  });
+  instance.show();
 }
 
 
@@ -418,17 +438,17 @@ function renderStudy(studyData, elementId, linkFunc) {
   let studyDesc;
   if (desc) {
     // If description contains title, use the text that follows
-    if (title.length > 0 && desc.indexOf(title) > -1) {
-      desc = desc.split(title)[1];
-    }
+      if (title.length > 0 && desc.indexOf(title) >1) {
+          desc = desc.split(title)[1];
+        }
     // Remove blank lines (and first 'Experiment Description' line)
-    studyDesc = desc.split('\n')
-      .filter(l => l.length > 0)
-      .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
-      .join('\n');
+      studyDesc = desc.split('\n')
+          .filter(l => l.length > 0)
+          .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
+          .join('\n');
     if (studyDesc.indexOf('Version History') > 1) {
-      studyDesc = studyDesc.split('Version History')[0];
-    }
+        studyDesc = studyDesc.split('Version History')[0];
+      }
   }
 
   let shortName = getStudyShortName(studyData);

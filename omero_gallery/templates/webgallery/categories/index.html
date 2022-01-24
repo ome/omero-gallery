@@ -15,6 +15,11 @@
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
 </script>
 
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/backdrop.css" />
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light-border.css" />
+
 <style>
 
   a.sites-button.large {

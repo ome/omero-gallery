@@ -625,3 +625,31 @@ if (typeof Object.assign !== 'function') {
     configurable: true
   });
 }
+
+
+function getStudyTitle(model, study) {
+  let title;
+  for (let i = 0; i < TITLE_KEYS.length; i++) {
+    title = model.getStudyValue(study, TITLE_KEYS[i]);
+    if (title) {
+      break;
+    }
+  }
+  if (!title) {
+    title = studyData.Name;
+  }
+  return title;
+}
+
+const escapeHTML = str =>
+  str.replace(
+    /[&<>'"]/g,
+    tag =>
+    ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
