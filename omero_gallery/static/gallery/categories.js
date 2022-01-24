@@ -356,11 +356,10 @@ function render(groupByType) {
       }
       idrIds.push(idrId);
       let src = `${BASE_URL}webgateway/render_thumbnail/${studyThumbs[study.objId]?.image}/`;
-
+      let authors = model.getStudyValue(study, "Publication Authors") || " ";
       let title = escapeHTML(getStudyTitle(model, study));
-      console.log(title);
       return `
-        <div class="studyThumb" data-src="${src}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+        <div class="studyThumb" data-authors="${authors}" data-src="${src}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
           <a href="https://idr.openmicroscopy.org/webclient/?show=${study.objId}">
             <img class="studyImage" src="${src}"/>
           </a>
@@ -402,8 +401,10 @@ function render(groupByType) {
         catIds.push(idrId);
         allIds.push(idrId);
         let src = `${BASE_URL}webgateway/render_thumbnail/${studyThumbs[study.objId]?.image}/`;
+        let authors = model.getStudyValue(study, "Publication Authors") || " ";
+        let title = escapeHTML(getStudyTitle(model, study));
         return `
-          <div class="studyThumb" data-src="${src}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+          <div class="studyThumb" data-authors="${authors}" data-src="${src}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
             <a href="https://idr.openmicroscopy.org/webclient/?show=${study.objId}">
               <img class="studyImage" src="${src}"/>
             </a>
@@ -429,18 +430,21 @@ function render(groupByType) {
       let src = reference.dataset.src;
       let studyName = reference.getAttribute('title');
       let title = reference.dataset.title;
+      let authors = reference.dataset.authors;
       return `<div style="width:max-content; padding:2px 0 3px; margin:0">
         <div style="float: right">${renderStudyContainers(studyName)}</div>
         <div>${studyName}</div>
         <div style="max-width:300px; margin-bottom: 5px">${title}</div>
-        <img src="${src}"/>
+        <div style="width: 300px; display:flex">
+          <div style="width:96px"><img src="${src}"/></div>
+          <div style="width:204px; margin-left: 5px">${authors}</div>
+        </div>
         </div>`;
     },
     theme: 'light-border',
     allowHTML: true,
     moveTransition: 'transform 2s ease-out',
   });
-  instance.show();
 }
 
 
