@@ -22,6 +22,17 @@
 
 <style>
 
+  body {
+    background-color: #f6f6f9;
+  }
+
+  .marketing-hero {
+    padding: 40px 10px 25px;
+    background-position: center;
+    background-image: url('https://idr.openmicroscopy.org/webclient/render_image/4007804/0/477/');
+    box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 50%);
+  }
+
   a.sites-button.large {
     min-width: 150px;
     font-size: 1.15rem;
@@ -54,8 +65,8 @@
     position: relative;
     margin: 1px;
     margin-top: 1px;
-    height: 49px;
-    width: 49px;
+    height: 50px;
+    width: 50px;
     overflow: hidden;
   }
   .studyImage {
@@ -138,10 +149,45 @@ input:checked + .sliderToggle:before {
   border-radius: 50%;
 }
 
+.panel {
+  background: white;
+  -webkit-box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.5); 
+  box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.5);
+  padding: 15px;
+}
+
+.panel .tabs {
+  border-width: 0;
+  border-bottom-width: 1px;
+}
+
+.tabs-title>a[aria-selected=true] {
+  background: transparent;
+  border-bottom: solid #333 2px;
+}
+.tabs-title>a:focus {
+  background: transparent;
+}
+
+/* .twitter-timeline is just while loading twitter */
+.tabs-title.is-active a, .tabs-title a, .panel>a.twitter-timeline {
+  color: #292F33;
+  font-weight: 300;
+  font-family: Helvetica,Roboto,"Segoe UI",Calibri,sans-serif;
+  font-size: 21px;
+  line-height: 24px;
+  padding: 5px 25px 8px 25px;
+}
+.tabs-content {
+  border: none;
+}
+.tabs-panel {
+  padding: 15px 0;
+}
 </style>
 
 
-<header class="marketing-hero" style="padding: 40px 10px 25px; background-position: center; background-image: url('https://idr.openmicroscopy.org/webclient/render_image/4007804/0/477/');">
+<header class="marketing-hero">
   <div class="row homepage text-center">
     <div class="medium-12 columns">
       <img style="width:160px; margin-bottom: 20px;" src="https://idr.openmicroscopy.org/about/img/logos/logo-idr-white.svg" alt="IDR logo" class="logo-hero">
@@ -199,8 +245,53 @@ input:checked + .sliderToggle:before {
   </div>
 </div>
 <div class="row horizontal" style="position: relative">
-  <div id="studies" class="small-12 medium-12 large-12 columns">
-    Loading Studies...
+  <div class="small-12 medium-12 large-12 columns">
+    <div id="studies" class="panel" style="float: left">
+      Loading Studies...
+    </div>
+  </div>
+</div>
+
+<div class="row horizontal" style="position: relative; margin-top: 15px; margin-bottom: 15px">
+  <div class="stats small-12 medium-9 large-8 columns" style="position: relative">
+    <!-- 12 Million Images <span>|</span> 300 TB <span>|</span> 102 Studies -->
+  </div>
+</div>
+
+<div class="row horizontal" style="position: relative;">
+  <div class="small-12 medium-8 large-8 columns" style>
+    <div class="panel">
+      <ul class="tabs" data-tabs id="example-tabs">
+        <li class="tabs-title is-active"><a href="#panel1" aria-selected="true">
+          Getting Started
+        </a></li>
+        <li class="tabs-title"><a data-tabs-target="panel2" href="#panel2">
+          Case Studies
+        </a></li>
+        <li class="tabs-title"><a data-tabs-target="panel3" href="#panel3">
+          Analysis Notebooks
+        </a></li>
+      </ul>
+      <div class="tabs-content" data-tabs-content="example-tabs">
+        <div class="tabs-panel is-active" id="panel1">
+          <p>Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.
+            Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat
+            nisl ut dapibus.</p>
+        </div>
+        <div class="tabs-panel" id="panel2">
+          <p>Suspendisse dictum feugiat nisl ut dapibus. Vivamus hendrerit arcu sed erat molestie vehicula. Ut in nulla enim.
+            Phasellus molestie magna non est bibendum non venenatis nisl tempor. Sed auctor neque eu tellus rhoncus ut
+            eleifend nibh porttitor.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="small-12 medium-4 large-4 columns">
+    <div class="panel" style="padding: 10px">
+      <a class="twitter-timeline" href="https://twitter.com/IDRnews?ref_src=twsrc%5Etfw">Tweets by IDRnews</a>
+      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </div>
   </div>
 </div>
 
