@@ -26,11 +26,72 @@
     background-color: #f6f6f9;
   }
 
+  header div {
+    position: relative;
+  }
+
   .marketing-hero {
+    overflow: hidden;
+    position: relative;
     padding: 40px 10px 25px;
-    background-position: center;
-    background-image: url('https://idr.openmicroscopy.org/webclient/render_image/4007804/0/477/');
+    background: black;
     box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 50%);
+  }
+
+  .marketing-background {
+    position: absolute;
+    background-position: center;
+    width: 100%;
+    background-size: cover;
+    background-image: url('https://idr.openmicroscopy.org/webclient/render_image/13965767/294/0/');
+    height: 400px;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transition: left 1s;
+  }
+
+  .prev {
+    left: -100%
+  }
+  .next {
+    left: 100%
+  }
+
+  .bg_controls {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    color: white;
+    font-size: 200%;
+    display: flex;
+  }
+
+  .bg_controls div {
+    width: 14px;
+    height: 14px;
+    border: solid white 1px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 7px;
+    background-color: transparent;
+    opacity: 0.75;
+    transition: border-color 1s, background-color 1s
+  }
+
+  .dark .bg_controls div {
+    border-color: #222222;
+  }
+
+  .bg_controls .selected {
+    background-color: rgba(255, 255, 255, .9);
+  }
+  .dark .bg_controls .selected {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .bg_controls div:hover {
+    opacity: 0.5;
   }
 
   a.sites-button.large {
@@ -50,6 +111,12 @@
   .hero-subheader {
     margin-bottom: 5px;
     font-size: 1.15rem;
+    transition: background-color 1s, color 1s, box-shadow 1s;
+  }
+  .dark .hero-subheader {
+    color: #333333;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0px 0px 15px 15px rgb(255 255 255 / 50%);
   }
   .stats {
     position: relative;
@@ -209,7 +276,36 @@ input:checked + .sliderToggle:before {
 
 
 <header class="marketing-hero">
-  <div class="row homepage text-center">
+  <div class="marketing-background"></div>
+  <div class="marketing-background next" data-light="true" style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image_region/13461816/0/0/?tile=3,2,4,1024,512"></div>
+  <div class="marketing-background next"
+    style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image_region/9846152/45/0/?tile=4,0,0,1024,512)">
+  </div>
+  <div class="marketing-background next" data-light="true"
+    style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image_region/13383922/0/0/?region=412,1224,1536,1024">
+  </div>
+  <div class="marketing-background next" style="background-image: url(https://idr.openmicroscopy.org/webclient/render_image/4995045/0/0/)"></div>
+  <div class="marketing-background next" style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image/9846154/268/0/?region=1024,0,2048,1024&c=1|4283:12901$FF00FF,2|1278:8356$FFFF00)"></div>
+  <div class="marketing-background next"
+    style="background-image: url(https://idr.openmicroscopy.org/webclient/render_image/9753804/0/0/)"></div>
+  <div class="marketing-background next"
+    style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image/9836841/0/0/); background-position-y: 15%;">
+  </div>
+
+  
+  <div class="bg_controls">
+    <div class="selected" title="idr0124 Esteban: Heart morphogenesis"></div>
+    <div title="idr0096 Tratwal: Marrowquant"></div>
+    <div title="idr0048 Abdeladim: Chroms"></div>
+    <div title="idr0043 Uhlen: Human Protein Atlas"></div>
+    <div title="idr0050 Springer: Cyto-skeletal systems"></div>
+    <div title="idr0085 Walsh: MF-HREM"></div>
+    <div title="idr0056 Stojic: Long noncoding RNA"></div>
+    <div title="idr0077 Valuchova: Flower lightsheet"></div>
+  </div>
+  
+  
+    <div class="row homepage text-center">
     <div class="medium-12 columns">
       <img style="width:160px; margin-bottom: 20px;" src="https://idr.openmicroscopy.org/about/img/logos/logo-idr-white.svg" alt="IDR logo" class="logo-hero">
       <!-- <h1 class="hero-main-header">Image Data Resource</h1> -->
@@ -217,13 +313,11 @@ input:checked + .sliderToggle:before {
         The Image Data Resource (IDR) is a public repository of image datasets from published scientific studies,
         where the community can submit, search and access high-quality bio-image data.
       </h2>
-      {% if not super_category %}
-        <div class="cats">
-        {% for category, data in super_categories.items %}
-        <a href="{{ category }}/" class="large button sites-button" style="margin-right: 10px">{{ data.label }}</a>
-        {% endfor %}
-        </div>
-      {% endif %}
+      <div class="cats">
+      {% for category, data in super_categories.items %}
+      <a href="{{ category }}/" class="large button sites-button" style="margin-right: 10px">{{ data.label }}</a>
+      {% endfor %}
+      </div>
     </div>
   </div>
 
@@ -364,7 +458,45 @@ input:checked + .sliderToggle:before {
     // toggle from 2 columns to 1
     $('.columns', $row).toggleClass("small-12 medium-12 large-12")
     .toggleClass("small-6 medium-6 large-6");
-  })
+  });
+
+  function renderHeaderBg(clickedIndex) {
+    var isLight;
+    $(".marketing-background").each(function (index, el) {
+      $(el).css('left', (clickedIndex - index) * -100 + '%');
+      if (clickedIndex == index) {
+        isLight = $(el).data("light");
+      }
+    });
+    $(`.bg_controls div`).removeClass('selected');
+    $(`.bg_controls div:nth-child(${clickedIndex + 1})`).addClass('selected');
+
+    if (isLight) {
+      $(".marketing-hero").addClass("dark");
+    } else {
+      $(".marketing-hero").removeClass("dark");
+    }
+  }
+
+  // header background carousel controls
+  $(".bg_controls div").on("click", function(event) {
+    let $target = $(event.target);
+    let clickedIndex = $(".bg_controls div").removeClass('selected').index($target);
+    renderHeaderBg(clickedIndex);
+  });
+
+    function logKey(e) {
+      let $selected = $(".bg_controls .selected");
+      let index = $(".bg_controls div").index($selected);
+      let count = $(".bg_controls>div").length;
+      if (e.code == "ArrowRight" && (index + 1) < count) {
+        index += 1;
+      } else if (e.code == "ArrowLeft" && index > 0) {
+        index -= 1;
+      }
+      renderHeaderBg(index);
+    }
+    document.addEventListener('keyup', logKey);
 </script>
 
 {% endblock %}

@@ -355,12 +355,13 @@ function render(groupByType) {
         return '';
       }
       idrIds.push(idrId);
+      let imgId = studyThumbs[study.objId]?.image;
       let src = `${BASE_URL}webgateway/render_thumbnail/${studyThumbs[study.objId]?.image}/`;
       let authors = model.getStudyValue(study, "Publication Authors") || " ";
       let title = escapeHTML(getStudyTitle(model, study));
       return `
-        <div class="studyThumb" data-authors="${authors}" data-src="${src}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-          <a href="https://idr.openmicroscopy.org/webclient/?show=${study.objId}">
+        <div class="studyThumb" data-authors="${authors}" data-imgid="${imgId}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+          <a target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=${study.objId}">
             <img class="studyImage" src="${src}"/>
           </a>
         </div>
@@ -400,12 +401,13 @@ function render(groupByType) {
         }
         catIds.push(idrId);
         allIds.push(idrId);
+        let imgId = studyThumbs[study.objId]?.image;
         let src = `${BASE_URL}webgateway/render_thumbnail/${studyThumbs[study.objId]?.image}/`;
         let authors = model.getStudyValue(study, "Publication Authors") || " ";
         let title = escapeHTML(getStudyTitle(model, study));
         return `
-          <div class="studyThumb" data-authors="${authors}" data-src="${src}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-            <a href="https://idr.openmicroscopy.org/webclient/?show=${study.objId}">
+          <div class="studyThumb" data-authors="${authors}" data-imgid="${imgId}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+            <a target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=${study.objId}">
               <img class="studyImage" src="${src}"/>
             </a>
           </div>
@@ -427,23 +429,29 @@ function render(groupByType) {
   tippy('.studyThumb', {
     // content: '<div style="width:max-content"><p> tooltip!<br>Test<p><div>',
     content: (reference) => {
-      let src = reference.dataset.src;
+      let imgId = reference.dataset.imgid;
+      let src = `${BASE_URL}webgateway/render_thumbnail/${imgId}/`;
       let studyName = reference.getAttribute('title');
       let title = reference.dataset.title;
-      let authors = reference.dataset.authors;
+      let authors = reference.dataset.authors.split(",")[0];
       return `<div style="width:max-content; padding:2px 0 3px; margin:0">
         <div style="float: right">${renderStudyContainers(studyName)}</div>
         <div>${studyName}</div>
         <div style="max-width:300px; margin-bottom: 5px">${title}</div>
         <div style="width: 300px; display:flex">
-          <div style="width:96px"><img src="${src}"/></div>
-          <div style="width:204px; margin-left: 5px">${authors}</div>
+          <div style="width:96px" title="Open image viewer">
+            <a target="_blank" href="${BASE_URL}webclient/img_detail/${imgId}/">
+              <img src="${src}"/>
+            </a>
+          </div>
+          <div style="width:204px; margin-left: 5px">${authors} et. al</div>
         </div>
         </div>`;
     },
     theme: 'light-border',
     allowHTML: true,
     moveTransition: 'transform 2s ease-out',
+    interactive: true, // allow click
   });
 }
 
