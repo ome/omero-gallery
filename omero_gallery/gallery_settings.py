@@ -31,10 +31,19 @@ GALLERY_SETTINGS_MAPPING = {
         ["BASE_URL",
          None,
          str_slash,
-         ("Base URL to use for JSON AJAX requests."
+         ("Base URL to use for non-gallery JSON AJAX requests."
           " e.g. 'https://demo.openmicroscopy.org'."
           " This allows data to be loaded from another OMERO server."
           " The default behaviour is to use the current server.")],
+
+    "omero.web.gallery.gallery_index":
+        ["GALLERY_INDEX",
+         None,
+         str_slash,
+         ("Base gallery URL to use for gallery JSON AJAX requests."
+          " e.g. 'https://idr.openmicroscopy.org/' is gallery index on IDR."
+          " This allows data to be loaded from another OMERO server."
+          " Default behaviour is to use current server webgallery_index")],
 
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",

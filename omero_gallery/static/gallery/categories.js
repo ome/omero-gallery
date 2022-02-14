@@ -385,7 +385,6 @@ function render(groupByType) {
 
       // Find matching studies
       let matches = model.filterStudiesByMapQuery(query);
-      console.log("query", cat.label, matches.length)
       if (matches.length == 0) return '';
 
       let catIds = [];

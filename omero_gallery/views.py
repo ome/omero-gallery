@@ -61,6 +61,9 @@ def index(request, super_category=None, conn=None, **kwargs):
         if settings.BASE_URL is not None:
             base_url = settings.BASE_URL
         context['base_url'] = base_url
+        context['gallery_index'] = reverse('webgallery_index')
+        if settings.GALLERY_INDEX is not None:
+            context['gallery_index'] = settings.GALLERY_INDEX
         context['category_queries'] = json.dumps(category_queries)
         return context
 
@@ -341,11 +344,14 @@ def search(request, super_category=None, conn=None, **kwargs):
     if settings.BASE_URL is not None:
         base_url = settings.BASE_URL
     context['base_url'] = base_url
+    context['gallery_index'] = reverse('webgallery_index')
+    if settings.GALLERY_INDEX is not None:
+        context['gallery_index'] = settings.GALLERY_INDEX
     context['category_queries'] = json.dumps(settings.CATEGORY_QUERIES)
     return context
 
 
-def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0):
+def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0, tag_text=None):
 
     query_service = conn.getQueryService()
     params = omero.sys.ParametersI()
@@ -360,6 +366,8 @@ def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0):
                 " join dl.parent as dataset"\
                 " left outer join dataset.projectLinks"\
                 " as pl join pl.parent as project"\
+                " left outer join i.annotationLinks as al"\
+                " join al.child as annotation"\
                 " where project.id = :id"
 
     elif obj_type == "screen":
@@ -369,8 +377,14 @@ def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0):
                  " join well.plate as pt"
                  " left outer join pt.screenLinks as sl"
                  " join sl.parent as screen"
+                 " left outer join i.annotationLinks as al"\
+                 " join al.child as annotation"\
                  " where screen.id = :id"
                  " order by well.column, well.row")
+
+    if tag_text is not None:
+        params.addString("tag_text", tag_text)
+        query += " and annotation.textValue = :tag_text"
 
     objs = query_service.findAllByQuery(query, params, conn.SERVICE_OPTS)
 
@@ -413,7 +427,10 @@ def api_thumbnails(request, conn=None, **kwargs):
     image_ids = {}
     for obj_type, ids in zip(['project', 'screen'], [project_ids, screen_ids]):
         for obj_id in ids:
-            images = _get_study_images(conn, obj_type, obj_id)
+            images = _get_study_images(conn, obj_type, obj_id, tag_text="Study Example Image")
+            if len(images) == 0:
+                # None found with Tag - just load untagged image
+                images = _get_study_images(conn, obj_type, obj_id)
             if len(images) > 0:
                 image_ids[images[0].id.val] = "%s-%s" % (obj_type, obj_id)
 
