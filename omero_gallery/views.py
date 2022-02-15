@@ -20,6 +20,36 @@ from . import gallery_settings as settings
 logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
 
+IDR_IMAGES = [
+    {"src": "https://idr.openmicroscopy.org/webclient/render_image/13965767/294/0/", "title": "idr0124 Esteban: Heart morphogenesis"},
+    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13461816/0/0/?tile=3,2,4,1024,512", "title": "idr0096 Tratwal: Marrowquant"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image_region/9846152/45/0/?tile=4,0,0,1024,512", "title": "idr0048 Abdeladim: Chroms"},
+    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13383922/0/0/?region=412,1224,1536,1024", "title": "idr0043 Uhlen: Human Protein Atlas"},
+    {"src": "https://idr.openmicroscopy.org/webclient/render_image/4995045/0/0/", "title": "idr0050 Springer: Cyto-skeletal systems"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/9846154/268/0/?region=1024,0,2048,1024&c=1|4283:12901$FF00FF,2|1278:8356$FFFF00", "title": "idr0085 Walsh: MF-HREM"},
+    {"src": "https://idr.openmicroscopy.org/webclient/render_image/9753804/0/0/", "title": "idr0056 Stojic: Long noncoding RNA"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/9836841/0/0/", "title": "idr0077 Valuchova: Flower lightsheet"},
+]
+
+CELL_IMAGES = [
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/13417268/34/0/?c=1|5000:13880$FF0000,2|10353:50528$00FF00,3|14416:36737$0000FF", "title": "idr0107 Morgan: HEI10"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/12570400/0/0/?c=1|91:1391$fire.lut", "title": "idr0093 Mueller: Genome-wide siRNA screen"},
+    {"src": "https://idr.openmicroscopy.org/webclient/render_image/4995045/0/0/", "title": "idr0050 Springer: Cyto-skeletal systems"},
+    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image/9846137/92/0/?c=1|85:153$hilo.lut&m=c", "title": "idr0086 Miron: Chromatin micrographs"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/3005394/0/0/", "title": "idr0028 Pascual-Vargas: Rho GTPases"},
+    {"src": "https://idr.openmicroscopy.org/webclient/render_image/9753804/0/0/", "title": "idr0056 Stojic: Long noncoding RNA"},
+    {"src": "https://idr.openmicroscopy.org/webclient/render_image/3231645/0/0/?c=1|464:8509$FF0000,2|518:21105$00FF00,3|519:19845$0000FF", "title": "idr0033 Rohban: Cell painting"},
+]
+
+TISSUE_IMAGES = [
+    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13461816/0/0/?tile=3,2,4,1024,512", "title": "idr0096 Tratwal: Marrowquant"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image_region/8343616/0/0/?region=2048,6072,2024,1024&c=1|0:105$red_hot.lut&m=c", "title": "idr0066 Voigt: Meso SPIM"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image_region/9846152/45/0/?tile=4,0,0,1024,512", "title": "idr0048 Abdeladim: Chroms"},
+    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13383922/0/0/?region=412,1224,1536,1024", "title": "idr0043 Uhlen: Human Protein Atlas"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/9846154/268/0/?region=1024,0,2048,1024&c=1|4283:12901$FF00FF,2|1278:8356$FFFF00", "title": "idr0085 Walsh: MF-HREM"},
+    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/9836841/0/0/", "title": "idr0077 Valuchova: Flower lightsheet"},
+]
+# //background-position-y: 15%;
 
 @login_required()
 @render_response()
@@ -65,6 +95,11 @@ def index(request, super_category=None, conn=None, **kwargs):
         if settings.GALLERY_INDEX is not None:
             context['gallery_index'] = settings.GALLERY_INDEX
         context['category_queries'] = json.dumps(category_queries)
+        context["idr_images"] = IDR_IMAGES
+        if super_category == "cell":
+            context["idr_images"] = CELL_IMAGES
+        elif super_category == "tissue":
+            context["idr_images"] = TISSUE_IMAGES
         return context
 
     my_groups = list(conn.getGroupsMemberOf())

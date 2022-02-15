@@ -54,24 +54,14 @@
   }
 </style>
 
-<div class="marketing-background" style="background-image: url('https://idr.openmicroscopy.org/webclient/render_image/13965767/294/0/');"></div>
-<div class="marketing-background next" data-light="true" style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image_region/13461816/0/0/?tile=3,2,4,1024,512)"></div>
-<div class="marketing-background next" style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image_region/9846152/45/0/?tile=4,0,0,1024,512)"></div>
-<div class="marketing-background next" data-light="true" style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image_region/13383922/0/0/?region=412,1224,1536,1024)"></div>
-<div class="marketing-background next" style="background-image: url(https://idr.openmicroscopy.org/webclient/render_image/4995045/0/0/)"></div>
-<div class="marketing-background next" style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image/9846154/268/0/?region=1024,0,2048,1024&c=1|4283:12901$FF00FF,2|1278:8356$FFFF00)"></div>
-<div class="marketing-background next" style="background-image: url(https://idr.openmicroscopy.org/webclient/render_image/9753804/0/0/)"></div>
-<div class="marketing-background next" style="background-image: url(https://idr.openmicroscopy.org/webgateway/render_image/9836841/0/0/); background-position-y: 15%;"></div>
+{% for img in idr_images %}
+<div class="marketing-background {% if not forloop.first %}next{% endif %}" style="background-image: url('{{ img.src }}');" {% if img.light %}data-light="true"{% endif %}></div>
+{% endfor %}
 
 <div class="bg_controls">
-    <div class="selected" title="idr0124 Esteban: Heart morphogenesis"></div>
-    <div title="idr0096 Tratwal: Marrowquant"></div>
-    <div title="idr0048 Abdeladim: Chroms"></div>
-    <div title="idr0043 Uhlen: Human Protein Atlas"></div>
-    <div title="idr0050 Springer: Cyto-skeletal systems"></div>
-    <div title="idr0085 Walsh: MF-HREM"></div>
-    <div title="idr0056 Stojic: Long noncoding RNA"></div>
-    <div title="idr0077 Valuchova: Flower lightsheet"></div>
+    {% for img in idr_images %}
+    <div {% if forloop.first %}class="selected"{% endif %} title="{{ img.title }}"></div>
+    {% endfor %}
 </div>
 
 <script>
