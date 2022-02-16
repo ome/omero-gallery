@@ -483,6 +483,10 @@ def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0, tag_text=None):
     params.theFilter = omero.sys.Filter()
     params.theFilter.limit = wrap(limit)
     params.theFilter.offset = wrap(offset)
+    and_text_value = ""
+    if tag_text is not None:
+        params.addString("tag_text", tag_text)
+        and_text_value = " and annotation.textValue = :tag_text"
 
     if obj_type == "project":
         query = "select i from Image as i"\
@@ -492,7 +496,7 @@ def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0, tag_text=None):
                 " as pl join pl.parent as project"\
                 " left outer join i.annotationLinks as al"\
                 " join al.child as annotation"\
-                " where project.id = :id"
+                " where project.id = :id%s" % and_text_value
 
     elif obj_type == "screen":
         query = ("select i from Image as i"
@@ -503,12 +507,8 @@ def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0, tag_text=None):
                  " join sl.parent as screen"
                  " left outer join i.annotationLinks as al"\
                  " join al.child as annotation"\
-                 " where screen.id = :id"
-                 " order by well.column, well.row")
-
-    if tag_text is not None:
-        params.addString("tag_text", tag_text)
-        query += " and annotation.textValue = :tag_text"
+                 " where screen.id = :id%s"
+                 " order by well.column, well.row" % and_text_value)
 
     objs = query_service.findAllByQuery(query, params, conn.SERVICE_OPTS)
 
