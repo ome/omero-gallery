@@ -84,7 +84,7 @@
     {% for img in idr_images %}
     <div {% if forloop.first %}class="selected"{% endif %} title="{{ img.title }}">
 
-    <a class="bg_viewer_link" title="Open background image in viewer" target="_blank" href="https://idr.openmicroscopy.org/webclient/img_detail/{{ img.image_id }}/">
+    <a class="bg_viewer_link" title="Open background image in new tab" target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=image-{{ img.image_id }}">
       <i class="fas fa-eye"></i>
     </a>
 
