@@ -21,33 +21,122 @@ logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
 
 IDR_IMAGES = [
-    {"src": "https://idr.openmicroscopy.org/webclient/render_image/13965767/294/0/", "title": "idr0124 Esteban: Heart morphogenesis"},
-    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13461816/0/0/?tile=3,2,4,1024,512", "title": "idr0096 Tratwal: Marrowquant"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image_region/9846152/45/0/?tile=4,0,0,1024,512", "title": "idr0048 Abdeladim: Chroms"},
-    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13383922/0/0/?region=412,1224,1536,1024", "title": "idr0043 Uhlen: Human Protein Atlas"},
-    {"src": "https://idr.openmicroscopy.org/webclient/render_image/4995045/0/0/", "title": "idr0050 Springer: Cyto-skeletal systems"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/9846154/268/0/?region=1024,0,2048,1024&c=1|4283:12901$FF00FF,2|1278:8356$FFFF00", "title": "idr0085 Walsh: MF-HREM"},
-    {"src": "https://idr.openmicroscopy.org/webclient/render_image/9753804/0/0/", "title": "idr0056 Stojic: Long noncoding RNA"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/9836841/0/0/", "title": "idr0077 Valuchova: Flower lightsheet"},
+    {
+        "src": "https://idr.openmicroscopy.org/webclient/render_image/13965767/294/0/",
+        "title": "idr0124 Esteban: Heart morphogenesis",
+        "image_id": 13965767,
+    },
+    {
+        "light": True,
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13461816/0/0/?tile=3,2,4,1024,512",
+        "title": "idr0096 Tratwal: Marrowquant",
+        "image_id": 13461816,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/9846152/45/0/?tile=4,0,0,1024,512",
+        "title": "idr0048 Abdeladim: Chroms",
+        "image_id": 9846152,
+    },
+    {
+        "light": True,
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13383922/0/0/?region=412,1224,1536,1024",
+        "title": "idr0043 Uhlen: Human Protein Atlas",
+        "image_id": 13383922,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webclient/render_image/4990991/0/0/?c=1|144:2250$0000FF,-2|972:2528$FFFFFF,3|126:3456$FF0000,4|131:2749$00FF00",
+        "title": "idr0050 Springer: Cyto-skeletal systems",
+        "image_id": 4990991,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image/9846154/268/0/?region=1024,0,2048,1024&c=1|4283:12901$FF00FF,2|1278:8356$FFFF00",
+        "title": "idr0085 Walsh: MF-HREM",
+        "image_id": 9846154,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webclient/render_image/9753804/0/0/",
+        "title": "idr0056 Stojic: Long noncoding RNA",
+        "image_id": 9753804,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image/9836841/0/0/",
+        "title": "idr0077 Valuchova: Flower lightsheet",
+        "image_id": 9836841,
+    },
 ]
 
 CELL_IMAGES = [
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/13417268/34/0/?c=1|5000:13880$FF0000,2|10353:50528$00FF00,3|14416:36737$0000FF", "title": "idr0107 Morgan: HEI10"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/12570400/0/0/?c=1|91:1391$fire.lut", "title": "idr0093 Mueller: Genome-wide siRNA screen"},
-    {"src": "https://idr.openmicroscopy.org/webclient/render_image/4995045/0/0/", "title": "idr0050 Springer: Cyto-skeletal systems"},
-    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image/9846137/92/0/?c=1|85:153$hilo.lut&m=c", "title": "idr0086 Miron: Chromatin micrographs"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/3005394/0/0/", "title": "idr0028 Pascual-Vargas: Rho GTPases"},
-    {"src": "https://idr.openmicroscopy.org/webclient/render_image/9753804/0/0/", "title": "idr0056 Stojic: Long noncoding RNA"},
-    {"src": "https://idr.openmicroscopy.org/webclient/render_image/3231645/0/0/?c=1|464:8509$FF0000,2|518:21105$00FF00,3|519:19845$0000FF", "title": "idr0033 Rohban: Cell painting"},
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image/13417268/34/0/?c=1|5000:13880$FF0000,2|10353:50528$00FF00,3|14416:36737$0000FF",
+        "title": "idr0107 Morgan: HEI10",
+        "image_id": 13417268,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image/12570400/0/0/?c=1|91:1391$fire.lut",
+        "title": "idr0093 Mueller: Genome-wide siRNA screen",
+        "image_id": 12570400,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webclient/render_image/4991918/0/0/?c=1|28:178$00FF00,3|22:110$FF0000",
+        "title": "idr0050 Springer: Cyto-skeletal systems",
+        "image_id": 4991918,
+    },
+    {
+        "light": True,
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image/9846137/92/0/?c=1|85:153$hilo.lut&m=c",
+        "title": "idr0086 Miron: Chromatin micrographs",
+        "image_id": 9846137,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image/3005394/0/0/",
+        "title": "idr0028 Pascual-Vargas: Rho GTPases",
+        "image_id": 3005394,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webclient/render_image/9753804/0/0/",
+        "title": "idr0056 Stojic: Long noncoding RNA",
+        "image_id": 9753804,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webclient/render_image/3231645/0/0/?c=1|464:8509$FF0000,2|518:21105$00FF00,3|519:19845$0000FF",
+        "title": "idr0033 Rohban: Cell painting",
+        "image_id": 3231645,
+    },
 ]
 
 TISSUE_IMAGES = [
-    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13461816/0/0/?tile=3,2,4,1024,512", "title": "idr0096 Tratwal: Marrowquant"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image_region/8343616/0/0/?region=2048,6072,2024,1024&c=1|0:105$red_hot.lut&m=c", "title": "idr0066 Voigt: Meso SPIM"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image_region/9846152/45/0/?tile=4,0,0,1024,512", "title": "idr0048 Abdeladim: Chroms"},
-    {"light": True, "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13383922/0/0/?region=412,1224,1536,1024", "title": "idr0043 Uhlen: Human Protein Atlas"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/9846154/268/0/?region=1024,0,2048,1024&c=1|4283:12901$FF00FF,2|1278:8356$FFFF00", "title": "idr0085 Walsh: MF-HREM"},
-    {"src": "https://idr.openmicroscopy.org/webgateway/render_image/9836841/0/0/", "title": "idr0077 Valuchova: Flower lightsheet"},
+    {
+        "light": True,
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13461816/0/0/?tile=3,2,4,1024,512",
+        "title": "idr0096 Tratwal: Marrowquant",
+        "image_id": 13461816,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/8343616/0/0/?region=2048,6072,2024,1024&c=1|0:105$red_hot.lut&m=c",
+        "title": "idr0066 Voigt: Meso SPIM",
+        "image_id": 8343616,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/9846152/45/0/?tile=4,0,0,1024,512",
+        "title": "idr0048 Abdeladim: Chroms",
+        "image_id": 9846152,
+    },
+    {
+        "light": True,
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image_region/13383922/0/0/?region=412,1224,1536,1024",
+        "title": "idr0043 Uhlen: Human Protein Atlas",
+        "image_id": 13383922,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image/9846154/268/0/?region=1024,0,2048,1024&c=1|4283:12901$FF00FF,2|1278:8356$FFFF00",
+        "title": "idr0085 Walsh: MF-HREM",
+        "image_id": 9846154,
+    },
+    {
+        "src": "https://idr.openmicroscopy.org/webgateway/render_image/9836841/0/0/",
+        "title": "idr0077 Valuchova: Flower lightsheet",
+        "image_id": 9836841,
+    }
 ]
 # //background-position-y: 15%;
 

@@ -35,7 +35,8 @@
     cursor: pointer;
     margin: 7px;
     background-color: transparent;
-    transition: border-color 1s, background-color 1s
+    transition: border-color 1s, background-color 1s;
+    position: static;
   }
 
   .dark .bg_controls div {
@@ -52,6 +53,27 @@
   .bg_controls div:hover {
     opacity: 0.75;
   }
+
+  .bg_viewer_link {
+    display: block;
+    position: absolute;
+    right: 10px;
+    font-size: 24px;
+    color: white;
+    top: 24px;
+    visibility: hidden;
+  }
+  a.bg_viewer_link:hover {
+    color: white;
+  }
+
+  .dark .bg_viewer_link {
+    color: #222222;
+  }
+
+  .bg_controls .selected .bg_viewer_link {
+    visibility: visible;
+  }
 </style>
 
 {% for img in idr_images %}
@@ -60,7 +82,13 @@
 
 <div class="bg_controls">
     {% for img in idr_images %}
-    <div {% if forloop.first %}class="selected"{% endif %} title="{{ img.title }}"></div>
+    <div {% if forloop.first %}class="selected"{% endif %} title="{{ img.title }}">
+
+    <a class="bg_viewer_link" title="Open background image in viewer" target="_blank" href="https://idr.openmicroscopy.org/webclient/img_detail/{{ img.image_id }}/">
+      <i class="fas fa-eye"></i>
+    </a>
+
+    </div>
     {% endfor %}
 </div>
 
@@ -93,6 +121,8 @@ $(function(){
 
     // header background carousel controls
     $(".bg_controls div").on("click", function (event) {
+        // ignore click on viewer link
+        if (event.target.tagName == 'I') return;
         let $target = $(event.target);
         let clickedIndex = $(".bg_controls div").removeClass('selected').index($target);
         renderHeaderBg(clickedIndex);
