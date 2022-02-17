@@ -272,7 +272,7 @@ function render(groupByType) {
         let studyName = reference.getAttribute('title');
         let title = reference.dataset.title;
         let authors = reference.dataset.authors.split(",")[0];
-        return `<div style="width:max-content; padding:2px 0 3px; margin:0">
+        return `<div class="idr_tooltip">
           <div style="float: right"><b>${authors} et. al</b></div>
           <div style="margin-bottom:5px">${studyName}</div>
           <div style="width: 300px; display:flex">
