@@ -166,24 +166,24 @@ function render(groupByType) {
 
   // we group by 'idr00ID' and show Screens and Experiments
   let studyContainers = {};
-  // go through all Screens and Experiements...
+  // go through all Screens and Experiments...
   model.studies.forEach(study => {
     let idrId = study.Name.split("-")[0];
     if (!studyContainers[idrId]) {
-      studyContainers[idrId] = {'screen': 0, 'project': 0}
+      studyContainers[idrId] = {'screen': [], 'project': []}
     }
     let objType = study.objId.split("-")[0];  // 'screen' or 'project'
-    studyContainers[idrId][objType] += 1;
+    studyContainers[idrId][objType].push(study);
   });
-  console.log('studyContainers', studyContainers);
 
   function renderStudyContainers(idrId) {
-    let counts = studyContainers[idrId];
-    return Object.keys(counts).map(objType => {
-      let val = counts[objType];
-      if (val == 0) return;
-      // E.g. 'Experiment' (for 1 project) or '2 Screens'
-      return `${val === 1 ? '' : val} ${objType == 'project' ? 'Experiment' : 'Screen'}${val === 1 ? '' : 's'}`
+    let containers = studyContainers[idrId];
+    return Object.keys(containers).map(objType => {
+      let studies = containers[objType];
+      let count = studies.length;
+      if (count == 0) return;
+      // Link to first Project or Screen
+      return `<a target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=${studies[studies.length-1].objId}">${count} ${objType == 'project' ? 'Experiment' : 'Screen'}${count === 1 ? '' : 's'}</a>`;
     }).filter(Boolean).join(", ");
   }
 
@@ -277,16 +277,19 @@ function render(groupByType) {
         let title = reference.dataset.title;
         let authors = reference.dataset.authors.split(",")[0];
         return `<div style="width:max-content; padding:2px 0 3px; margin:0">
-          <div style="float: right">${renderStudyContainers(studyName)}</div>
-          <div>${studyName}</div>
-          <div style="max-width:300px; margin-bottom: 5px">${title}</div>
+          <div style="float: right"><b>${authors} et. al</b></div>
+          <div style="margin-bottom:5px">${studyName}</div>
           <div style="width: 300px; display:flex">
-            <div style="width:96px" title="Open image viewer">
+            <div style="width:96px; position: relative" title="Open image viewer">
               <a target="_blank" href="${BASE_URL}webclient/img_detail/${imgId}/">
+                <i class="fas fa-eye"></i>
                 <img src="${src}"/>
               </a>
             </div>
-            <div style="width:204px; margin-left: 5px">${authors} et. al</div>
+            <div style="width:204px; margin-left: 7px">
+              ${renderStudyContainers(studyName)}<br>
+              ${title}
+            </div>
           </div>
           </div>`;
       },
