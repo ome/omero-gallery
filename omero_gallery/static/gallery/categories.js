@@ -204,9 +204,7 @@ function render(groupByType) {
       let title = escapeHTML(getStudyTitle(model, study));
       return `
         <div class="studyThumb" data-authors="${authors}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-          <a target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=${study.objId}">
-            <img class="studyImage" src="#"/>
-          </a>
+          <div class="studyImage"></div>
         </div>
     `}).join("");
   } else {
@@ -247,9 +245,7 @@ function render(groupByType) {
         let title = escapeHTML(getStudyTitle(model, study));
         return `
           <div class="studyThumb" data-authors="${authors}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-            <a target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=${study.objId}">
-              <img class="studyImage" src="#"/>
-            </a>
+            <div class="studyImage"/>
           </div>
         `
       }).join("");
@@ -293,6 +289,7 @@ function render(groupByType) {
           </div>
           </div>`;
       },
+      trigger: 'mouseenter click',  // click to show - eg. on mobile
       theme: 'light-border',
       allowHTML: true,
       moveTransition: 'transform 2s ease-out',
@@ -412,9 +409,7 @@ function loadStudyThumbnails(callback) {
       for (let e = 0; e < elements.length; e++) {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
-        let studyImage = element.querySelector('.studyImage');
-        // studyImage.style.backgroundImage = `url(${data[id].thumbnail})`;
-        studyImage.src = `${data[id].thumbnail}`;
+        element.style.backgroundImage = `url(${data[id].thumbnail})`;
         // viewer link
         // let iid = data[id].image.id;
         // let link = `${BASE_URL}webclient/img_detail/${iid}/`;
