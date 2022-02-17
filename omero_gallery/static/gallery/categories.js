@@ -204,7 +204,6 @@ function render(groupByType) {
       let title = escapeHTML(getStudyTitle(model, study));
       return `
         <div class="studyThumb" data-authors="${authors}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-          <div class="studyImage"></div>
         </div>
     `}).join("");
   } else {
@@ -245,7 +244,6 @@ function render(groupByType) {
         let title = escapeHTML(getStudyTitle(model, study));
         return `
           <div class="studyThumb" data-authors="${authors}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-            <div class="studyImage"/>
           </div>
         `
       }).join("");
