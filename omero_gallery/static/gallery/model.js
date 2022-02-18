@@ -103,6 +103,47 @@ StudiesModel.prototype.getStudyValue = function getStudyValue(study, key) {
   }
 };
 
+StudiesModel.prototype.getStudyTitle = function getStudyTitle(study) {
+  var title;
+
+  for (var i = 0; i < TITLE_KEYS.length; i++) {
+    title = model.getStudyValue(study, TITLE_KEYS[i]);
+    if (title) {
+      break;
+    }
+  }
+  if (!title) {
+    title = study.Name;
+  }
+  return title;
+}
+
+StudiesModel.prototype.getStudyDescription = function getStudyDescription(study, title) {
+
+  if (!title) {
+    title = this.getStudyTitle(study);
+  }
+  let desc = study.Description;
+  let studyDesc = "";
+  if (desc) {
+    // If description contains title, use the text that follows
+    if (title.length > 0 && desc.indexOf(title) > -1) {
+      desc = desc.split(title)[1];
+    }
+    // Remove blank lines (and first 'Experiment Description' line)
+    studyDesc = desc.split('\n').filter(function (l) {
+      return l.length > 0;
+    }).filter(function (l) {
+      return l !== 'Experiment Description' && l !== 'Screen Description';
+    }).join('\n');
+
+    if (studyDesc.indexOf('Version History') > 1) {
+      studyDesc = studyDesc.split('Version History')[0];
+    }
+  }
+  return studyDesc;
+}
+
 StudiesModel.prototype.getStudyValues = function getStudyValues(study, key) {
   if (!study.mapValues) {
     return [];
@@ -515,31 +556,60 @@ StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback
   }
 };
 
-StudiesModel.prototype.getStudyImage = function getStudyImage(obj_type, obj_id, callback) {
-  var _this6 = this;
 
-  // Get a sample image ID for 'screen' or 'project'
-  var key = "".concat(obj_type, "-").concat(obj_id); // check cache
+StudiesModel.prototype.loadStudyStats = function(callback) {
+  const url = "https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv";
+  $.get(url, function (data) {
+    let tsvRows = data.split('\n');
 
-  if (this.images[key]) {
-    callback(this.images[key]);
-    return;
-  }
+    let stats = {};
+    let columns;
+    let studyColIndex;
+    tsvRows.forEach(function (row, count) {
+      let values = row.split('\t');
+      if (count == 0) {
+        columns = values;
+        studyColIndex = columns.indexOf("Study");
+        return;
+      }
+      if (values.length < studyColIndex) return;
+      let studyName = values[studyColIndex];
+      if (!studyName) return;
+      let studyId = studyName.split("-")[0];
+      if (!stats[studyId]) {
+        stats[studyId] = [];
+      }
+      let row_data = {};
+      for (let c=0; c<values.length; c++) {
+        if (c < columns.length) {
+          row_data[columns[c]] = values[c];
+        }
+      }
+      stats[studyId].push(row_data);
+    });
+    this.studyStats = stats;
 
-  var url = "".concat(GALLERY_INDEX, "gallery-api/").concat(obj_type, "s/").concat(obj_id, "/images/?limit=1");
-  fetch(url).then(function (response) {
-    return response.json();
-  }).then(function (data) {
-    var images = data.data;
-
-    if (images.length > 0) {
-      _this6.images[key] = images[0];
+    if (callback) {
+      callback(stats);
     }
+  }.bind(this));
+}
 
-    callback(_this6.images[key]);
-    return;
-  });
-};
+function animateValue(obj, start, end, duration) {
+  // https://css-tricks.com/animating-number-counters/
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    let progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    // If we want easing...
+    // progress = Math.sin(Math.PI * progress / 2);
+    obj.innerHTML = Math.floor(progress * (end - start) + start);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  };
+  window.requestAnimationFrame(step);
+}
 
 function toTitleCase(text) {
   if (!text || text.length == 0) return text;

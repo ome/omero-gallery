@@ -170,15 +170,16 @@ function render(groupByType) {
   model.studies.forEach(study => {
     let idrId = study.Name.split("-")[0];
     if (!studyContainers[idrId]) {
-      studyContainers[idrId] = {'screen': [], 'project': []}
+      studyContainers[idrId] = {'screen': [], 'project': [], 'description': ""}
     }
     let objType = study.objId.split("-")[0];  // 'screen' or 'project'
     studyContainers[idrId][objType].push(study);
+    studyContainers[idrId]["description"] = model.getStudyDescription(study);
   });
 
   function renderStudyContainers(idrId) {
     let containers = studyContainers[idrId];
-    return Object.keys(containers).map(objType => {
+    return ['screen', 'project'].map(objType => {
       let studies = containers[objType];
       let count = studies.length;
       if (count == 0) return;
@@ -203,7 +204,7 @@ function render(groupByType) {
       let authors = model.getStudyValue(study, "Publication Authors") || " ";
       let title = escapeHTML(getStudyTitle(model, study));
       return `
-        <div class="studyThumb" data-authors="${authors}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+        <div class="studyThumb" data-authors="${authors}" data-title="${title}" data-idrid="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
         </div>
     `}).join("");
   } else {
@@ -243,7 +244,7 @@ function render(groupByType) {
         let authors = model.getStudyValue(study, "Publication Authors") || " ";
         let title = escapeHTML(getStudyTitle(model, study));
         return `
-          <div class="studyThumb" data-authors="${authors}" data-title="${title}" title="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+          <div class="studyThumb" data-authors="${authors}" data-title="${title}" data-idrid="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
           </div>
         `
       }).join("");
@@ -267,12 +268,13 @@ function render(groupByType) {
       content: (reference) => {
         let imgId = reference.dataset.imgid;
         let src = `${BASE_URL}webgateway/render_thumbnail/${imgId}/`;
-        let studyName = reference.getAttribute('title');
+        let idrId = reference.dataset.idrid;
         let title = reference.dataset.title;
         let authors = reference.dataset.authors.split(",")[0];
-        return `<div class="idr_tooltip">
+        return `
+        <div class="idr_tooltip">
           <div style="float: right"><b>${authors} et. al</b></div>
-          <div style="margin-bottom:5px">${studyName}</div>
+          <div style="margin-bottom:5px">${idrId}</div>
           <div style="width: 300px; display:flex">
             <div style="width:96px; position: relative" title="Open image viewer">
               <a target="_blank" href="${BASE_URL}webclient/img_detail/${imgId}/">
@@ -281,14 +283,17 @@ function render(groupByType) {
               </a>
             </div>
             <div style="width:204px; margin-left: 7px">
-              ${renderStudyContainers(studyName)}<br>
-              ${title}
+              ${renderStudyContainers(idrId)} ${imageCount(idrId)}<br>
+              <span title="${studyContainers[idrId]["description"]}">
+                ${title}
+              </span>
             </div>
           </div>
-          </div>`;
+        </div>`;
       },
       trigger: 'mouseenter click',  // click to show - eg. on mobile
       theme: 'light-border',
+      offset: [0, 2],
       allowHTML: true,
       moveTransition: 'transform 2s ease-out',
       interactive: true, // allow click
@@ -297,56 +302,67 @@ function render(groupByType) {
 }
 
 
-function renderStudy(studyData, elementId, linkFunc) {
+// function renderStudyX(studyData, elementId, linkFunc) {
 
-  // Add Project or Screen to the page
-  let title;
-  for (let i = 0; i < TITLE_KEYS.length; i++) {
-    title = model.getStudyValue(studyData, TITLE_KEYS[i]);
-    if (title) {
-      break;
-    }
-  }
-  if (!title) {
-    title = studyData.Name;
-  }
-  let type = studyData['@type'].split('#')[1].toLowerCase();
-  let studyLink = linkFunc(studyData);
-  // save for later
-  studyData.title = title;
+//   // Add Project or Screen to the page
+//   let title;
+//   for (let i = 0; i < TITLE_KEYS.length; i++) {
+//     title = model.getStudyValue(studyData, TITLE_KEYS[i]);
+//     if (title) {
+//       break;
+//     }
+//   }
+//   if (!title) {
+//     title = studyData.Name;
+//   }
+//   let type = studyData['@type'].split('#')[1].toLowerCase();
+//   let studyLink = linkFunc(studyData);
+//   // save for later
+//   studyData.title = title;
 
-  let desc = studyData.Description;
-  let studyDesc;
-  if (desc) {
-    // If description contains title, use the text that follows
-      if (title.length > 0 && desc.indexOf(title) >1) {
-          desc = desc.split(title)[1];
-        }
-    // Remove blank lines (and first 'Experiment Description' line)
-      studyDesc = desc.split('\n')
-          .filter(l => l.length > 0)
-          .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
-          .join('\n');
-    if (studyDesc.indexOf('Version History') > 1) {
-        studyDesc = studyDesc.split('Version History')[0];
-      }
-  }
+//   let desc = studyData.Description;
+//   let studyDesc;
+//   if (desc) {
+//     // If description contains title, use the text that follows
+//       if (title.length > 0 && desc.indexOf(title) >1) {
+//           desc = desc.split(title)[1];
+//         }
+//     // Remove blank lines (and first 'Experiment Description' line)
+//       studyDesc = desc.split('\n')
+//           .filter(l => l.length > 0)
+//           .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
+//           .join('\n');
+//     if (studyDesc.indexOf('Version History') > 1) {
+//         studyDesc = studyDesc.split('Version History')[0];
+//       }
+//   }
 
-  let shortName = getStudyShortName(studyData);
-  let authors = model.getStudyValue(studyData, "Publication Authors") || "";
+//   let shortName = getStudyShortName(studyData);
+//   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
-  // Function (and template) are defined where used in index.html
-  let html = studyHtml({ studyLink, studyDesc, shortName, title, authors, BASE_URL, type }, studyData)
+//   // Function (and template) are defined where used in index.html
+//   let html = studyHtml({ studyLink, studyDesc, shortName, title, authors, BASE_URL, type }, studyData)
 
-  var div = document.createElement("div");
-  div.innerHTML = html;
-  div.className = "row study ";
-  div.dataset.obj_type = type;
-  div.dataset.obj_id = studyData['@id'];
-  document.getElementById(elementId).appendChild(div);
-}
+//   var div = document.createElement("div");
+//   div.innerHTML = html;
+//   div.className = "row study ";
+//   div.dataset.obj_type = type;
+//   div.dataset.obj_id = studyData['@id'];
+//   document.getElementById(elementId).appendChild(div);
+// }
 
 // --------- Render utils -----------
+
+function imageCount(idrId) {
+  if (!model.studyStats) return "";
+
+  let containers = model.studyStats[idrId];
+  if (!containers) return "";
+
+  let imgCount = containers.map(row => row["5D Images"])
+                  .reduce((total, value) => total + parseInt(value, 10), 0);
+  return imgCount + " Image" + (imgCount != "1" ? "s" : "");
+}
 
 function studyHtml(props, studyData) {
   let pubmed = model.getStudyValue(studyData, 'PubMed ID');
@@ -441,6 +457,19 @@ renderStudyKeys();
 
 
 // ----------- Load / Filter Studies --------------------
+
+model.loadStudyStats(function(stats){
+  // Load stats and show spinning counters...
+  let imageCounts = Object.values(stats).flatMap(rows => rows.map(row => row["5D Images"]));
+  let totalImages = imageCounts.reduce((total, value) => total + parseInt(value, 10), 0);
+  let tbCounts = Object.values(stats).flatMap(rows => rows.map(row => row["Size (TB)"]));
+  let tbTotal = tbCounts.reduce((total, value) => total + parseFloat(value, 10), 0);
+  let studyCount = Object.keys(stats).length;
+
+  animateValue(document.getElementById("imageCount"), 0, totalImages, 1500);
+  animateValue(document.getElementById("tbCount"), 0, tbTotal, 1500);
+  animateValue(document.getElementById("studyCount"), 0, studyCount, 1500);
+});
 
 // Do the loading and render() when done...
 model.loadStudies(() => {
