@@ -170,11 +170,20 @@ function render(groupByType) {
   model.studies.forEach(study => {
     let idrId = study.Name.split("-")[0];
     if (!studyContainers[idrId]) {
-      studyContainers[idrId] = {'screen': [], 'project': [], 'description': ""}
+      // data for each study:
+      studyContainers[idrId] = {
+        'screen': [], 'project': [],
+        'description': "",
+        'pubmed_id': ""
+      }
     }
     let objType = study.objId.split("-")[0];  // 'screen' or 'project'
     studyContainers[idrId][objType].push(study);
     studyContainers[idrId]["description"] = model.getStudyDescription(study);
+    let pubmed = model.getStudyValue(study, 'PubMed ID');
+    if (pubmed) {
+      studyContainers[idrId]["pubmed_id"] = pubmed.split(" ")[1];
+    }
   });
 
   function renderStudyContainers(idrId) {
@@ -271,9 +280,12 @@ function render(groupByType) {
         let idrId = reference.dataset.idrid;
         let title = reference.dataset.title;
         let authors = reference.dataset.authors.split(",")[0];
+        let pubmed = studyContainers[idrId]["pubmed_id"];
         return `
         <div class="idr_tooltip">
-          <div style="float: right"><b>${authors} et. al</b></div>
+          <div style="float: right">
+            ${pubmed ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>` : `<b> ${authors} et. al </b>` }
+          </div>
           <div style="margin-bottom:5px">${idrId}</div>
           <div style="width: 300px; display:flex">
             <div style="width:96px; position: relative" title="Open image viewer">
@@ -364,41 +376,41 @@ function imageCount(idrId) {
   return imgCount + " Image" + (imgCount != "1" ? "s" : "");
 }
 
-function studyHtml(props, studyData) {
-  let pubmed = model.getStudyValue(studyData, 'PubMed ID');
-  if (pubmed) {
-    pubmed = pubmed.split(" ")[1];
-  };
-  let author = props.authors.split(',')[0] || '';
-  if (author) {
-    author = `${author} et al.`;
-    author = author.length > 23 ? author.slice(0, 20) + '...' : author;
-  }
-  return `
-  <div style='white-space:nowrap'>
-    ${props.shortName}
-    ${pubmed ? `<a class='pubmed' target="_blank" href="${pubmed}"> ${author}</a>` : author}
-  </div>
-  <div class="studyImage">
-    <a target="_blank" href="${props.studyLink}">
-      <div style="height: 100%; width: 100%">
-        <div class="studyText">
-          <p title='${props.studyDesc || ''}'>
-            ${props.title}
-          </p>
-        </div>
-        <div class="studyAuthors">
-          ${props.authors}
-        </div>
-      </div>
-    </a>
-    <a class="viewerLink" title="Open image in viewer" target="_blank"
-       href="">
-      <i class="fas fa-eye"></i>
-    </a>
-  </div>
-  `
-}
+// function studyHtml(props, studyData) {
+//   let pubmed = model.getStudyValue(studyData, 'PubMed ID');
+//   if (pubmed) {
+//     pubmed = pubmed.split(" ")[1];
+//   };
+//   let author = props.authors.split(',')[0] || '';
+//   if (author) {
+//     author = `${author} et al.`;
+//     author = author.length > 23 ? author.slice(0, 20) + '...' : author;
+//   }
+//   return `
+//   <div style='white-space:nowrap'>
+//     ${props.shortName}
+//     ${pubmed ? `<a class='pubmed' target="_blank" href="${pubmed}"> ${author}</a>` : author}
+//   </div>
+//   <div class="studyImage">
+//     <a target="_blank" href="${props.studyLink}">
+//       <div style="height: 100%; width: 100%">
+//         <div class="studyText">
+//           <p title='${props.studyDesc || ''}'>
+//             ${props.title}
+//           </p>
+//         </div>
+//         <div class="studyAuthors">
+//           ${props.authors}
+//         </div>
+//       </div>
+//     </a>
+//     <a class="viewerLink" title="Open image in viewer" target="_blank"
+//        href="">
+//       <i class="fas fa-eye"></i>
+//     </a>
+//   </div>
+//   `
+// }
 
 
 function loadStudyThumbnails(callback) {
