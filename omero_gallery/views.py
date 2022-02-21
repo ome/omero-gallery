@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.urls import reverse, NoReverseMatch
 import json
 import logging
 import base64
