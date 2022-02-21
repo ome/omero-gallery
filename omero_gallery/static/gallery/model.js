@@ -603,7 +603,8 @@ function animateValue(obj, start, end, duration) {
     let progress = Math.min((timestamp - startTimestamp) / duration, 1);
     // If we want easing...
     // progress = Math.sin(Math.PI * progress / 2);
-    obj.innerHTML = Math.floor(progress * (end - start) + start);
+    let number = Math.floor(progress * (end - start) + start);
+    obj.innerHTML = new Intl.NumberFormat().format(number);
     if (progress < 1) {
       window.requestAnimationFrame(step);
     }
