@@ -254,10 +254,10 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
   });
 };
 
-StudiesModel.prototype.loadStudies = function loadStudies(callback) {
+StudiesModel.prototype.loadStudies = async function loadStudies() {
 
   // Load Projects AND Screens, sort them and render...
-  Promise.all([
+  await Promise.all([
     fetch(this.base_url + "api/v0/m/projects/?childCount=true"),
     fetch(this.base_url + "api/v0/m/screens/?childCount=true"),
   ]).then(responses =>
@@ -284,12 +284,13 @@ StudiesModel.prototype.loadStudies = function loadStudies(callback) {
       return 0;
     });
 
-    // load Map Anns for Studies...
-    this.loadStudiesMapAnnotations(callback);
-
   }).catch((err) => {
     console.error(err);
   });
+
+  // Load Map Annotations
+  await this.loadStudiesMapAnnotations();
+
 }
 
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
@@ -345,13 +346,13 @@ StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(id
   }
 };
 
-StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnotations(callback) {
+StudiesModel.prototype.loadStudiesMapAnnotations = async function loadStudiesMapAnnotations() {
   let url = this.base_url + "webclient/api/annotations/?type=map";
   let data = this.studies
     .map(study => `${study['@type'].split('#')[1].toLowerCase()}=${study['@id']}`)
     .join("&");
   url += '&' + data;
-  fetch(url)
+  await fetch(url)
     .then(response => response.json())
     .then(data => {
       // populate the studies array...
@@ -386,9 +387,6 @@ StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnota
         return study;
       });
 
-      if (callback) {
-        callback();
-      };
     })
 }
 
