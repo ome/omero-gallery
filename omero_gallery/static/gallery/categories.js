@@ -178,55 +178,6 @@ function render(groupByType) {
 }
 
 
-// function renderStudyX(studyData, elementId, linkFunc) {
-
-//   // Add Project or Screen to the page
-//   let title;
-//   for (let i = 0; i < TITLE_KEYS.length; i++) {
-//     title = model.getStudyValue(studyData, TITLE_KEYS[i]);
-//     if (title) {
-//       break;
-//     }
-//   }
-//   if (!title) {
-//     title = studyData.Name;
-//   }
-//   let type = studyData['@type'].split('#')[1].toLowerCase();
-//   let studyLink = linkFunc(studyData);
-//   // save for later
-//   studyData.title = title;
-
-//   let desc = studyData.Description;
-//   let studyDesc;
-//   if (desc) {
-//     // If description contains title, use the text that follows
-//       if (title.length > 0 && desc.indexOf(title) >1) {
-//           desc = desc.split(title)[1];
-//         }
-//     // Remove blank lines (and first 'Experiment Description' line)
-//       studyDesc = desc.split('\n')
-//           .filter(l => l.length > 0)
-//           .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
-//           .join('\n');
-//     if (studyDesc.indexOf('Version History') > 1) {
-//         studyDesc = studyDesc.split('Version History')[0];
-//       }
-//   }
-
-//   let shortName = getStudyShortName(studyData);
-//   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
-
-//   // Function (and template) are defined where used in index.html
-//   let html = studyHtml({ studyLink, studyDesc, shortName, title, authors, BASE_URL, type }, studyData)
-
-//   var div = document.createElement("div");
-//   div.innerHTML = html;
-//   div.className = "row study ";
-//   div.dataset.obj_type = type;
-//   div.dataset.obj_id = studyData['@id'];
-//   document.getElementById(elementId).appendChild(div);
-// }
-
 // --------- Render utils -----------
 
 function imageCount(idrId) {
@@ -239,42 +190,6 @@ function imageCount(idrId) {
                   .reduce((total, value) => total + parseInt(value, 10), 0);
   return imgCount + " Image" + (imgCount != "1" ? "s" : "");
 }
-
-// function studyHtml(props, studyData) {
-//   let pubmed = model.getStudyValue(studyData, 'PubMed ID');
-//   if (pubmed) {
-//     pubmed = pubmed.split(" ")[1];
-//   };
-//   let author = props.authors.split(',')[0] || '';
-//   if (author) {
-//     author = `${author} et al.`;
-//     author = author.length > 23 ? author.slice(0, 20) + '...' : author;
-//   }
-//   return `
-//   <div style='white-space:nowrap'>
-//     ${props.shortName}
-//     ${pubmed ? `<a class='pubmed' target="_blank" href="${pubmed}"> ${author}</a>` : author}
-//   </div>
-//   <div class="studyImage">
-//     <a target="_blank" href="${props.studyLink}">
-//       <div style="height: 100%; width: 100%">
-//         <div class="studyText">
-//           <p title='${props.studyDesc || ''}'>
-//             ${props.title}
-//           </p>
-//         </div>
-//         <div class="studyAuthors">
-//           ${props.authors}
-//         </div>
-//       </div>
-//     </a>
-//     <a class="viewerLink" title="Open image in viewer" target="_blank"
-//        href="">
-//       <i class="fas fa-eye"></i>
-//     </a>
-//   </div>
-//   `
-// }
 
 
 function loadStudyThumbnails(callback) {
@@ -300,10 +215,7 @@ function loadStudyThumbnails(callback) {
         // Find all studies matching the study ID and set src on image
         let element = elements[e];
         element.style.backgroundImage = `url(${data[id].thumbnail})`;
-        // viewer link
-        // let iid = data[id].image.id;
-        // let link = `${BASE_URL}webclient/img_detail/${iid}/`;
-        // element.querySelector('a.viewerLink').href = link;
+        // add image ID data for tooltip
         element.dataset.imgid = data[id].image.id;
       }
     }
@@ -357,7 +269,6 @@ model.loadStudies(() => {
 });
 
 document.getElementById("groupByType").addEventListener("change", function(event){
-  console.log("check", event.target.checked)
   render(event.target.checked);
 })
 

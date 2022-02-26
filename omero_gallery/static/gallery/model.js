@@ -255,47 +255,42 @@ StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplet
 };
 
 StudiesModel.prototype.loadStudies = function loadStudies(callback) {
-  var _this2 = this;
 
   // Load Projects AND Screens, sort them and render...
-  Promise.all([fetch(this.base_url + "api/v0/m/projects/?childCount=true"), fetch(this.base_url + "api/v0/m/screens/?childCount=true")]).then(function (responses) {
-    return Promise.all(responses.map(function (res) {
-      return res.json();
-    }));
-  }).then(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        projects = _ref2[0],
-        screens = _ref2[1];
+  Promise.all([
+    fetch(this.base_url + "api/v0/m/projects/?childCount=true"),
+    fetch(this.base_url + "api/v0/m/screens/?childCount=true"),
+  ]).then(responses =>
+    Promise.all(responses.map(res => res.json()))
+  ).then(([projects, screens]) => {
+    this.studies = projects.data;
+    this.studies = this.studies.concat(screens.data);
 
-    _this2.studies = projects.data;
-    _this2.studies = _this2.studies.concat(screens.data); // ignore empty studies with no images
+    // ignore empty studies with no images
+    this.studies = this.studies.filter(study => study['omero:childCount'] > 0);
 
-    _this2.studies = _this2.studies.filter(function (study) {
-      return study['omero:childCount'] > 0;
-    }); // sort by name, reverse
-
-    _this2.studies.sort(function (a, b) {
+    // sort by name, reverse
+    this.studies.sort(function (a, b) {
       var nameA = a.Name.toUpperCase();
       var nameB = b.Name.toUpperCase();
-
       if (nameA < nameB) {
         return 1;
       }
-
       if (nameA > nameB) {
         return -1;
-      } // names must be equal
+      }
 
-
+      // names must be equal
       return 0;
-    }); // load Map Anns for Studies...
+    });
 
+    // load Map Anns for Studies...
+    this.loadStudiesMapAnnotations(callback);
 
-    _this2.loadStudiesMapAnnotations(callback);
-  })["catch"](function (err) {
+  }).catch((err) => {
     console.error(err);
   });
-};
+}
 
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
   var _this3 = this;
@@ -351,63 +346,51 @@ StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(id
 };
 
 StudiesModel.prototype.loadStudiesMapAnnotations = function loadStudiesMapAnnotations(callback) {
-  var _this4 = this;
-
-  var url = this.base_url + "webclient/api/annotations/?type=map";
-  var data = this.studies.map(function (study) {
-    return "".concat(study['@type'].split('#')[1].toLowerCase(), "=").concat(study['@id']);
-  }).join("&");
+  let url = this.base_url + "webclient/api/annotations/?type=map";
+  let data = this.studies
+    .map(study => `${study['@type'].split('#')[1].toLowerCase()}=${study['@id']}`)
+    .join("&");
   url += '&' + data;
-  fetch(url).then(function (response) {
-    return response.json();
-  }).then(function (data) {
-    // populate the studies array...
-    // dict of {'project-1' : key-values}
-    var annsByParentId = {};
-    data.annotations.forEach(function (ann) {
-      var key = ann.link.parent["class"]; // 'ProjectI'
-
-      key = key.substr(0, key.length - 1).toLowerCase();
-      key += '-' + ann.link.parent.id; // project-1
-
-      if (!annsByParentId[key]) {
-        annsByParentId[key] = [];
-      }
-
-      annsByParentId[key] = annsByParentId[key].concat(ann.values);
-    }); // Add mapValues to studies...
-
-    _this4.studies = _this4.studies.map(function (study) {
-      // Also set 'type':'screen', 'objId': 'screen-123'
-      study.type = study['@type'].split('#')[1].toLowerCase();
-      study.id = study['@id'];
-      study.objId = "".concat(study.type, "-").concat(study['@id']);
-      var values = annsByParentId[study.objId];
-
-      if (values) {
-        study.mapValues = values;
-
-        var releaseDate = _this4.getStudyValue(study, 'Release Date');
-
-        if (releaseDate) {
-          study.date = new Date(releaseDate);
-
-          if (isNaN(study.date.getTime())) {
-            study.date = undefined;
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      // populate the studies array...
+      // dict of {'project-1' : key-values}
+      let annsByParentId = {};
+      data.annotations.forEach(ann => {
+        let key = ann.link.parent.class;  // 'ProjectI'
+        key = key.substr(0, key.length - 1).toLowerCase();
+        key += '-' + ann.link.parent.id;  // project-1
+        if (!annsByParentId[key]) {
+          annsByParentId[key] = [];
+        }
+        annsByParentId[key] = annsByParentId[key].concat(ann.values);
+      });
+      // Add mapValues to studies...
+      this.studies = this.studies.map(study => {
+        // Also set 'type':'screen', 'objId': 'screen-123'
+        study.type = study['@type'].split('#')[1].toLowerCase();
+        study.id = study['@id'];
+        study.objId = `${study.type}-${study['@id']}`;
+        let values = annsByParentId[study.objId];
+        if (values) {
+          study.mapValues = values;
+          let releaseDate = this.getStudyValue(study, 'Release Date');
+          if (releaseDate) {
+            study.date = new Date(releaseDate);
+            if (isNaN(study.date.getTime())) {
+              study.date = undefined;
+            }
           }
         }
-      }
+        return study;
+      });
 
-      return study;
-    });
-
-    if (callback) {
-      callback();
-    }
-
-    ;
-  });
-};
+      if (callback) {
+        callback();
+      };
+    })
+}
 
 StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuery(query) {
   if (query.startsWith("FIRST") || query.startsWith("LAST")) {
