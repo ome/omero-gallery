@@ -152,6 +152,19 @@ GALLERY_SETTINGS_MAPPING = {
           " If a 'regex' and 'template' are specified, we try"
           " name.replace(regex, template).")],
 
+    "omero.web.gallery.videos":
+        ["VIDEOS",
+         ('[{"id":"TriO0nhYD_I", "title": "From Publication to an IDR study", "text":'
+          '"Highlights linkage between publications and studies in IDR. Viewing of images and Regions of interest (ROIs) in IDR are'
+          ' shown and the metadata associated with a study are explored."},'
+          '{"id":"ybHnoFS0b_k", "title": "From gene to well-annotated images", "text": "Search for Images associated with a gene, starting from the IDR home page."},'
+          '{"id":"vhKVqutxLI8", "title": "From compound to analytical results", "text": "Search by compound and explore analytical metadata of the treated samples."}]'
+         ),
+         json.loads,
+         ("List of videos to show on the categories page."
+          " Each in the form {'id': youtubeId, 'title': 'IDR demo', 'text': 'Search by compound and explore analytical metadata of the treated samples.'}"
+         )],
+
 }
 
 process_custom_settings(sys.modules[__name__], 'GALLERY_SETTINGS_MAPPING')

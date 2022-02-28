@@ -338,7 +338,7 @@ input:checked + .sliderToggle:before {
     <div class="panel">
       <ul class="tabs" data-tabs id="example-tabs">
         <li class="tabs-title is-active"><a href="#panel1" aria-selected="true">
-          Getting Started
+          Exploring IDR
         </a></li>
         <li class="tabs-title"><a data-tabs-target="panel3" href="#panel2">
           Analyse Data
@@ -346,48 +346,21 @@ input:checked + .sliderToggle:before {
       </ul>
       <div class="tabs-content" data-tabs-content="example-tabs">
         <div class="tabs-panel is-active" id="panel1">
+          {% for video in videos %}
           <div class="row horizontal">
             <div class="small-6 medium-6 large-6 columns" style="position: relative;">
-              <!-- width="607" height="378" -->
-              <iframe id="youtube" width="100%" height="100%" src="https://www.youtube.com/embed/TriO0nhYD_I"
+              <iframe id="youtube" width="100%" height="100%" src="https://www.youtube.com/embed/{{ video.id }}"
                 title="YouTube video player" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
               </iframe>
               <button title="Expand video" class="expandVideo"><i class="fas fa-angle-right"></i><i class="fas fa-angle-right"></i></button>
             </div>
             <div class="columns small-6 medium-6 large-6">
-              <h3>From Publication to an IDR study</h3>
-              Highlights linkage between publications and studies in IDR. Viewing of images and Regions of interest (ROIs) in IDR are
-              shown and the metadata associated with a study are explored.
+              <h3>{{ video.title }}</h3>
+              {{ video.text }}
             </div>
           </div>
-          <div class="row horizontal">
-            <div class="small-6 medium-6 large-6 columns" style="position: relative;">
-              <!-- width="607" height="378" -->
-              <iframe id="youtube" width="100%" height="150" src="https://www.youtube.com/embed/ybHnoFS0b_k"
-                title="YouTube video player" frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-              </iframe>
-              <button class="expandVideo"><i class="fas fa-angle-right"></i><i class="fas fa-angle-right"></i></button>
-            </div>
-            <div class="small-6 medium-6 large-6 columns">
-              <h3>From gene to well-annotated images</h3>
-              Search for Images associated with a gene, starting from the IDR home page.
-            </div>
-          </div>
-          <div class="row horizontal">
-            <div class="small-6 medium-6 large-6 columns" style="position: relative;">
-              <iframe id="youtube" width="100%" height="150" src="https://www.youtube.com/embed/vhKVqutxLI8"
-                title="YouTube video player" frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-              </iframe>
-              <button class="expandVideo"><i class="fas fa-angle-right"></i><i class="fas fa-angle-right"></i></button>
-            </div>
-            <div class="small-6 medium-6 large-6 columns">
-              <h3>From compound to analytical results</h3>
-              Search by compound and explore analytical metadata of the treated samples.
-            </div>
-          </div>
+          {% endfor %}
         </div>
         <div class="tabs-panel" id="panel2">
           <p>
@@ -399,8 +372,10 @@ input:checked + .sliderToggle:before {
             and REST/JSON.
           </p>
           <p>
-            The Notebooks below allow the establishment of remote analysis environments, accessible through a
-            web browser. They are developed by the IDR team but hosted by third party providers.
+            The IDR team have developed a number of example analysis notebooks, hosted by third party providers.
+            These notebooks allow the establishment of remote analysis environments, accessible through a
+            web browser. See the <a target="_blank" href="https://idr.openmicroscopy.org/about/analysis-environments.html">analysis environments</a>
+            page for more details.
           </p>
         </div>
       </div>
