@@ -76,7 +76,9 @@ function studyHtml(study, studyObj) {
 
 // ------------ Render -------------------------
 
-function render(groupByType) {
+function render() {
+
+  const groupByType = document.getElementById("groupByType").checked;
   document.getElementById('studies').innerHTML = "";
 
   // we group by 'idr00ID' and show Screens and Experiments
@@ -238,14 +240,13 @@ async function init() {
     model.studies = model.filterStudiesByMapQuery(SUPER_CATEGORY.query);
   }
 
+  // start loading thumbnails in batches... triggers render() when loaded
   model.loadStudiesThumbnails();
-
-  console.log("render...");
 
   render();
 
   document.getElementById("groupByType").addEventListener("change", function(event){
-    render(event.target.checked);
+    render();
   })
 
 
