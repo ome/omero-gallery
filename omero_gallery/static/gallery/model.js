@@ -1,22 +1,6 @@
 "use strict";
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-//   Copyright (C) 2019-2020 University of Dundee & Open Microscopy Environment.
+//   Copyright (C) 2019-2022 University of Dundee & Open Microscopy Environment.
 //   All rights reserved.
 //   This program is free software: you can redistribute it and/or modify
 //   it under the terms of the GNU Affero General Public License as
@@ -29,535 +13,470 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 //   You should have received a copy of the GNU Affero General Public License
 //   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // NB: SOURCE FILES are under /src. Compiled files are under /static/
-var StudiesModel = function StudiesModel() {
-  "use strict";
 
-  this.base_url = BASE_URL;
-  this.studies = [];
-  this.images = {};
-  this.pubSubObject = $({});
-  return this;
-};
+class StudiesModel {
+  constructor() {
+    this.base_url = BASE_URL;
+    this.studies = [];
+    this.images = {};
+    this.pubSubObject = $({});
+    return this;
+  }
 
-StudiesModel.prototype.subscribe = function subscribe() {
-  this.pubSubObject.on.apply(this.pubSubObject, arguments);
-}
+  subscribe() {
+    this.pubSubObject.on.apply(this.pubSubObject, arguments);
+  }
 
-StudiesModel.prototype.unsubscribe = function unsubscribe() {
-  this.pubSubObject.off.apply(this.pubSubObject, arguments);
-}
+  unsubscribe() {
+    this.pubSubObject.off.apply(this.pubSubObject, arguments);
+  }
 
-StudiesModel.prototype.publish = function publish() {
-  this.pubSubObject.trigger.apply(this.pubSubObject, arguments);
-}
+  publish() {
+    this.pubSubObject.trigger.apply(this.pubSubObject, arguments);
+  }
 
+  getStudyById(typeId) {
+    // E.g. 'project-1', or 'screen-2'
+    var objType = typeId.split('-')[0];
+    var id = typeId.split('-')[1];
 
-StudiesModel.prototype.getStudyById = function getStudyById(typeId) {
-  // E.g. 'project-1', or 'screen-2'
-  var objType = typeId.split('-')[0];
-  var id = typeId.split('-')[1];
+    for (var i = 0; i < this.studies.length; i++) {
+      var study = this.studies[i];
 
-  for (var i = 0; i < this.studies.length; i++) {
-    var study = this.studies[i];
-
-    if (study['@id'] == id && study['@type'].split('#')[1].toLowerCase() == objType) {
-      return study;
+      if (study['@id'] == id && study['@type'].split('#')[1].toLowerCase() == objType) {
+        return study;
+      }
     }
   }
-};
 
-StudiesModel.prototype.getStudiesNames = function getStudiesNames(filterQuery) {
-  var names = this.studies.map(function (s) {
-    return s.Name;
-  });
-
-  if (filterQuery) {
-    names = names.filter(function (name) {
-      return name.toLowerCase().indexOf(filterQuery) > -1;
+  getStudiesNames(filterQuery) {
+    var names = this.studies.map(function (s) {
+      return s.Name;
     });
-  }
 
-  names.sort(function (a, b) {
-    return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
-  });
-  return names;
-};
-
-StudiesModel.prototype.getStudiesGroups = function getStudiesGroups(filterQuery) {
-  var names = [];
-  this.studies.forEach(function (study) {
-    var groupName = study['omero:details'].group.Name;
-
-    if (names.indexOf(groupName) === -1) {
-      names.push(groupName);
+    if (filterQuery) {
+      names = names.filter(function (name) {
+        return name.toLowerCase().indexOf(filterQuery) > -1;
+      });
     }
-  });
 
-  if (filterQuery) {
-    names = names.filter(function (name) {
-      return name.toLowerCase().indexOf(filterQuery) > -1;
+    names.sort(function (a, b) {
+      return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
     });
+    return names;
   }
 
-  names.sort(function (a, b) {
-    return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
-  });
-  return names;
-};
+  getStudiesGroups(filterQuery) {
+    var names = [];
+    this.studies.forEach(function (study) {
+      var groupName = study['omero:details'].group.Name;
 
-StudiesModel.prototype.getStudyValue = function getStudyValue(study, key) {
-  if (!study.mapValues) return;
+      if (names.indexOf(groupName) === -1) {
+        names.push(groupName);
+      }
+    });
 
-  for (var i = 0; i < study.mapValues.length; i++) {
-    var kv = study.mapValues[i];
-
-    if (kv[0] === key) {
-      return kv[1];
+    if (filterQuery) {
+      names = names.filter(function (name) {
+        return name.toLowerCase().indexOf(filterQuery) > -1;
+      });
     }
-  }
-};
 
-StudiesModel.prototype.getStudyTitle = function getStudyTitle(study) {
-  var title;
-
-  for (var i = 0; i < TITLE_KEYS.length; i++) {
-    title = model.getStudyValue(study, TITLE_KEYS[i]);
-    if (title) {
-      break;
-    }
-  }
-  if (!title) {
-    title = study.Name;
-  }
-  return title;
-}
-
-StudiesModel.prototype.getStudyDescription = function getStudyDescription(study, title) {
-
-  if (!title) {
-    title = this.getStudyTitle(study);
-  }
-  let desc = study.Description;
-  let studyDesc = "";
-  if (desc) {
-    // If description contains title, use the text that follows
-    if (title.length > 0 && desc.indexOf(title) > -1) {
-      desc = desc.split(title)[1];
-    }
-    // Remove blank lines (and first 'Experiment Description' line)
-    studyDesc = desc.split('\n').filter(function (l) {
-      return l.length > 0;
-    }).filter(function (l) {
-      return l !== 'Experiment Description' && l !== 'Screen Description';
-    }).join('\n');
-
-    if (studyDesc.indexOf('Version History') > 1) {
-      studyDesc = studyDesc.split('Version History')[0];
-    }
-  }
-  return studyDesc;
-}
-
-StudiesModel.prototype.getStudyValues = function getStudyValues(study, key) {
-  if (!study.mapValues) {
-    return [];
+    names.sort(function (a, b) {
+      return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
+    });
+    return names;
   }
 
-  var matches = [];
+  getStudyValue(study, key) {
+    if (!study.mapValues) return;
 
-  for (var i = 0; i < study.mapValues.length; i++) {
-    var kv = study.mapValues[i];
+    for (var i = 0; i < study.mapValues.length; i++) {
+      var kv = study.mapValues[i];
 
-    if (kv[0] === key) {
-      matches.push(kv[1]);
+      if (kv[0] === key) {
+        return kv[1];
+      }
     }
   }
 
-  return matches;
-};
+  getStudyTitle(study) {
+    var title;
 
-StudiesModel.prototype.getKeyValueAutoComplete = function getKeyValueAutoComplete(key, inputText) {
-  var _this = this;
-
-  inputText = inputText.toLowerCase(); // Get values for key from each study
-
-  var values = [];
-  this.studies.forEach(function (study) {
-    var v = _this.getStudyValues(study, key);
-
-    for (var i = 0; i < v.length; i++) {
-      values.push(v[i]);
+    for (var i = 0; i < TITLE_KEYS.length; i++) {
+      title = model.getStudyValue(study, TITLE_KEYS[i]);
+      if (title) {
+        break;
+      }
     }
-  }); // We want values that match inputText
-  // Except for "Publication Authors", where we want words
-  // Create dict of {lowercaseValue: origCaseValue}
+    if (!title) {
+      title = study.Name;
+    }
+    return title;
+  }
 
-  var matchCounts = values.reduce(function (prev, value) {
+  getStudyDescription(study, title) {
+
+    if (!title) {
+      title = this.getStudyTitle(study);
+    }
+    let desc = study.Description;
+    let studyDesc = "";
+    if (desc) {
+      // If description contains title, use the text that follows
+      if (title.length > 0 && desc.indexOf(title) > -1) {
+        desc = desc.split(title)[1];
+      }
+      // Remove blank lines (and first 'Experiment Description' line)
+      studyDesc = desc.split('\n').filter(function (l) {
+        return l.length > 0;
+      }).filter(function (l) {
+        return l !== 'Experiment Description' && l !== 'Screen Description';
+      }).join('\n');
+
+      if (studyDesc.indexOf('Version History') > 1) {
+        studyDesc = studyDesc.split('Version History')[0];
+      }
+    }
+    return studyDesc;
+  }
+
+  getStudyValues(study, key) {
+    if (!study.mapValues) {
+      return [];
+    }
     var matches = [];
-
-    if (key == "Publication Authors") {
-      // Split surnames, ignoring AN initials.
-      var names = value.split(/,| and | & /).map(function (n) {
-        // Want the surname from e.g. 'Jan Ellenberg' or 'Held M' or 'Øyvind Ødegård-Fougner'
-        var words = n.split(" ").filter(function (w) {
-          return w.match(/[a-z]/g);
-        });
-        if (words && words.length == 1) return words[0]; // Surname only
-
-        return words && words.length > 1 ? words.slice(1).join(" ") : '';
-      }).filter(function (w) {
-        return w.length > 0;
-      });
-      matches = names.filter(function (name) {
-        return name.toLowerCase().indexOf(inputText) > -1;
-      });
-    } else if (value.toLowerCase().indexOf(inputText) > -1) {
-      matches.push(value);
+    for (var i = 0; i < study.mapValues.length; i++) {
+      var kv = study.mapValues[i];
+      if (kv[0] === key) {
+        matches.push(kv[1]);
+      }
     }
+    return matches;
+  }
 
-    matches.forEach(function (match) {
-      if (!prev[match.toLowerCase()]) {
-        // key is lowercase, value is original case
-        prev[match.toLowerCase()] = {
-          value: match,
-          count: 0
-        };
-      } // also keep count of matches
+  getKeyValueAutoComplete(key, inputText) {
+    var _this = this;
 
+    inputText = inputText.toLowerCase(); // Get values for key from each study
 
-      prev[match.toLowerCase()].count++;
-    });
-    return prev;
-  }, {}); // Make into list and sort by:
-  // match at start of phrase > match at start of word > other match
+    var values = [];
+    this.studies.forEach(function (study) {
+      var v = _this.getStudyValues(study, key);
 
-  var matchList = [];
-
-  for (key in matchCounts) {
-    var matchScore = 1;
-
-    if (key.indexOf(inputText) == 0) {
-      // best match if our text STARTS WITH inputText
-      matchScore = 3;
-    } else if (key.indexOf(" " + inputText) > -1) {
-      // next best if a WORD starts with inputText
-      matchScore = 2;
-    } // Make a list of sort score, orig text (NOT lowercase keys) and count
-
-
-    matchList.push([matchScore, matchCounts[key].value, matchCounts[key].count]);
-  } // Sort by the matchScore (hightest first)
-
-
-  matchList.sort(function (a, b) {
-    if (a[0] < b[0]) return 1;
-    if (a[0] > b[0]) return -1; // equal score. Sort by value (lowest first)
-
-    if (a[1].toLowerCase() > b[1].toLowerCase()) return 1;
-    return -1;
-  }); // Return the matches
-
-  return matchList.map(function (m) {
-    // Auto-complete uses {label: 'X (n)', value: 'X'}
-    return {
-      label: "".concat(m[1], " (").concat(m[2], ")"),
-      value: m[1]
-    };
-  }).filter(function (m) {
-    return m.value.length > 0;
-  });
-};
-
-StudiesModel.prototype.loadStudies = async function loadStudies() {
-
-  // Load Projects AND Screens, sort them and render...
-  await Promise.all([
-    fetch(this.base_url + "api/v0/m/projects/?childCount=true"),
-    fetch(this.base_url + "api/v0/m/screens/?childCount=true"),
-  ]).then(responses =>
-    Promise.all(responses.map(res => res.json()))
-  ).then(([projects, screens]) => {
-    this.studies = projects.data;
-    this.studies = this.studies.concat(screens.data);
-
-    // ignore empty studies with no images
-    this.studies = this.studies.filter(study => study['omero:childCount'] > 0);
-
-    // sort by name, reverse
-    this.studies.sort(function (a, b) {
-      var nameA = a.Name.toUpperCase();
-      var nameB = b.Name.toUpperCase();
-      if (nameA < nameB) {
-        return 1;
+      for (var i = 0; i < v.length; i++) {
+        values.push(v[i]);
       }
-      if (nameA > nameB) {
-        return -1;
+    }); // We want values that match inputText
+    // Except for "Publication Authors", where we want words
+    // Create dict of {lowercaseValue: origCaseValue}
+
+    var matchCounts = values.reduce(function (prev, value) {
+      var matches = [];
+
+      if (key == "Publication Authors") {
+        // Split surnames, ignoring AN initials.
+        var names = value.split(/,| and | & /).map(function (n) {
+          // Want the surname from e.g. 'Jan Ellenberg' or 'Held M' or 'Øyvind Ødegård-Fougner'
+          var words = n.split(" ").filter(function (w) {
+            return w.match(/[a-z]/g);
+          });
+          if (words && words.length == 1) return words[0]; // Surname only
+
+          return words && words.length > 1 ? words.slice(1).join(" ") : '';
+        }).filter(function (w) {
+          return w.length > 0;
+        });
+        matches = names.filter(function (name) {
+          return name.toLowerCase().indexOf(inputText) > -1;
+        });
+      } else if (value.toLowerCase().indexOf(inputText) > -1) {
+        matches.push(value);
       }
 
-      // names must be equal
-      return 0;
+      matches.forEach(function (match) {
+        if (!prev[match.toLowerCase()]) {
+          // key is lowercase, value is original case
+          prev[match.toLowerCase()] = {
+            value: match,
+            count: 0
+          };
+        } // also keep count of matches
+
+        prev[match.toLowerCase()].count++;
+      });
+      return prev;
+    }, {}); // Make into list and sort by:
+    // match at start of phrase > match at start of word > other match
+
+    var matchList = [];
+
+    for (key in matchCounts) {
+      var matchScore = 1;
+
+      if (key.indexOf(inputText) == 0) {
+        // best match if our text STARTS WITH inputText
+        matchScore = 3;
+      } else if (key.indexOf(" " + inputText) > -1) {
+        // next best if a WORD starts with inputText
+        matchScore = 2;
+      } // Make a list of sort score, orig text (NOT lowercase keys) and count
+
+      matchList.push([matchScore, matchCounts[key].value, matchCounts[key].count]);
+    } // Sort by the matchScore (hightest first)
+
+
+    matchList.sort(function (a, b) {
+      if (a[0] < b[0]) return 1;
+      if (a[0] > b[0]) return -1; // equal score. Sort by value (lowest first)
+
+      if (a[1].toLowerCase() > b[1].toLowerCase()) return 1;
+      return -1;
+    }); // Return the matches
+
+    return matchList.map(function (m) {
+      // Auto-complete uses {label: 'X (n)', value: 'X'}
+      return {
+        label: "".concat(m[1], " (").concat(m[2], ")"),
+        value: m[1]
+      };
+    }).filter(function (m) {
+      return m.value.length > 0;
+    });
+  }
+
+  async loadStudies() {
+    // Load Projects AND Screens, sort them and render...
+    await Promise.all([
+      fetch(this.base_url + "api/v0/m/projects/?childCount=true"),
+      fetch(this.base_url + "api/v0/m/screens/?childCount=true"),
+    ]).then(responses =>
+      Promise.all(responses.map(res => res.json()))
+    ).then(([projects, screens]) => {
+      this.studies = projects.data;
+      this.studies = this.studies.concat(screens.data);
+
+      // ignore empty studies with no images
+      this.studies = this.studies.filter(study => study['omero:childCount'] > 0);
+
+      // sort by name, reverse
+      this.studies.sort(function (a, b) {
+        var nameA = a.Name.toUpperCase();
+        var nameB = b.Name.toUpperCase();
+        if (nameA < nameB) {
+          return 1;
+        }
+        if (nameA > nameB) {
+          return -1;
+        }
+
+        // names must be equal
+        return 0;
+      });
+
+    }).catch((err) => {
+      console.error(err);
     });
 
-  }).catch((err) => {
-    console.error(err);
-  });
+    // Load Map Annotations
+    await this.loadStudiesMapAnnotations();
+  }
 
-  // Load Map Annotations
-  await this.loadStudiesMapAnnotations();
+  loadStudiesThumbnails() {
+    let url = GALLERY_INDEX + "gallery-api/thumbnails/";
 
-}
+    let toFind = this.studies.map(study => study.objId.replace("-", "="));
+    let batchSize = 10;
+    while (toFind.length > 0) {
+      let data = toFind.slice(0, batchSize).join("&");
+      fetch(url + '?' + data)
+        .then(response => response.json())
+        .then(data => {
+          for (let studyId in data) {
+            let study = this.getStudyById(studyId);
+            if (data[studyId]) {
+              study.image = data[studyId].image;
+              study.thumbnail = data[studyId].thumbnail;
+            }
+          }
+          this.publish("thumbnails", data);
+        });
+      toFind = toFind.slice(batchSize);
+    }
+  }
 
-StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails() {
-  let url = GALLERY_INDEX + "gallery-api/thumbnails/";
-
-  let toFind = this.studies.map(study => study.objId.replace("-", "="));
-  let batchSize = 10;
-  while (toFind.length > 0) {
-    let data = toFind.slice(0, batchSize).join("&");
-    fetch(url + '?' + data)
+  async loadStudiesMapAnnotations() {
+    let url = this.base_url + "webclient/api/annotations/?type=map";
+    let data = this.studies
+      .map(study => `${study['@type'].split('#')[1].toLowerCase()}=${study['@id']}`)
+      .join("&");
+    url += '&' + data;
+    await fetch(url)
       .then(response => response.json())
       .then(data => {
-        for (let studyId in data) {
-          let study = this.getStudyById(studyId);
-          if (data[studyId]) {
-            study.image = data[studyId].image;
-            study.thumbnail = data[studyId].thumbnail;
+        // populate the studies array...
+        // dict of {'project-1' : key-values}
+        let annsByParentId = {};
+        data.annotations.forEach(ann => {
+          let key = ann.link.parent.class;  // 'ProjectI'
+          key = key.substr(0, key.length - 1).toLowerCase();
+          key += '-' + ann.link.parent.id;  // project-1
+          if (!annsByParentId[key]) {
+            annsByParentId[key] = [];
           }
-        }
-        this.publish("thumbnails", data);
-      });
-    toFind = toFind.slice(batchSize);
-  }
-}
-
-StudiesModel.prototype.loadStudiesMapAnnotations = async function loadStudiesMapAnnotations() {
-  let url = this.base_url + "webclient/api/annotations/?type=map";
-  let data = this.studies
-    .map(study => `${study['@type'].split('#')[1].toLowerCase()}=${study['@id']}`)
-    .join("&");
-  url += '&' + data;
-  await fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      // populate the studies array...
-      // dict of {'project-1' : key-values}
-      let annsByParentId = {};
-      data.annotations.forEach(ann => {
-        let key = ann.link.parent.class;  // 'ProjectI'
-        key = key.substr(0, key.length - 1).toLowerCase();
-        key += '-' + ann.link.parent.id;  // project-1
-        if (!annsByParentId[key]) {
-          annsByParentId[key] = [];
-        }
-        annsByParentId[key] = annsByParentId[key].concat(ann.values);
-      });
-      // Add mapValues to studies...
-      this.studies = this.studies.map(study => {
-        // Also set 'type':'screen', 'objId': 'screen-123'
-        study.type = study['@type'].split('#')[1].toLowerCase();
-        study.id = study['@id'];
-        study.objId = `${study.type}-${study['@id']}`;
-        let values = annsByParentId[study.objId];
-        if (values) {
-          study.mapValues = values;
-          let releaseDate = this.getStudyValue(study, 'Release Date');
-          if (releaseDate) {
-            study.date = new Date(releaseDate);
-            if (isNaN(study.date.getTime())) {
-              study.date = undefined;
+          annsByParentId[key] = annsByParentId[key].concat(ann.values);
+        });
+        // Add mapValues to studies...
+        this.studies = this.studies.map(study => {
+          // Also set 'type':'screen', 'objId': 'screen-123'
+          study.type = study['@type'].split('#')[1].toLowerCase();
+          study.id = study['@id'];
+          study.objId = `${study.type}-${study['@id']}`;
+          let values = annsByParentId[study.objId];
+          if (values) {
+            study.mapValues = values;
+            let releaseDate = this.getStudyValue(study, 'Release Date');
+            if (releaseDate) {
+              study.date = new Date(releaseDate);
+              if (isNaN(study.date.getTime())) {
+                study.date = undefined;
+              }
             }
           }
-        }
-        return study;
-      });
+          return study;
+        });
 
-    })
-}
-
-StudiesModel.prototype.filterStudiesByMapQuery = function filterStudiesByMapQuery(query) {
-  if (query.startsWith("FIRST") || query.startsWith("LAST")) {
-    // E.g. query is 'FIRST10:date' sort by 'date' and return first 10
-    var limit = parseInt(query.replace('FIRST', '').replace('LAST', ''));
-    var attr = query.split(':')[1];
-    var desc = query.startsWith("FIRST") ? -1 : 1; // first filter studies, remove those that don't have 'attr'
-
-    var sorted = this.studies.filter(function (study) {
-      return study[attr] !== undefined;
-    }).sort(function (a, b) {
-      var aVal = a[attr];
-      var bVal = b[attr]; // If string, use lowercase
-
-      aVal = aVal.toLowerCase ? aVal.toLowerCase() : aVal;
-      bVal = bVal.toLowerCase ? bVal.toLowerCase() : bVal;
-      return aVal < bVal ? desc : aVal > bVal ? -desc : 0;
-    });
-    return sorted.slice(0, limit);
+      })
   }
 
-  var matches = this.studies.filter(function (study) {
-    // If no key-values loaded, filter out
-    if (!study.mapValues) {
-      return false;
+  filterStudiesByMapQuery(query) {
+    if (query.startsWith("FIRST") || query.startsWith("LAST")) {
+      // E.g. query is 'FIRST10:date' sort by 'date' and return first 10
+      var limit = parseInt(query.replace('FIRST', '').replace('LAST', ''));
+      var attr = query.split(':')[1];
+      var desc = query.startsWith("FIRST") ? -1 : 1; // first filter studies, remove those that don't have 'attr'
+
+      var sorted = this.studies.filter(function (study) {
+        return study[attr] !== undefined;
+      }).sort(function (a, b) {
+        var aVal = a[attr];
+        var bVal = b[attr]; // If string, use lowercase
+
+        aVal = aVal.toLowerCase ? aVal.toLowerCase() : aVal;
+        bVal = bVal.toLowerCase ? bVal.toLowerCase() : bVal;
+        return aVal < bVal ? desc : aVal > bVal ? -desc : 0;
+      });
+      return sorted.slice(0, limit);
     }
 
-    var match = false; // first split query by AND and OR
+    var matches = this.studies.filter(function (study) {
+      // If no key-values loaded, filter out
+      if (!study.mapValues) {
+        return false;
+      }
 
-    var ors = query.split(' OR ');
-    ors.forEach(function (term) {
-      var allAnds = true;
-      var ands = term.split(' AND ');
-      ands.forEach(function (mustMatch) {
-        var queryKeyValue = mustMatch.split(":");
-        var valueMatch = false; // check all key-values (may be duplicate keys) for value that matches
+      var match = false; // first split query by AND and OR
 
-        for (var i = 0; i < study.mapValues.length; i++) {
-          var kv = study.mapValues[i];
+      var ors = query.split(' OR ');
+      ors.forEach(function (term) {
+        var allAnds = true;
+        var ands = term.split(' AND ');
+        ands.forEach(function (mustMatch) {
+          var queryKeyValue = mustMatch.split(":");
+          var valueMatch = false; // check all key-values (may be duplicate keys) for value that matches
 
-          if (kv[0] === queryKeyValue[0]) {
-            var value = queryKeyValue[1].trim();
+          for (var i = 0; i < study.mapValues.length; i++) {
+            var kv = study.mapValues[i];
 
-            if (value.substr(0, 4) === 'NOT ') {
-              value = value.replace('NOT ', '');
+            if (kv[0] === queryKeyValue[0]) {
+              var value = queryKeyValue[1].trim();
 
-              if (kv[1].toLowerCase().indexOf(value.toLowerCase()) == -1) {
+              if (value.substr(0, 4) === 'NOT ') {
+                value = value.replace('NOT ', '');
+
+                if (kv[1].toLowerCase().indexOf(value.toLowerCase()) == -1) {
+                  valueMatch = true;
+                }
+              } else if (kv[1].toLowerCase().indexOf(value.toLowerCase()) > -1) {
                 valueMatch = true;
               }
-            } else if (kv[1].toLowerCase().indexOf(value.toLowerCase()) > -1) {
-              valueMatch = true;
             }
           }
-        } // if not found, then our AND term fails
+          // if not found, then our AND term fails
+          if (!valueMatch) {
+            allAnds = false;
+          }
+        });
 
-
-        if (!valueMatch) {
-          allAnds = false;
+        if (allAnds) {
+          match = true;
         }
       });
-
-      if (allAnds) {
-        match = true;
-      }
+      return match;
     });
-    return match;
-  });
-  return matches;
-};
-
-StudiesModel.prototype.loadImage = function loadImage(obj_type, obj_id, callback) {
-  var _this5 = this;
-
-  // Get a sample image ID for 'screen' or 'project'
-  var key = "".concat(obj_type, "-").concat(obj_id); // check cache
-
-  if (this.images[key]) {
-    callback(this.images[key]);
-    return;
+    return matches;
   }
 
-  var limit = 20;
+  loadImage(obj_type, obj_id, callback) {
+    // Get a sample image ID for 'screen' or 'project'
+    let key = `${obj_type}-${obj_id}`;
 
-  if (obj_type == 'screen') {
-    var url = "".concat(this.base_url, "api/v0/m/screens/").concat(obj_id, "/plates/");
-    url += '?limit=1'; // just get first plate
-
-    fetch(url).then(function (response) {
-      return response.json();
-    }).then(function (data) {
-      obj = data.data[0]; // Jump into the 'middle' of plate to make sure Wells have images
-      // NB: Some plates don't have Well at each Row/Column spot. Well_count < Rows * Cols * 0.5
-
-      var offset = Math.max(0, parseInt(obj.Rows * obj.Columns * 0.25) - limit);
-      var url = "".concat(_this5.base_url, "api/v0/m/plates/").concat(obj['@id'], "/wells/?limit=").concat(limit, "&offset=").concat(offset);
-      return fetch(url);
-    }).then(function (response) {
-      return response.json();
-    }).then(function (data) {
-      var wellSample;
-
-      for (var w = 0; w < data.data.length; w++) {
-        if (data.data[w].WellSamples) {
-          wellSample = data.data[w].WellSamples[0];
-        }
-      }
-
-      if (!wellSample) {
-        console.log('No WellSamples in first Wells!', data);
-        return;
-      }
-
-      _this5.images[key] = wellSample.Image;
-      callback(_this5.images[key]);
+    // check cache
+    if (this.images[key]) {
+      callback(this.images[key]);
       return;
-    });
-  } else if (obj_type == 'project') {
-    var _url = "".concat(this.base_url, "api/v0/m/projects/").concat(obj_id, "/datasets/");
-
-    _url += '?limit=1'; // just get first plate
-
-    fetch(_url).then(function (response) {
-      return response.json();
-    }).then(function (data) {
-      obj = data.data[0];
-
-      if (!obj) {
-        // No Dataset in Project: ' + obj_id;
-        return;
-      }
-
-      var url = "".concat(_this5.base_url, "api/v0/m/datasets/").concat(obj['@id'], "/images/?limit=1");
-      return fetch(url);
-    }) // Handle undefined if no Datasets in Project...
-    .then(function (response) {
-      return response ? response.json() : {};
-    }).then(function (data) {
-      if (data && data.data && data.data[0]) {
-        var image = data.data[0];
-        _this5.images[key] = image;
-        callback(_this5.images[key]);
-      }
-    })["catch"](function (error) {
-      console.error("Error loading Image for Project: " + obj_id, error);
-    });
-  }
-};
-
-
-StudiesModel.prototype.loadStudyStats = function(callback) {
-  const url = "https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv";
-  $.get(url, function (data) {
-    let tsvRows = data.split('\n');
-
-    let stats = {};
-    let columns;
-    let studyColIndex;
-    tsvRows.forEach(function (row, count) {
-      let values = row.split('\t');
-      if (count == 0) {
-        columns = values;
-        studyColIndex = columns.indexOf("Study");
-        return;
-      }
-      if (values.length < studyColIndex) return;
-      let studyName = values[studyColIndex];
-      if (!studyName) return;
-      let studyId = studyName.split("-")[0];
-      if (!stats[studyId]) {
-        stats[studyId] = [];
-      }
-      let row_data = {};
-      for (let c=0; c<values.length; c++) {
-        if (c < columns.length) {
-          row_data[columns[c]] = values[c];
-        }
-      }
-      stats[studyId].push(row_data);
-    });
-    this.studyStats = stats;
-
-    if (callback) {
-      callback(stats);
     }
-  }.bind(this));
+
+    let url = `${GALLERY_INDEX}gallery-api/${obj_type}s/${obj_id}/images/?limit=1`
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        let images = data.data;
+        if (images.length > 0) {
+          this.images[key] = images[0]
+        }
+        callback(this.images[key]);
+        return;
+      })
+  }
+
+  loadStudyStats = function(callback) {
+    const url = "https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv";
+    $.get(url, function (data) {
+      let tsvRows = data.split('\n');
+
+      let stats = {};
+      let columns;
+      let studyColIndex;
+      tsvRows.forEach(function (row, count) {
+        let values = row.split('\t');
+        if (count == 0) {
+          columns = values;
+          studyColIndex = columns.indexOf("Study");
+          return;
+        }
+        if (values.length < studyColIndex) return;
+        let studyName = values[studyColIndex];
+        if (!studyName) return;
+        let studyId = studyName.split("-")[0];
+        if (!stats[studyId]) {
+          stats[studyId] = [];
+        }
+        let row_data = {};
+        for (let c=0; c<values.length; c++) {
+          if (c < columns.length) {
+            row_data[columns[c]] = values[c];
+          }
+        }
+        stats[studyId].push(row_data);
+      });
+      this.studyStats = stats;
+
+      if (callback) {
+        callback(stats);
+      }
+    }.bind(this));
+  }
 }
 
 function animateValue(obj, start, end, duration) {

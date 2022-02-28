@@ -105,7 +105,6 @@ function render() {
 
 
   let idrIds = [];
-  console.log("model.studies", model.studies)
 
   let html = "";
   if (!groupByType) {
