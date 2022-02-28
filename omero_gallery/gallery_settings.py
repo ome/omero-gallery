@@ -154,9 +154,8 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.videos":
         ["VIDEOS",
-         ('[{"id":"TriO0nhYD_I", "title": "From Publication to an IDR study", "text":'
-          '"Highlights linkage between publications and studies in IDR. Viewing of images and Regions of interest (ROIs) in IDR are'
-          ' shown and the metadata associated with a study are explored."},'
+         ('[{"id":"xJlXt5wDUgs", "title": "Video: From Publication to an IDR study", "text":'
+          '"Explore linkage between publications and studies in IDR. View images and Regions of interest (ROIs) in IDR. Download the metadata associated with the ROIs."},'
           '{"id":"ybHnoFS0b_k", "title": "From gene to well-annotated images", "text": "Search for Images associated with a gene, starting from the IDR home page."},'
           '{"id":"vhKVqutxLI8", "title": "From compound to analytical results", "text": "Search by compound and explore analytical metadata of the treated samples."}]'
          ),
