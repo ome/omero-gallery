@@ -24,7 +24,7 @@ let model = new StudiesModel();
 
 model.subscribe('thumbnails', (event, data) => {
   // Will get called when each batch of thumbnails is loaded
-  renderThumbnails(data);
+  render();
 });
 
 
@@ -192,39 +192,6 @@ function imageCount(idrId) {
   return imgCount + " Image" + (imgCount != "1" ? "s" : "");
 }
 
-
-function renderThumbnails(data) {
-  // data is {'project-1': {'image':{'id': 2}, 'thumbnail': 'data:image/jpeg;base64,/9j/4AAQSkZ...'}}
-  for (let id in data) {
-    let obj_type = id.split('-')[0];
-    let obj_id = id.split('-')[1];
-    let elements = document.querySelectorAll(`div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`);
-    // This updates small grid thumbnails and the tooltip images
-    for (let e = 0; e < elements.length; e++) {
-      // Find all studies matching the study ID and set src on image
-      let element = elements[e];
-      element.style.backgroundImage = `url(${data[id].thumbnail})`;
-      // tooltip content is child of this element
-      let thumb = element.querySelector(".tooltipThumb");
-      if (thumb) {
-        thumb.src = data[id].thumbnail;
-      }
-      // add viewer-link for tooltip
-      let link = element.querySelector(".viewer_link");
-      if (link) {
-        let url = `${BASE_URL}webclient/img_detail/${data[id].image.id}/`;
-        link.href = url;
-      }
-    }
-  }
-
-  // update tooltips
-  [...document.querySelectorAll(".studyThumb")].map(element => {
-    if (element._tippy) {
-      element._tippy.setContent(getTooltipContent(element));
-    }
-  });
-}
 
 function renderStudyKeys() {
   if (FILTER_KEYS.length > 0) {
