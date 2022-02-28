@@ -35,8 +35,22 @@ var StudiesModel = function StudiesModel() {
   this.base_url = BASE_URL;
   this.studies = [];
   this.images = {};
+  this.pubSubObject = $({});
   return this;
 };
+
+StudiesModel.prototype.subscribe = function subscribe() {
+  this.pubSubObject.on.apply(this.pubSubObject, arguments);
+}
+
+StudiesModel.prototype.unsubscribe = function unsubscribe() {
+  this.pubSubObject.off.apply(this.pubSubObject, arguments);
+}
+
+StudiesModel.prototype.publish = function publish() {
+  this.pubSubObject.trigger.apply(this.pubSubObject, arguments);
+}
+
 
 StudiesModel.prototype.getStudyById = function getStudyById(typeId) {
   // E.g. 'project-1', or 'screen-2'
@@ -293,58 +307,46 @@ StudiesModel.prototype.loadStudies = async function loadStudies() {
 
 }
 
-StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails(ids, callback) {
-  var _this3 = this;
+StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails() {
+  let url = GALLERY_INDEX + "gallery-api/thumbnails/";
+  // remove duplicates
+  // ids = [...new Set(ids)];
+  // // find any thumbnails we already have in hand...
+  // let found = {};
+  // let toFind = [];
+  // ids.forEach(id => {
+  //   let study = this.getStudyById(id);
+  //   if (study && study.image && study.thumbnail) {
+  //     found[id] = { image: study.image, thumbnail: study.thumbnail }
+  //   } else {
+  //     toFind.push(id);
+  //   }
+  // });
+  // if (Object.keys(found).length > 0) {
+  //   callback(found);
+  // }
 
-  var url = GALLERY_INDEX + "gallery-api/thumbnails/"; // remove duplicates
-
-  ids = _toConsumableArray(new Set(ids)); // find any thumbnails we already have in hand...
-
-  var found = {};
-  var toFind = [];
-  ids.forEach(function (id) {
-    var study = _this3.getStudyById(id);
-
-    if (study && study.image && study.thumbnail) {
-      found[id] = {
-        image: study.image,
-        thumbnail: study.thumbnail
-      };
-    } else {
-      toFind.push(id);
-    }
-  });
-
-  if (Object.keys(found).length > 0) {
-    callback(found);
-  }
-
-  toFind = toFind.map(function (id) {
-    return id.replace('-', '=');
-  });
-  var batchSize = 10;
-
+  let toFind = this.studies.map(study => study.objId.replace("-", "="));
+  console.log("toFind", toFind);
+  // toFind = toFind.map(id => id.replace('-', '='));
+  let batchSize = 10;
   while (toFind.length > 0) {
-    var data = toFind.slice(0, batchSize).join("&");
-    fetch(url + '?' + data).then(function (response) {
-      return response.json();
-    }).then(function (data) {
-      for (var studyId in data) {
-        var study = _this3.getStudyById(studyId);
-
-        if (data[studyId]) {
-          study.image = data[studyId].image;
-          study.thumbnail = data[studyId].thumbnail;
+    let data = toFind.slice(0, batchSize).join("&");
+    fetch(url + '?' + data)
+      .then(response => response.json())
+      .then(data => {
+        for (let studyId in data) {
+          let study = this.getStudyById(studyId);
+          if (data[studyId]) {
+            study.image = data[studyId].image;
+            study.thumbnail = data[studyId].thumbnail;
+          }
         }
-      }
-
-      if (callback) {
-        callback(data);
-      }
-    });
+        this.publish("thumbnails", data);
+      });
     toFind = toFind.slice(batchSize);
   }
-};
+}
 
 StudiesModel.prototype.loadStudiesMapAnnotations = async function loadStudiesMapAnnotations() {
   let url = this.base_url + "webclient/api/annotations/?type=map";

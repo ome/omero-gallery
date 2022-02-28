@@ -233,20 +233,24 @@ input:checked + .sliderToggle:before {
   opacity: 0;
 }
 
-.idr_tooltip {
-  width:max-content;
-  padding:2px 0 3px;
-  margin:0
+/* tooltip content hidden */
+.studyThumb .idr_tooltip {
+  display: none;
 }
+
 /* tooltip viewer link */
-.idr_tooltip a .fa-eye {
+.tippy-content a .fa-eye {
   position: absolute;
-  top: 5px; left: 5px;
+  top: 5px; right: 5px;
   color: white
 }
-.idr_tooltip a:hover .fa-eye {
+.tippy-content a:hover .fa-eye {
   color: #1e94e6;
 }
+.tooltipThumb {
+    float: right;
+}
+
 </style>
 
 

@@ -18,6 +18,12 @@
 
 // Model for loading Projects, Screens and their Map Annotations
 let model = new StudiesModel();
+
+model.subscribe('thumbnails', (event, data) => {
+  // Will get called when each batch of thumbnails is loaded
+  renderThumbnails(data);
+});
+
 let mapr_settings;
 
 function renderStudyKeys() {
@@ -492,7 +498,8 @@ function render(filterFunc) {
 
   studiesToRender.forEach(s => renderStudy(s, '#studies', linkFunc, htmlFunc));
 
-  loadStudyThumbnails();
+  // loadStudyThumbnails();
+  model.loadStudiesThumbnails();
 }
 
 
@@ -604,20 +611,8 @@ function maprHtml(props, studyData) {
 }
 
 
-function loadStudyThumbnails() {
+function renderThumbnails(data) {
 
-  let ids = [];
-  // Collect study IDs 'project-1', 'screen-2' etc
-  $('div.study').each(function () {
-    let obj_id = $(this).attr('data-obj_id');
-    let obj_type = $(this).attr('data-obj_type');
-    if (obj_id && obj_type) {
-      ids.push(obj_type + '-' + obj_id);
-    }
-  });
-
-  // Load images
-  model.loadStudiesThumbnails(ids, (data) => {
     // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
     for (let id in data) {
       if (!data[id]) continue;  // may be null
@@ -639,19 +634,27 @@ function loadStudyThumbnails() {
         }
       }
     }
-  });
 }
 
 // ----------- Load / Filter Studies --------------------
 
-// Do the loading and render() when done...
-model.loadStudies(() => {
+async function init() {
+  // Do the loading and render() when done...
+  await model.loadStudies();
+
   // Immediately filter by Super category
   if (SUPER_CATEGORY && SUPER_CATEGORY.query) {
     model.studies = model.filterStudiesByMapQuery(SUPER_CATEGORY.query);
   }
+
+  // load thumbs for all studies, even if not needed
+  // URL will be same each time (before filtering) so response will be cached
+  model.loadStudiesThumbnails();
+
   filterAndRender();
-});
+}
+
+init();
 
 // Handle browser Back and Forwards - redo filtering
 window.onpopstate = (event) => {

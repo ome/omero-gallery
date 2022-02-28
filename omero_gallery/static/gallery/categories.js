@@ -22,6 +22,16 @@ let mapr_settings = {};
 // Model for loading Projects, Screens and their Map Annotations
 let model = new StudiesModel();
 
+model.subscribe('thumbnails', (event, data) => {
+  // Will get called when each batch of thumbnails is loaded
+  renderThumbnails(data);
+});
+
+
+let getTooltipContent = (reference) => {
+  return reference.querySelector(".idr_tooltip").innerHTML;
+}
+
 
 // ------------ Render -------------------------
 
@@ -50,8 +60,7 @@ function render(groupByType) {
     }
   });
 
-  function renderStudyContainers(idrId) {
-    let containers = studyContainers[idrId];
+  function renderStudyContainers(containers) {
     return ['screen', 'project'].map(objType => {
       let studies = containers[objType];
       let count = studies.length;
@@ -75,9 +84,31 @@ function render(groupByType) {
       }
       idrIds.push(idrId);
       let authors = model.getStudyValue(study, "Publication Authors") || " ";
+      authors = authors.split(",")[0];
       let title = escapeHTML(getStudyTitle(model, study));
+      let pubmed = studyContainers[idrId]["pubmed_id"];
       return `
         <div class="studyThumb" data-authors="${authors}" data-title="${title}" data-idrid="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+          <div class="idr_tooltip">
+            <div style="float: right">
+              ${pubmed ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>` : `<b> ${authors} et. al </b>`}
+            </div>
+            <div style="margin-bottom:5px">${idrId}</div>
+            <div style="width: 300px; display:flex">
+              <div style="width:96px; position: relative" title="Open image viewer">
+                <a class="viewer_link" target="_blank" href="#">
+                  <img class="tooltipThumb"></img>
+                  <i class="fas fa-eye"></i>
+                </a>
+              </div>
+              <div style="width:204px; margin-left: 7px">
+                ${renderStudyContainers(studyContainers[idrId])} ${imageCount(idrId)}<br>
+                <span title="${studyContainers[idrId]["description"]}">
+                  ${title}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
     `}).join("");
   } else {
@@ -134,46 +165,15 @@ function render(groupByType) {
 
   document.getElementById('studies').innerHTML = html;
 
-  loadStudyThumbnails(() => {
-    // We have to create tippy tooltips *after* loading thumbnails and setting data-imgid
-    // because the html is generated up-front (not on hover) and needs data-imgid
-    tippy('.studyThumb', {
-      content: (reference) => {
-        let imgId = reference.dataset.imgid;
-        let src = `${BASE_URL}webgateway/render_thumbnail/${imgId}/`;
-        let idrId = reference.dataset.idrid;
-        let title = reference.dataset.title;
-        let authors = reference.dataset.authors.split(",")[0];
-        let pubmed = studyContainers[idrId]["pubmed_id"];
-        return `
-        <div class="idr_tooltip">
-          <div style="float: right">
-            ${pubmed ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>` : `<b> ${authors} et. al </b>` }
-          </div>
-          <div style="margin-bottom:5px">${idrId}</div>
-          <div style="width: 300px; display:flex">
-            <div style="width:96px; position: relative" title="Open image viewer">
-              <a target="_blank" href="${BASE_URL}webclient/img_detail/${imgId}/">
-                <i class="fas fa-eye"></i>
-                <img src="${src}"/>
-              </a>
-            </div>
-            <div style="width:204px; margin-left: 7px">
-              ${renderStudyContainers(idrId)} ${imageCount(idrId)}<br>
-              <span title="${studyContainers[idrId]["description"]}">
-                ${title}
-              </span>
-            </div>
-          </div>
-        </div>`;
-      },
-      trigger: 'mouseenter click',  // click to show - eg. on mobile
-      theme: 'light-border',
-      offset: [0, 2],
-      allowHTML: true,
-      moveTransition: 'transform 2s ease-out',
-      interactive: true, // allow click
-    });
+  // tooltips - NB: updated when thumbnails loaded
+  tippy('.studyThumb', {
+    content: getTooltipContent,
+    trigger: 'mouseenter click',  // click to show - eg. on mobile
+    theme: 'light-border',
+    offset: [0, 2],
+    allowHTML: true,
+    moveTransition: 'transform 2s ease-out',
+    interactive: true, // allow click
   });
 }
 
@@ -192,35 +192,35 @@ function imageCount(idrId) {
 }
 
 
-function loadStudyThumbnails(callback) {
-
-  let ids = [];
-  // Collect study IDs 'project-1', 'screen-2' etc
-  $('div.studyThumb').each(function () {
-    let obj_id = $(this).attr('data-obj_id');
-    let obj_type = $(this).attr('data-obj_type');
-    if (obj_id && obj_type) {
-      ids.push(obj_type + '-' + obj_id);
-    }
-  });
-
-  // Load images
-  model.loadStudiesThumbnails(ids, (data) => {
-    // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
-    for (let id in data) {
-      let obj_type = id.split('-')[0];
-      let obj_id = id.split('-')[1];
-      let elements = document.querySelectorAll(`div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`);
-      for (let e = 0; e < elements.length; e++) {
-        // Find all studies matching the study ID and set src on image
-        let element = elements[e];
-        element.style.backgroundImage = `url(${data[id].thumbnail})`;
-        // add image ID data for tooltip
-        element.dataset.imgid = data[id].image.id;
+function renderThumbnails(data) {
+  // data is {'project-1': {'image':{'id': 2}, 'thumbnail': 'data:image/jpeg;base64,/9j/4AAQSkZ...'}}
+  for (let id in data) {
+    let obj_type = id.split('-')[0];
+    let obj_id = id.split('-')[1];
+    let elements = document.querySelectorAll(`div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`);
+    // This updates small grid thumbnails and the tooltip images
+    for (let e = 0; e < elements.length; e++) {
+      // Find all studies matching the study ID and set src on image
+      let element = elements[e];
+      element.style.backgroundImage = `url(${data[id].thumbnail})`;
+      // tooltip content is child of this element
+      let thumb = element.querySelector(".tooltipThumb");
+      if (thumb) {
+        thumb.src = data[id].thumbnail;
+      }
+      // add viewer-link for tooltip
+      let link = element.querySelector(".viewer_link");
+      if (link) {
+        let url = `${BASE_URL}webclient/img_detail/${data[id].image.id}/`;
+        link.href = url;
       }
     }
-    if (callback) {
-      callback();
+  }
+
+  // update tooltips
+  [...document.querySelectorAll(".studyThumb")].map(element => {
+    if (element._tippy) {
+      element._tippy.setContent(getTooltipContent(element));
     }
   });
 }
@@ -269,6 +269,8 @@ async function init() {
   if (SUPER_CATEGORY && SUPER_CATEGORY.query) {
     model.studies = model.filterStudiesByMapQuery(SUPER_CATEGORY.query);
   }
+
+  model.loadStudiesThumbnails();
 
   console.log("render...");
 

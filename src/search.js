@@ -520,37 +520,14 @@ function noStudiesMessage() {
 function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
 
   // Add Project or Screen to the page
-  let title;
-  for (let i=0; i<TITLE_KEYS.length; i++) {
-    title = model.getStudyValue(studyData, TITLE_KEYS[i]);
-    if (title) {
-      break;
-    }
-  }
-  if (!title) {
-    title = studyData.Name;
-  }
+  var title = model.getStudyTitle(studyData);
+
   let type = studyData['@type'].split('#')[1].toLowerCase();
   let studyLink = linkFunc(studyData);
   // save for later
   studyData.title = title;
 
-  let desc = studyData.Description;
-  let studyDesc;
-  if (desc) {
-    // If description contains title, use the text that follows
-    if (title.length > 0 && desc.indexOf(title) > -1) {
-      desc = desc.split(title)[1];
-    }
-    // Remove blank lines (and first 'Experiment Description' line)
-    studyDesc = desc.split('\n')
-      .filter(l => l.length > 0)
-      .filter(l => l !== 'Experiment Description' && l !== 'Screen Description')
-      .join('\n');
-    if (studyDesc.indexOf('Version History') > 1) {
-      studyDesc = studyDesc.split('Version History')[0];
-    }
-  }
+  var studyDesc = model.getStudyDescription(studyData, title);
 
   let shortName = getStudyShortName(studyData);
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
