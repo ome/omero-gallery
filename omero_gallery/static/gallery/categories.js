@@ -32,6 +32,47 @@ let getTooltipContent = (reference) => {
   return reference.querySelector(".idr_tooltip").innerHTML;
 }
 
+function renderStudyContainers(containers) {
+  return ['screen', 'project'].map(objType => {
+    let studies = containers[objType];
+    let count = studies.length;
+    if (count == 0) return;
+    // Link to first Project or Screen
+    return `<a target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=${studies[studies.length - 1].objId}">${count} ${objType == 'project' ? 'Experiment' : 'Screen'}${count === 1 ? '' : 's'}</a>`;
+  }).filter(Boolean).join(", ");
+}
+
+function studyHtml(study, studyObj) {
+  let idrId = study.Name.split("-")[0];
+  let authors = model.getStudyValue(study, "Publication Authors") || " ";
+  authors = authors.split(",")[0];
+  let title = escapeHTML(getStudyTitle(model, study));
+  let pubmed = studyObj["pubmed_id"];
+  return `
+          <div class="studyThumb" style="${study.thumbnail ? 'background-image: url(' + study.thumbnail + ')' : ''}" data-authors="${authors}" data-title="${title}" data-idrid="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
+            <div class="idr_tooltip">
+              <div style="float: right">
+                ${pubmed ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>` : `<b> ${authors} et. al </b>`}
+              </div>
+              <div style="margin-bottom:5px">${idrId}</div>
+              <div style="width: 300px; display:flex">
+                <div style="width:96px; position: relative" title="Open image viewer">
+                  <a class="viewer_link" target="_blank" href="#">
+                    <img class="tooltipThumb" src="${study.thumbnail ? study.thumbnail : ''}"></img>
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </div>
+                <div style="width:204px; margin-left: 7px">
+                  ${renderStudyContainers(studyObj)} ${imageCount(idrId)}<br>
+                  <span title="${studyObj["description"]}">
+                    ${title}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+      `}
+
 
 // ------------ Render -------------------------
 
@@ -60,15 +101,6 @@ function render(groupByType) {
     }
   });
 
-  function renderStudyContainers(containers) {
-    return ['screen', 'project'].map(objType => {
-      let studies = containers[objType];
-      let count = studies.length;
-      if (count == 0) return;
-      // Link to first Project or Screen
-      return `<a target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=${studies[studies.length-1].objId}">${count} ${objType == 'project' ? 'Experiment' : 'Screen'}${count === 1 ? '' : 's'}</a>`;
-    }).filter(Boolean).join(", ");
-  }
 
   let idrIds = [];
   console.log("model.studies", model.studies)
@@ -83,34 +115,8 @@ function render(groupByType) {
         return '';
       }
       idrIds.push(idrId);
-      let authors = model.getStudyValue(study, "Publication Authors") || " ";
-      authors = authors.split(",")[0];
-      let title = escapeHTML(getStudyTitle(model, study));
-      let pubmed = studyContainers[idrId]["pubmed_id"];
-      return `
-        <div class="studyThumb" data-authors="${authors}" data-title="${title}" data-idrid="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-          <div class="idr_tooltip">
-            <div style="float: right">
-              ${pubmed ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>` : `<b> ${authors} et. al </b>`}
-            </div>
-            <div style="margin-bottom:5px">${idrId}</div>
-            <div style="width: 300px; display:flex">
-              <div style="width:96px; position: relative" title="Open image viewer">
-                <a class="viewer_link" target="_blank" href="#">
-                  <img class="tooltipThumb"></img>
-                  <i class="fas fa-eye"></i>
-                </a>
-              </div>
-              <div style="width:204px; margin-left: 7px">
-                ${renderStudyContainers(studyContainers[idrId])} ${imageCount(idrId)}<br>
-                <span title="${studyContainers[idrId]["description"]}">
-                  ${title}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-    `}).join("");
+      return studyHtml(study, studyContainers[idrId]);
+    }).join("");
   } else {
     // group by Categories
     let categories = Object.keys(CATEGORY_QUERIES);
@@ -145,12 +151,7 @@ function render(groupByType) {
         }
         catIds.push(idrId);
         allIds.push(idrId);
-        let authors = model.getStudyValue(study, "Publication Authors") || " ";
-        let title = escapeHTML(getStudyTitle(model, study));
-        return `
-          <div class="studyThumb" data-authors="${authors}" data-title="${title}" data-idrid="${idrId}" data-obj_type="${study.type}" data-obj_id="${study.id}">
-          </div>
-        `
+        return studyHtml(study, studyContainers[idrId]);
       }).join("");
 
       return `

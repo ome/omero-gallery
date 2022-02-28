@@ -309,26 +309,8 @@ StudiesModel.prototype.loadStudies = async function loadStudies() {
 
 StudiesModel.prototype.loadStudiesThumbnails = function loadStudiesThumbnails() {
   let url = GALLERY_INDEX + "gallery-api/thumbnails/";
-  // remove duplicates
-  // ids = [...new Set(ids)];
-  // // find any thumbnails we already have in hand...
-  // let found = {};
-  // let toFind = [];
-  // ids.forEach(id => {
-  //   let study = this.getStudyById(id);
-  //   if (study && study.image && study.thumbnail) {
-  //     found[id] = { image: study.image, thumbnail: study.thumbnail }
-  //   } else {
-  //     toFind.push(id);
-  //   }
-  // });
-  // if (Object.keys(found).length > 0) {
-  //   callback(found);
-  // }
 
   let toFind = this.studies.map(study => study.objId.replace("-", "="));
-  console.log("toFind", toFind);
-  // toFind = toFind.map(id => id.replace('-', '='));
   let batchSize = 10;
   while (toFind.length > 0) {
     let data = toFind.slice(0, batchSize).join("&");
