@@ -56,9 +56,15 @@
       </div>
       <div style="padding:0" class="small-12 medium-4 large-3 columns">
         <select id="maprConfig">
-          <optgroup id="studyKeys" style='display:none' label="Study Attributes">
-            <!-- Map-Annotation keys loaded here -->
+          {% if filter_keys %}
+          <optgroup id="studyKeys" label="Study Attributes">
+            {% for key in filter_keys %}
+            <option value="{% if key.value %}{{ key.value }}{% else %}{{ key }}{% endif %}">
+              {% if key.label %}{{ key.label }}{% else %}{{ key }}{% endif %}
+            </option>`
+            {% endfor %}
           </optgroup>
+          {% endif %}
           <optgroup id="maprKeys" style='display:none' label="Image Attributes">
           </optgroup>
         </select>

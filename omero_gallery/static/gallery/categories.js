@@ -195,25 +195,6 @@ function imageCount(idrId) {
 }
 
 
-function renderStudyKeys() {
-  if (FILTER_KEYS.length > 0) {
-    let html = FILTER_KEYS
-      .map(key => {
-        if (key.label && key.value) {
-          return `<option value="${key.value}">${key.label}</option>`
-        }
-        return `<option value="${key}">${key}</option>`
-      })
-      .join("\n");
-    document.getElementById('studyKeys').innerHTML = html;
-    // Show the <optgroup> and the whole form
-    document.getElementById('studyKeys').style.display = 'block';
-    document.getElementById('search-form').style.display = 'block';
-  }
-}
-renderStudyKeys();
-
-
 // ----------- Load / Filter Studies --------------------
 
 model.loadStudyStats(function(stats){

@@ -279,9 +279,15 @@ input:checked + .sliderToggle:before {
   <div id='search-form' class="row horizontal">
     <div class="small-12 medium-4 large-4 columns">
       <select id="maprConfig">
-        <optgroup id="studyKeys" style='display:none' label="Study Attributes">
-          <!-- Study keys loaded here -->
+        {% if filter_keys %}
+        <optgroup id="studyKeys" label="Study Attributes">
+          {% for key in filter_keys %}
+            <option value="{% if key.value %}{{ key.value }}{% else %}{{ key }}{% endif %}">
+              {% if key.label %}{{ key.label }}{% else %}{{ key }}{% endif %}
+            </option>`
+          {% endfor %}
         </optgroup>
+        {% endif %}
         <optgroup id="maprKeys" style='display:none' label="Image Attributes">
           <!-- Map-Annotation keys loaded here -->
         </optgroup>
