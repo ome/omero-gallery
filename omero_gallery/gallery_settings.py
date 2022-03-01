@@ -154,7 +154,7 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.videos":
         ["VIDEOS",
-         ('[{"id":"xJlXt5wDUgs", "title": "Video: From Publication to IDR", "text":'
+         ('[{"id":"N9Den172mHo", "title": "Video: From Publication to IDR", "text":'
           '"Explore linkage between publications and studies in IDR. View images and Regions of interest (ROIs) in IDR. Download the metadata associated with the ROIs."},'
           '{"id":"ybHnoFS0b_k", "title": "Video: From Gene to images", "text": "Search for images associated with a gene. Explore the retrieved images and metadata. View the images in context of a plate."},'
           '{"id":"vhKVqutxLI8", "title": "Video: Analytical results", "text": "Search for a compound. Find Sars-COVID-2 screening study. Explore images in relation to analytical data submitted by authors."}]'
