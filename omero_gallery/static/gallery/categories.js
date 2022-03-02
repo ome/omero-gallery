@@ -200,13 +200,16 @@ model.loadStudyStats(function(stats){
   // Load stats and show spinning counters...
   // remove grouping by idrId
   let rows = Object.values(stats).flatMap(rows => rows);
-  console.log("loadStudyStats rows", SUPER_CATEGORY, rows);
 
   if (SUPER_CATEGORY) {
     try {
       // filter studies by cell or tissue
       let query = SUPER_CATEGORY.query.split(":");   // e.g. "Sample Type:tissue"
-      rows = rows.filter(row => row[query[0]] == query[1]);
+      let filtered = rows.filter(row => row[query[0]] == query[1]);
+      if (filtered.length != 0) {
+        // in case we filter out everything!
+        rows = filtered;
+      }
     } catch (error) {
       console.log("Failed to filter studies stats by category")
     }
