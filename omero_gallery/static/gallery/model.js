@@ -444,32 +444,36 @@ class StudiesModel {
     const url = "https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv";
     $.get(url, function (data) {
       let tsvRows = data.split('\n');
-
-      let stats = {};
       let columns;
-      let studyColIndex;
-      tsvRows.forEach(function (row, count) {
+      // read tsv => dicts
+      let rowsAsObj = tsvRows.map(function (row, count) {
         let values = row.split('\t');
         if (count == 0) {
           columns = values;
-          studyColIndex = columns.indexOf("Study");
           return;
         }
-        if (values.length < studyColIndex) return;
-        let studyName = values[studyColIndex];
-        if (!studyName) return;
-        let studyId = studyName.split("-")[0];
-        if (!stats[studyId]) {
-          stats[studyId] = [];
-        }
+        if (values.length === 0) return;
         let row_data = {};
         for (let c=0; c<values.length; c++) {
           if (c < columns.length) {
             row_data[columns[c]] = values[c];
           }
         }
-        stats[studyId].push(row_data);
+        return row_data
+      }).filter(Boolean);
+
+      // Group rows by Study
+      let stats = {};
+      rowsAsObj.forEach(row => {
+        let studyName = row["Study"];
+        if (!studyName) return;
+        let studyId = studyName.split("-")[0];
+        if (!stats[studyId]) {
+          stats[studyId] = [];
+        }
+        stats[studyId].push(row);
       });
+
       this.studyStats = stats;
 
       if (callback) {

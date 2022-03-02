@@ -198,9 +198,22 @@ function imageCount(idrId) {
 
 model.loadStudyStats(function(stats){
   // Load stats and show spinning counters...
-  let imageCounts = Object.values(stats).flatMap(rows => rows.map(row => row["5D Images"]));
+  // remove grouping by idrId
+  let rows = Object.values(stats).flatMap(rows => rows);
+  console.log("loadStudyStats rows", SUPER_CATEGORY, rows);
+
+  if (SUPER_CATEGORY) {
+    try {
+      // filter studies by cell or tissue
+      let query = SUPER_CATEGORY.query.split(":");   // e.g. "Sample Type:tissue"
+      rows = rows.filter(row => row[query[0]] == query[1]);
+    } catch (error) {
+      console.log("Failed to filter studies stats by category")
+    }
+  }
+  let imageCounts = rows.map(row => row["5D Images"]);
   let totalImages = imageCounts.reduce((total, value) => total + parseInt(value, 10), 0);
-  let tbCounts = Object.values(stats).flatMap(rows => rows.map(row => row["Size (TB)"]));
+  let tbCounts = rows.map(row => row["Size (TB)"]);
   let tbTotal = tbCounts.reduce((total, value) => total + parseFloat(value, 10), 0);
   let studyCount = Object.keys(stats).length;
 
