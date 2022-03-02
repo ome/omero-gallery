@@ -198,27 +198,35 @@ function imageCount(idrId) {
 
 model.loadStudyStats(function(stats){
   // Load stats and show spinning counters...
-  // remove grouping by idrId
-  let rows = Object.values(stats).flatMap(rows => rows);
 
-  if (SUPER_CATEGORY) {
-    try {
-      // filter studies by cell or tissue
-      let query = SUPER_CATEGORY.query.split(":");   // e.g. "Sample Type:tissue"
-      let filtered = rows.filter(row => row[query[0]] == query[1]);
-      if (filtered.length != 0) {
-        // in case we filter out everything!
-        rows = filtered;
+  // In case studies.tsv loading from github fails, show older values
+  let totalImages = 12840301;
+  let tbTotal = 307;
+  let studyCount = 104;
+
+  if (stats) {
+    // remove grouping by idrId
+    let rows = Object.values(stats).flatMap(rows => rows);
+
+    if (SUPER_CATEGORY) {
+      try {
+        // filter studies by cell or tissue
+        let query = SUPER_CATEGORY.query.split(":");   // e.g. "Sample Type:tissue"
+        let filtered = rows.filter(row => row[query[0]] == query[1]);
+        if (filtered.length != 0) {
+          // in case we filter out everything!
+          rows = filtered;
+        }
+      } catch (error) {
+        console.log("Failed to filter studies stats by category")
       }
-    } catch (error) {
-      console.log("Failed to filter studies stats by category")
     }
+    let imageCounts = rows.map(row => row["5D Images"]);
+    totalImages = imageCounts.reduce((total, value) => total + parseInt(value, 10), 0);
+    let tbCounts = rows.map(row => row["Size (TB)"]);
+    tbTotal = tbCounts.reduce((total, value) => total + parseFloat(value, 10), 0);
+    studyCount = Object.keys(stats).length;
   }
-  let imageCounts = rows.map(row => row["5D Images"]);
-  let totalImages = imageCounts.reduce((total, value) => total + parseInt(value, 10), 0);
-  let tbCounts = rows.map(row => row["Size (TB)"]);
-  let tbTotal = tbCounts.reduce((total, value) => total + parseFloat(value, 10), 0);
-  let studyCount = Object.keys(stats).length;
 
   animateValue(document.getElementById("imageCount"), 0, totalImages, 1500);
   animateValue(document.getElementById("tbCount"), 0, tbTotal, 1500);

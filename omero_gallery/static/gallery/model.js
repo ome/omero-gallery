@@ -442,6 +442,7 @@ class StudiesModel {
 
   loadStudyStats = function(callback) {
     const url = "https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv";
+    let self = this;
     $.get(url, function (data) {
       let tsvRows = data.split('\n');
       let columns;
@@ -474,12 +475,17 @@ class StudiesModel {
         stats[studyId].push(row);
       });
 
-      this.studyStats = stats;
+      self.studyStats = stats;
 
       if (callback) {
         callback(stats);
       }
-    }.bind(this));
+    }).fail(function(){
+      console.log("Failed to load studies.tsv")
+      if (callback) {
+        callback();
+      }
+    });
   }
 }
 
