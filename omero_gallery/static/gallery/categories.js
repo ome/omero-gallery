@@ -243,27 +243,29 @@ model.loadStudyStats(function(stats){
   let studyCount = 104;
 
   if (stats) {
-    // remove grouping by idrId
-    let rows = Object.values(stats).flatMap(rows => rows);
+    let studyIds = Object.keys(stats);
+    // remove grouping of containers by idrId
+    let containers = Object.values(stats).flatMap(containers => containers);
 
     if (SUPER_CATEGORY) {
       try {
-        // filter studies by cell or tissue
+        // filter studies and containers by cell or tissue
         let query = SUPER_CATEGORY.query.split(":");   // e.g. "Sample Type:tissue"
-        let filtered = rows.filter(row => row[query[0]] == query[1]);
+        studyIds = studyIds.filter(studyId => stats[studyId].some(row => row[query[0]] == query[1]));
+        let filtered = containers.filter(row => row[query[0]] == query[1]);
         if (filtered.length != 0) {
           // in case we filter out everything!
-          rows = filtered;
+          containers = filtered;
         }
       } catch (error) {
         console.log("Failed to filter studies stats by category")
       }
     }
-    let imageCounts = rows.map(row => row["5D Images"]);
+    let imageCounts = containers.map(row => row["5D Images"]);
     totalImages = imageCounts.reduce((total, value) => total + parseInt(value, 10), 0);
-    let tbCounts = rows.map(row => row["Size (TB)"]);
+    let tbCounts = containers.map(row => row["Size (TB)"]);
     tbTotal = tbCounts.reduce((total, value) => total + parseFloat(value, 10), 0);
-    studyCount = Object.keys(stats).length;
+    studyCount = studyIds.length;
   }
 
   animateValue(document.getElementById("imageCount"), 0, totalImages, 1500);
