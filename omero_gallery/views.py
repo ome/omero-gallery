@@ -77,9 +77,15 @@ def index(request, super_category=None, conn=None, **kwargs):
     groups = []
     for g in my_groups:
         conn.SERVICE_OPTS.setOmeroGroup(g.id)
-        images = list(conn.getObjects("Image", params=params))
-        if len(images) == 0:
+        image_ids = query_service.projection(
+                                "SELECT i.id FROM Image i",
+                                params,
+                                conn.SERVICE_OPTS
+                )
+        if len(image_ids[0]) == 0:
             continue        # Don't display empty groups
+        else:
+            image = conn.getObject("Image", image_ids[0][0]._val)
         p_count = query_service.projection(
             query % 'Project', None, conn.SERVICE_OPTS)
         d_count = query_service.projection(
@@ -93,7 +99,7 @@ def index(request, super_category=None, conn=None, **kwargs):
             'projectCount': p_count[0][0]._val,
             'datasetCount': d_count[0][0]._val,
             'imageCount': i_count[0][0]._val,
-            'image': len(images) > 0 and images[0] or None})
+            'image': len(image_ids[0]) > 0 and image or None})
 
     # This is used by @render_response
     context = {'template': "webgallery/index.html"}
