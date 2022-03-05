@@ -257,6 +257,10 @@ input:checked + .sliderToggle:before {
     float: right;
 }
 
+mark {
+  background: yellow;
+}
+
 </style>
 
 
@@ -348,8 +352,11 @@ input:checked + .sliderToggle:before {
 </div>
 <div class="row horizontal" style="position: relative">
   <div class="small-12 medium-12 large-12 columns">
-    <div id="studies" class="panel" style="float: left">
-      Loading Studies...
+    <div class="panel" style="float: left">
+      <input id="filterText" />
+      <div id="studies">
+        Loading Studies...
+      </div>
     </div>
   </div>
 </div>
@@ -422,6 +429,36 @@ input:checked + .sliderToggle:before {
 <script src="{% static 'gallery/autocomplete.js' %}"></script>
 
 <script>
+
+  $("#filterText").on("keyup", function(event) {
+    let text = event.target.value;
+    console.log("filter", text);
+
+    if (text.length == 0) {
+      render();
+      return;
+    }
+
+    let results = model.filterStudiesAnyText(text);
+    let html = results.map(studyText => {
+      let [study, matchingStrings] = studyText;
+
+      let regexes = text.split(" ").map(token => new RegExp(token, "i"))
+      function markup(string){
+        return regexes.reduce((prev, regex) => prev.replace(regex, "<mark>$&</mark>"), string)
+      }
+      let matchingString = matchingStrings.map(markup).join('<br>');
+
+      return `<tr>
+        <td>${study.Name}</td>
+        <td>${matchingString}</td>
+        </tr>`
+    }).join("\n");
+
+    document.getElementById('studies').innerHTML = `<table>${html}</table>`;
+  });
+
+
   $(".expandVideo").on("click", function() {
     let $row = $(this).closest(".row");
     // toggle from 2 columns to 1

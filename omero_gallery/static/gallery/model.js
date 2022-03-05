@@ -349,6 +349,35 @@ class StudiesModel {
       })
   }
 
+  filterStudiesAnyText(text) {
+    // Search for studies with text in their keys, values, or description.
+    // Returns a list of matching studies. Each study is returned along with text matches
+    // [study, ["key: value", "description"]]
+    let regexes = text.split(" ").map(token => new RegExp(token, "i"))
+    function matchSome(str) {
+      return regexes.some(re => re.test(str));
+    }
+    const re = new RegExp(text, "i")
+    return this.studies.map(study => {
+      let mapValues = [];
+      if (study.mapValues) {
+        mapValues = study.mapValues.map(kv => kv.join(": "));
+      }
+      let studyStrings = mapValues.concat([study.Description]);
+
+      // we want ALL the search tokens to match at least somewhere in studyStrings
+      let match = regexes.every(re => studyStrings.some(str => re.test(str)))
+      if (!match) return;
+
+      // return [study, "key: value string showing matching text"]
+      let matches = mapValues.filter(matchSome);
+      if (matchSome(study.Description)) {
+        matches.push(study.Description);
+      }
+      return [study, matches]
+    }).filter(Boolean);
+  }
+
   filterStudiesByMapQuery(query) {
     if (query.startsWith("FIRST") || query.startsWith("LAST")) {
       // E.g. query is 'FIRST10:date' sort by 'date' and return first 10
