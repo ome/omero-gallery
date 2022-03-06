@@ -172,6 +172,7 @@ def index(request, super_category=None, conn=None, **kwargs):
         context['super_categories'] = settings.SUPER_CATEGORIES
         category = settings.SUPER_CATEGORIES.get(super_category)
         if category is not None:
+            category['id'] = super_category
             label = category.get('label', context['gallery_heading'])
             title = category.get('title', label)
             context['gallery_heading'] = title
@@ -460,6 +461,7 @@ def search(request, super_category=None, conn=None, **kwargs):
             settings.FILTER_MAPR_KEYS)
     category = settings.SUPER_CATEGORIES.get(super_category)
     if category is not None:
+        category['id'] = super_category
         label = category.get('label', context['gallery_heading'])
         title = category.get('title', label)
         context['gallery_heading'] = title

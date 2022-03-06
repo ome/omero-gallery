@@ -72,10 +72,7 @@
     position: relative;
     text-align: center;
     font-size: 1.7rem;
-    color: black;
-  }
-  .stats span {
-    color: #dddddd;
+    color: #333;
   }
   #studies {
     overflow-x: hidden;
@@ -111,6 +108,7 @@
   /* https://www.w3schools.com/howto/howto_css_switch.asp */
   /* The switch - the box around the slider */
 .switch {
+  top: 3px;
   position: relative;
   display: inline-block;
   width: 33px;
@@ -331,21 +329,15 @@ mark {
 
 <div class="row horizontal" style="position: relative; margin-top: 25px; margin-bottom: 15px">
   <div class="small-12 medium-12 large-12 columns">
-    <div class="panel" style="float: left; width: 100%">
-      <div class="small-12 medium-1 large-2 columns">&nbsp</div>
-      <div class="stats small-12 medium-9 large-8 columns" style="position: relative">
-        <span id="imageCount" style="color: #333"></span> Images <span>|</span>
-        <span id="tbCount" style="color: #333"></span> TB <span>|</span>
-        <span id="studyCount" style="color: #333"></span> Studies
+    <div class="panel" style="float: left; width: 100%; color: #333">
+      <div class="stats small-12 medium-4 large-4 columns">
+        <span id="imageCount"></span> Images
       </div>
-      <div class="stats small-12 medium-2 large-2 columns" >&nbsp
-        <div style="position: absolute; top: 0; right: 15px; width: max-content;">
-          <label class="switchLabel">Group by type</label>
-          <label class="switch">
-            <input id="groupByType" type="checkbox">
-            <span class="sliderToggle round"></span>
-          </label>
-        </div>
+      <div class="stats small-12 medium-4 large-4 columns">
+        <span id="tbCount"></span> TB
+      </div>
+      <div class="stats small-12 medium-4 large-4 columns">
+        <span id="studyCount"></span> Studies
       </div>
     </div>
   </div>
@@ -353,7 +345,16 @@ mark {
 <div class="row horizontal" style="position: relative">
   <div class="small-12 medium-12 large-12 columns">
     <div class="panel" style="float: left">
-      <input id="filterText" />
+      <div>
+        <label class="switchLabel">Group Studies by type</label>
+        <label class="switch">
+          <input id="groupByType" type="checkbox">
+          <span class="sliderToggle round"></span>
+        </label>
+        <label class="switchLabel" style="margin-left: 20px">or Filter by:</label>
+        <input id="filterText" placeholder="author or keyword"/>
+        <label class="switchLabel" id="filterResults"></label>
+      </div>
       <div id="studies">
         Loading Studies...
       </div>
@@ -432,10 +433,10 @@ mark {
 
   $("#filterText").on("keyup", function(event) {
     let text = event.target.value;
-    console.log("filter", text);
 
     if (text.length == 0) {
       render();
+      document.getElementById('filterResults').innerHTML = "";
       return;
     }
 
@@ -449,12 +450,33 @@ mark {
       }
       let matchingString = matchingStrings.map(markup).join('<br>');
 
-      return `<tr>
-        <td>${study.Name}</td>
+      return `<tr style="font-size: 13px">
+        <td>
+          <img src="${study.thumbnail}"/><br>
+          ${study.Name}
+        </td>
         <td>${matchingString}</td>
         </tr>`
     }).join("\n");
 
+    if (results.length == 0) {
+      html = "No studies found"
+      if (SUPER_CATEGORY) {
+        if (SUPER_CATEGORY.id === "cell") {
+          html += ` in Cell IDR. Try searching <a href="${ GALLERY_INDEX }">all Studies in IDR</a>.`;
+        } else if (SUPER_CATEGORY.id === "tissue") {
+          html += ` in Tissue IDR. Try searching <a href="${GALLERY_INDEX }">all Studies in IDR</a>.`;
+        }
+      } else {
+        html += ". Try searching for Image attributes above."
+      }
+    }
+
+    let containerCount = results.length;
+    let idrIds = results.map(r => r[0].Name.split("-")[0]);
+    let studyCount = (new Set(idrIds)).size;
+
+    document.getElementById('filterResults').innerHTML = `found ${containerCount} containers in ${studyCount} studies`;
     document.getElementById('studies').innerHTML = `<table>${html}</table>`;
   });
 
