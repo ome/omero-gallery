@@ -126,6 +126,8 @@ $(function(){
     });
 
     function logKey(e) {
+        // ignore keyboard events from input elements
+        if (document.activeElement.tagName == "INPUT") return;
         let $selected = $(".bg_controls .selected");
         let index = $(".bg_controls div").index($selected);
         let count = $(".bg_controls>div").length;
