@@ -456,11 +456,19 @@ mark {
         return regexes.reduce((prev, regex) => prev.replace(regex, "<mark>$&</mark>"), string)
       }
       let matchingString = matchingStrings.map(markup).join('<br>');
+      let idrId = study.Name.split('-')[0];
+      let pubmed = model.getStudyValue(study, 'PubMed ID')?.split(" ")[1];
+      let authors = model.getStudyValue(study, "Publication Authors") || " ";
+      authors = authors.split(",")[0];
 
       return `<tr style="font-size: 13px">
         <td>
-          <img src="${study.thumbnail}"/><br>
-          ${study.Name}
+          ${idrId}<br>
+          <span style="white-space:nowrap">${pubmed ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>` : `<b> ${authors} et. al </b>`}</span><br>
+          <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
+            <img src="${study.thumbnail}"/><br>
+            ${study.Name.split("/").pop()}
+          </a>
         </td>
         <td>${matchingString}</td>
         </tr>`
