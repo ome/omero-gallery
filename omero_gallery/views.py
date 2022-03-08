@@ -82,7 +82,7 @@ def index(request, super_category=None, conn=None, **kwargs):
                                 params,
                                 conn.SERVICE_OPTS
                 )
-        if len(image_ids[0]) == 0:
+        if len(image_ids) == 0:
             continue        # Don't display empty groups
         else:
             image = conn.getObject("Image", image_ids[0][0]._val)
@@ -99,7 +99,7 @@ def index(request, super_category=None, conn=None, **kwargs):
             'projectCount': p_count[0][0]._val,
             'datasetCount': d_count[0][0]._val,
             'imageCount': i_count[0][0]._val,
-            'image': len(image_ids[0]) > 0 and image or None})
+            'image': len(image_ids) > 0 and image or None})
 
     # This is used by @render_response
     context = {'template': "webgallery/index.html"}
