@@ -152,18 +152,12 @@ GALLERY_SETTINGS_MAPPING = {
           " If a 'regex' and 'template' are specified, we try"
           " name.replace(regex, template).")],
 
-    "omero.web.gallery.videos":
-        ["VIDEOS",
-         ('[{"id":"N9Den172mHo", "title": "Video: From Publication to IDR", "text":'
-          '"Explore linkage between publications and studies in IDR. View images and Regions of interest (ROIs) in IDR. Download the metadata associated with the ROIs."},'
-          '{"id":"ybHnoFS0b_k", "title": "Video: From Gene to images", "text": "Query for images associated with a gene. Explore the retrieved images and metadata. View the images in context of a plate."},'
-          '{"id":"rG-qAHZl-p0", "title": "Video: Analytical results", "text": "Query for images associated with a compound. Find Sars-COVID-2 screening study. Explore images in relation to analytical data submitted by authors."}]'
-         ),
-         json.loads,
-         ("List of videos to show on the categories page."
-          " Each in the form {'id': youtubeId, 'title': 'IDR demo', 'text': 'Search by compound and explore analytical metadata of the treated samples.'}"
-         )],
-
+    "omero.web.gallery.idex_json_url":
+        ["INDEX_JSON_URL",
+         'https://raw.githubusercontent.com/will-moore/idr.openmicroscopy.org/idr_index_data/_data/idr_index.json',
+         str,
+         "URL to load JSON, with a 'tabs' list of {'title':'', 'text':'', 'videos':[]}"
+        ],
 }
 
 process_custom_settings(sys.modules[__name__], 'GALLERY_SETTINGS_MAPPING')
