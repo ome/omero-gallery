@@ -469,8 +469,7 @@ class StudiesModel {
       })
   }
 
-  loadStudyStats = function(callback) {
-    const url = "https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv";
+  loadStudyStats = function(url, callback) {
     let self = this;
     $.get(url, function (data) {
       let tsvRows = data.split('\n');

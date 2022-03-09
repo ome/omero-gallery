@@ -157,6 +157,7 @@ def index(request, super_category=None, conn=None, **kwargs):
         context['top_right_links'] = settings.TOP_RIGHT_LINKS
         context['top_left_logo'] = settings.TOP_LEFT_LOGO
         context['INDEX_JSON_URL'] = settings.INDEX_JSON_URL
+        context['IDR_STUDIES_URL'] = settings.IDR_STUDIES_URL
         try:
             href = context['top_left_logo'].get('href', 'webgallery_index')
             context['top_left_logo']['href'] = reverse(href)

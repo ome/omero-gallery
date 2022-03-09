@@ -234,7 +234,7 @@ function renderThumbnails(data) {
 
 // ----------- Load / Filter Studies --------------------
 
-model.loadStudyStats(function(stats){
+model.loadStudyStats(IDR_STUDIES_URL, function(stats){
   // Load stats and show spinning counters...
 
   // In case studies.tsv loading from github fails, show older values
