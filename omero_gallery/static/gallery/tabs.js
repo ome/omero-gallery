@@ -51,4 +51,12 @@ $(function() {
             new Foundation.Tabs($('#tabs .tabs'));
         });
     }
+
+    // handle expand/collapse of videos >>
+    $("#tabs").on("click", ".expandVideo", function () {
+        let $row = $(this).closest(".row");
+        // toggle from 2 columns to 1
+        $('.columns', $row).toggleClass("small-12 medium-12 large-12")
+            .toggleClass("small-6 medium-6 large-6");
+    });
 });
