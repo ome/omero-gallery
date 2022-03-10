@@ -221,13 +221,6 @@ function renderThumbnails(data) {
       }
     }
   }
-
-  // update tooltips
-  // [...document.querySelectorAll(".studyThumb")].map(element => {
-  //   if (element._tippy) {
-  //     element._tippy.setContent(getTooltipContent(element));
-  //   }
-  // });
 }
 
 

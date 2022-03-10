@@ -347,7 +347,8 @@ mark {
         <span class="switchLabel" id="filterResults" style="margin-left: 10px"></span>
       </form>
       <div id="studies">
-        Loading Studies...
+        <!-- Placeholder thumbnails - updated by render() once studies have loaded -->
+        <script>document.write((new Array(100)).fill(`<div class="studyThumb"></div>`).join(""))</script>
       </div>
     </div>
   </div>
@@ -380,6 +381,7 @@ mark {
 
 <script>
 
+  // Handle filtering studies when user types in [filter] text input
   $("#filterText").on("keyup", function(event) {
     let text = event.target.value;
 
