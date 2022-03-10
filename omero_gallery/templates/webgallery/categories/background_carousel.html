@@ -80,7 +80,7 @@
 </style>
 
 {% for img in idr_images %}
-<div class="marketing-background {% if not forloop.first %}next{% endif %}" style="background-image: url('{{ img.src }}');" {% if img.light %}data-light="true"{% endif %}></div>
+<div class="marketing-background {% if not forloop.first %}next{% endif %}" data-src="{{ img.src }}" style="background-image: url('{{ img.thumbnail }}');" {% if img.light %}data-light="true"{% endif %}></div>
 {% endfor %}
 
 <div class="bg_controls">
@@ -101,9 +101,23 @@ $(function(){
     function renderHeaderBg(clickedIndex) {
         var isLight;
         $(".marketing-background").each(function (index, el) {
-            $(el).css('left', (clickedIndex - index) * -100 + '%');
+            let $bgImg = $(el);
+            $bgImg.css('left', (clickedIndex - index) * -100 + '%');
             if (clickedIndex == index) {
-                isLight = $(el).data("light");
+                isLight = $bgImg.data("light");
+            }
+            if (clickedIndex == index || clickedIndex + 1 == index || clickedIndex - 1 == index) {
+                // load the image (data-src => src) for current background 'previous' and 'next'
+                let src = $bgImg.attr("data-src");
+                if (src) {
+                  let i = new Image();
+                  $bgImg.removeAttr("data-src");  // don't process again
+                  i.onload = function(){
+                    // pre-load before updating background, to avoid black while loading
+                    $bgImg.css('background-image', "url('" + src + "')")
+                  };
+                  i.src = src;
+                }
             }
         });
         $(`.bg_controls div`).removeClass('selected');
