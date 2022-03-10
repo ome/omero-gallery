@@ -281,8 +281,9 @@ mark {
         where the community can submit, search and access high-quality bio-image data.
       </h2>
       <div class="cats">
-      {% for category, data in super_categories.items %}
-        <a href="{% url 'gallery_super_category' super_category=category %}" class="large button sites-button" style="margin-right: 10px">{{ data.label }}</a>
+      {% for c, data in super_categories.items %}
+        <a href="{% url 'gallery_super_category' super_category=c %}" class="large button sites-button" +
+        style="margin-right: 10px; {% if c == category %}background-color: #ffc107{% endif %}">{{ data.label }}</a>
       {% endfor %}
       </div>
     </div>
