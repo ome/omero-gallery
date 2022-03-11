@@ -63,7 +63,9 @@ function studyHtml(study, studyObj) {
                   </a>
                 </div>
                 <div style="width:204px; margin-left: 7px">
-                  ${renderStudyContainers(studyObj)} ${imageCount(idrId)}<br>
+                  <div style="float: left">${renderStudyContainers(studyObj)}</div>
+                  <div style="float: right; font-weight: bold">${imageCount(idrId)}</div>
+                  <div style="clear: both"></div>
                   <span title="${studyObj["description"]}">
                     ${title}
                   </span>
@@ -190,7 +192,7 @@ function imageCount(idrId) {
 
   let imgCount = containers.map(row => row["5D Images"])
                   .reduce((total, value) => total + parseInt(value, 10), 0);
-  return imgCount + " Image" + (imgCount != "1" ? "s" : "");
+  return new Intl.NumberFormat().format(imgCount) + " Image" + (imgCount != "1" ? "s" : "");
 }
 
 function renderThumbnails(data) {
