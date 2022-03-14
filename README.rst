@@ -25,65 +25,21 @@ Install the app using `pip <https://pip.pypa.io/en/stable/>`_:
 
 ::
 
-    $ pip install -U omero-gallery
+    $ pip install -U idr-gallery
 
 Add gallery custom app to your installed web apps:
 
 ::
 
-    $ omero config append omero.web.apps '"omero_gallery"'
+    $ omero config append omero.web.apps '"idr_gallery"'
 
 Now restart OMERO.web as normal.
 
 
-OMERO.gallery overview
-======================
+IDR.gallery overview
+====================
 
-This application supports 2 alternative views of your data in OMERO, which can
-be chosen and customised via config settings:
-
-* Default UI (no config): Browse `Group > Project > Dataset > Image`
-* Categories UI: Show categories of interest. Allow filtering by map annotations.
-
-For both views, public access can be enabled
-`as described here <https://docs.openmicroscopy.org/latest/omero/sysadmins/public.html>`_,
-otherwise users will see the standard web login screen.
-Once logged-in (as a regular user or public user), the data displayed will
-include all data accessible to that user via the normal OMERO permissions.
-
-
-Default UI
-----------
-
-This view supports minimal functionality required for browsing the hierarchy
-from Groups -> Projects -> Datasets -> Images. Screen/Plate/Well data is
-not supported in this UI.
-
-The home page will display all the available groups that the user can access, with a random
-thumbnail from each group. The number of Projects, Datasets and Images within each group
-will also be displayed.
-
-.. image:: https://ome.github.io/omero-gallery/images/gallery.png
-
-
-On browsing into a group, the Projects and 'orphaned' Datasets will be shown in a similar layout.
-
-.. image:: https://ome.github.io/omero-gallery/images/show_group.png
-
-Projects are shown with 5 thumbnails from each Dataset. Clicking 'All Images' will load all the remaining thumbnails
-from a chosen Dataset (or you can browse to the Dataset itself by clicking the Dataset name link).
-
-.. image:: https://ome.github.io/omero-gallery/images/show_project.png
-
-Clicking a thumbnail will take you directly to the full image viewer.
-
-.. image:: https://ome.github.io/omero-gallery/images/webgateway_viewer.png
-
-
-Categories UI
--------------
-
-This view was originally developed for use in the IDR and can be seen at
+This UI was developed for use in the IDR and can be seen at
 https://idr.openmicroscopy.org/. In the IDR, a "Study" is a Project or Screen
 and they are annotated with Key-Value data in the form of Map Annotations,
 for example ``Study Type: 3D-tracking``.
@@ -98,8 +54,8 @@ https://github.com/ome/omero-mapr/ is installed then you can:
 * Find Studies containing Images that match queries on their Map Annotations.
 
 
-Configuring the Categories UI
------------------------------
+Configuring the UI
+------------------
 
 **omero.web.gallery.category_queries:**
 To enable the Categories UI, you must set ``omero.web.gallery.category_queries``.

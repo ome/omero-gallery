@@ -35,7 +35,7 @@ def read(fname):
 VERSION = '3.4.2.dev0'
 HOMEPAGE = "https://github.com/ome/omero-gallery"
 
-setup(name="omero-gallery",
+setup(name="idr-gallery",
       packages=find_packages(exclude=['ez_setup']),
       version=VERSION,
       description="A Python plugin for OMERO.web",

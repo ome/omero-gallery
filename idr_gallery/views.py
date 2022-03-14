@@ -31,14 +31,14 @@ def index(request, super_category=None, conn=None, **kwargs):
 
     category_queries = settings.CATEGORY_QUERIES
     if len(category_queries) > 0:
-        context = {'template': "webgallery/categories/index.html"}
+        context = {'template': "idr_gallery/categories/index.html"}
         context['favicon'] = settings.FAVICON
         context['gallery_title'] = settings.GALLERY_TITLE
         context['gallery_heading'] = settings.GALLERY_HEADING
         context['top_right_links'] = settings.TOP_RIGHT_LINKS
         context['top_left_logo'] = settings.TOP_LEFT_LOGO
         try:
-            href = context['top_left_logo'].get('href', 'webgallery_index')
+            href = context['top_left_logo'].get('href', 'idr_gallery_index')
             context['top_left_logo']['href'] = reverse(href)
         except NoReverseMatch:
             pass
@@ -96,7 +96,7 @@ def index(request, super_category=None, conn=None, **kwargs):
             'image': len(images) > 0 and images[0] or None})
 
     # This is used by @render_response
-    context = {'template': "webgallery/index.html"}
+    context = {'template': "idr_gallery/index.html"}
     context['groups'] = groups
 
     return context
@@ -221,7 +221,7 @@ def show_group(request, group_id, conn=None, **kwargs):
             count_images, param_all, conn.SERVICE_OPTS)
         ddata['imageCount'] = image_count[0][0].val
         datasets.append(ddata)
-    context = {'template': "webgallery/show_group.html"}
+    context = {'template': "idr_gallery/show_group.html"}
     context['group'] = group
     context['group_owners'] = group_owners
     context['group_members'] = group_members
@@ -258,7 +258,7 @@ def show_project(request, project_id, conn=None, **kwargs):
             "description": ds.getDescription(),
             "images": images})
 
-    context = {'template': "webgallery/show_project.html"}
+    context = {'template': "idr_gallery/show_project.html"}
     context['project'] = project
     context['datasets'] = datasets
 
@@ -277,7 +277,7 @@ def show_dataset(request, dataset_id, conn=None, **kwargs):
     if dataset is None:
         raise Http404
 
-    context = {'template': "webgallery/show_dataset.html"}
+    context = {'template': "idr_gallery/show_dataset.html"}
     context['dataset'] = dataset
 
     return context
@@ -300,7 +300,7 @@ def show_image(request, image_id, conn=None, **kwargs):
         if isinstance(ann, omero.gateway.TagAnnotationWrapper):
             tags.append(ann)
 
-    context = {'template': "webgallery/show_image.html"}
+    context = {'template': "idr_gallery/show_image.html"}
     context['image'] = image
     context['tags'] = tags
 
@@ -310,14 +310,14 @@ def show_image(request, image_id, conn=None, **kwargs):
 @render_response()
 def search(request, super_category=None, conn=None, **kwargs):
 
-    context = {'template': "webgallery/categories/search.html"}
+    context = {'template': "idr_gallery/categories/search.html"}
     context['favicon'] = settings.FAVICON
     context['gallery_title'] = settings.GALLERY_TITLE
     context['gallery_heading'] = settings.GALLERY_HEADING
     context['top_right_links'] = settings.TOP_RIGHT_LINKS
     context['top_left_logo'] = settings.TOP_LEFT_LOGO
     try:
-        href = context['top_left_logo'].get('href', 'webgallery_index')
+        href = context['top_left_logo'].get('href', 'idr_gallery_index')
         context['top_left_logo']['href'] = reverse(href)
     except NoReverseMatch:
         pass

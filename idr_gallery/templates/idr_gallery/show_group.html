@@ -1,4 +1,4 @@
-{% extends "webgallery/base/base.html" %}
+{% extends "idr_gallery/base/base.html" %}
 
 {% block title %}
     OMERO.web Gallery
@@ -18,7 +18,7 @@
         <h2>{{ p.name }}</h2>
         <p class="pull-left">
             {% if p.image %}
-            <a href="{% url 'webgallery_show_project' p.id %}">
+            <a href="{% url 'idr_gallery_show_project' p.id %}">
                 <img class="img-thumbnail" title="{{ p.image.name }}" style="width:96px; height:96px" 
                 src="{% url 'webgateway_render_thumbnail' p.image.id 96 %}"/>
             </a>
@@ -31,7 +31,7 @@
             </ul>
             <div class="clearfix"></div>
             <p style="margin-left:20px">
-                <a class="btn btn-default" href="{% url 'webgallery_show_project' p.id %}" role="button">View details &raquo;</a>
+                <a class="btn btn-default" href="{% url 'idr_gallery_show_project' p.id %}" role="button">View details &raquo;</a>
             </p>
         </div>
         <div class="clearfix"></div>
@@ -47,7 +47,7 @@
         <h2>{{ p.name }}</h2>
         <p class="pull-left">
             {% if p.image %}
-            <a href="{% url 'webgallery_show_dataset' p.id %}">
+            <a href="{% url 'idr_gallery_show_dataset' p.id %}">
                 <img class="img-thumbnail" title="{{ p.image.name }}" style="width:96px; height:96px" 
                 src="{% url 'webgateway_render_thumbnail' p.image.id 96 %}"/>
             </a>
@@ -59,7 +59,7 @@
             </ul>
             <div class="clearfix"></div>
             <p style="margin-left:20px">
-                <a class="btn btn-default" href="{% url 'webgallery_show_dataset' p.id %}" role="button">View details &raquo;</a>
+                <a class="btn btn-default" href="{% url 'idr_gallery_show_dataset' p.id %}" role="button">View details &raquo;</a>
             </p>
         </div>
         <div class="clearfix"></div>

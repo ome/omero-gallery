@@ -1,5 +1,5 @@
 
-{% extends "webgallery/categories/base.html" %}
+{% extends "idr_gallery/categories/base.html" %}
 
 {% block content %}
 
@@ -9,7 +9,7 @@
   var FILTER_MAPR_KEYS = {{ filter_mapr_keys|safe }};
   var TITLE_KEYS = {{ TITLE_KEYS|safe }};
   var STUDY_SHORT_NAME = {{ STUDY_SHORT_NAME|safe }};
-  const GALLERY_INDEX = "{% url 'webgallery_index' %}";
+  const GALLERY_INDEX = "{% url 'idr_gallery_index' %}";
   const BASE_URL = "{{ base_url }}";
   const CATEGORY_QUERIES = {{ category_queries|safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|safe }} {% endif %};

@@ -109,7 +109,7 @@ GALLERY_SETTINGS_MAPPING = {
          ("Logo image and link. e.g."
           " {'src':'url.png','href':'www.url', 'alt':'Image alt text'}"
           " href can be URL name for reverse(url_name). If href is omitted,"
-          " it will default to 'webgallery_index'")],
+          " it will default to 'idr_gallery_index'")],
 
     "omero.web.gallery.footer_html":
         ["FOOTER_HTML",

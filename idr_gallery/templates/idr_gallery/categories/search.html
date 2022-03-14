@@ -1,5 +1,5 @@
 
-{% extends "webgallery/categories/base.html" %}
+{% extends "idr_gallery/categories/base.html" %}
 
 {% block content %}
 
@@ -72,7 +72,7 @@
           {% if category %}
             href="{% url 'gallery_super_category' super_category=category %}"
           {% else %}
-            href="{% url 'webgallery_index' %}"
+            href="{% url 'idr_gallery_index' %}"
           {% endif %}
           >X</a>
       </div>
@@ -99,7 +99,7 @@
   // Various global constants from omero config set...
   var FILTER_KEYS = {{ filter_keys|escape|safe }};
   var FILTER_MAPR_KEYS = {{ filter_mapr_keys|escape|safe }};
-  const GALLERY_INDEX = "{% url 'webgallery_index' %}";
+  const GALLERY_INDEX = "{% url 'idr_gallery_index' %}";
   const BASE_URL = "{{ base_url }}";
   const CATEGORY_QUERIES = {{ category_queries|escape|safe }};
   var TITLE_KEYS = {{ TITLE_KEYS|escape|safe }};

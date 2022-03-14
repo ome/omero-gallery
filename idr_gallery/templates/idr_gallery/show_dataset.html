@@ -1,4 +1,4 @@
-{% extends "webgallery/base/base.html" %}
+{% extends "idr_gallery/base/base.html" %}
 
 {% block title %}
     {{ dataset.getName }}
@@ -9,7 +9,7 @@
 
     {% if dataset.getParent %}
     {% with p=dataset.getParent %}
-        Back to: <a href="{% url 'webgallery_show_project' p.id %}">{{ p.getName }}</a>
+        Back to: <a href="{% url 'idr_gallery_show_project' p.id %}">{{ p.getName }}</a>
     {% endwith %}
     {% endif %}
 

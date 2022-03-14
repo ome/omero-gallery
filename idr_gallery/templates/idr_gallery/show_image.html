@@ -1,4 +1,4 @@
-{% extends "webgallery/base/base.html" %}
+{% extends "idr_gallery/base/base.html" %}
 
 {% block title %}
     {{ image.getName }}
@@ -8,7 +8,7 @@
 {% block body %}
 
     <div>
-        <a href="{% url 'webgallery_index' %}">Home</a>
+        <a href="{% url 'idr_gallery_index' %}">Home</a>
         Logged in as: {{ ome.user.getFullName }}
     </div>
 
@@ -16,7 +16,7 @@
 
     {% if image.getParent %}
     {% with p=image.getParent %}
-        Back to: <a href="{% url 'webgallery_show_dataset' p.id %}">{{ p.getName }}</a>
+        Back to: <a href="{% url 'idr_gallery_show_dataset' p.id %}">{{ p.getName }}</a>
     {% endwith %}
     {% endif %}
 
