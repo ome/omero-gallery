@@ -1,47 +1,464 @@
-{% extends "idr_gallery/base/base.html" %}
+{% extends "idr_gallery/base.html" %}
 
-{% block title %}
-OMERO.web Gallery
-{% endblock %}
+{% block content %}
 
-{% block jumbotron %}
-<div class="jumbotron">
-    <div class="container">
-        <h1>Welcome to OMERO Gallery</h1>
-        <p>You can browse images below</p>
+<script>
+  // Various global constants from omero config set...
+  var FILTER_KEYS = {{ filter_keys| safe }};
+  var FILTER_MAPR_KEYS = {{ filter_mapr_keys| safe }};
+  var TITLE_KEYS = {{ TITLE_KEYS| safe }};
+  var STUDY_SHORT_NAME = {{ STUDY_SHORT_NAME| safe }};
+  const GALLERY_INDEX = "{{ gallery_index }}";
+  const BASE_URL = "{{ base_url }}";
+  const INDEX_JSON_URL = "{{ INDEX_JSON_URL }}";
+  const IDR_STUDIES_URL = "{{ IDR_STUDIES_URL }}";
+  const CATEGORY_QUERIES = {{ category_queries| safe }};
+  var SUPER_CATEGORY {% if super_category %} = { { super_category | safe } } {% endif %};
+</script>
+
+<script src="{% static 'idr_gallery/tabs.js' %}"></script>
+
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/backdrop.css" />
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light-border.css" />
+
+<style>
+  body {
+    background-color: #f6f6f9;
+  }
+
+  header div {
+    position: relative;
+  }
+
+  .marketing-hero {
+    overflow: hidden;
+    position: relative;
+    padding: 40px 10px 25px;
+    background: black;
+    box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 50%);
+  }
+
+  a.sites-button.large {
+    min-width: 150px;
+    font-size: 1.15rem;
+    display: block;
+    width: fit-content;
+    margin: 15px 7px;
+  }
+
+  .cats {
+    display: flex;
+    justify-content: center;
+  }
+
+  #search-form {
+    padding-top: 10px;
+  }
+
+  .hero-subheader {
+    margin-bottom: 5px;
+    font-size: 1.15rem;
+    transition: background-color 1s, color 1s, box-shadow 1s;
+  }
+
+  .dark .hero-subheader {
+    color: #333333;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0px 0px 15px 15px rgb(255 255 255 / 50%);
+  }
+
+  .stats {
+    position: relative;
+    text-align: center;
+    font-size: 1.7rem;
+    color: #333;
+  }
+
+  #studies {
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 350px;
+  }
+
+  .studyThumb {
+    float: left;
+    position: relative;
+    margin: 1px 0 1px 2px;
+    height: 50px;
+    width: 50px;
+    overflow: hidden;
+    background: no-repeat center;
+    background-size: cover;
+    background-color: #eee;
+  }
+
+  .studyThumb div {
+    height: 100%;
+    width: 100%;
+  }
+
+  .switchLabel {
+    font-size: 1.0rem;
+    display: inline;
+    vertical-align: middle;
+    position: relative;
+    bottom: 1px;
+    color: #666;
+  }
+
+  /* https://www.w3schools.com/howto/howto_css_switch.asp */
+  /* The switch - the box around the slider */
+  .switch {
+    top: 3px;
+    position: relative;
+    display: inline-block;
+    width: 33px;
+    height: 20px;
+  }
+
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  /* The slider */
+  .sliderToggle {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  .sliderToggle:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  input:checked+.sliderToggle {
+    background-color: #333333;
+  }
+
+  input:checked+.sliderToggle:before {
+    -webkit-transform: translateX(13px);
+    -ms-transform: translateX(13px);
+    transform: translateX(13px);
+  }
+
+  /* Rounded sliders */
+  .sliderToggle.round {
+    border-radius: 9px;
+  }
+
+  .sliderToggle.round:before {
+    border-radius: 50%;
+  }
+
+  .panel {
+    background: white;
+    -webkit-box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.5);
+    box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    width: 100%;
+  }
+
+  .panel .tabs {
+    border-width: 0;
+    border-bottom-width: 1px;
+  }
+
+  .tabs-title>a[aria-selected=true] {
+    background: transparent;
+    border-bottom: solid #333 2px;
+  }
+
+  .tabs-title>a:focus {
+    background: transparent;
+  }
+
+  /* .twitter-timeline is just while loading twitter */
+  .tabs-title.is-active a,
+  .tabs-title a,
+  .panel>a.twitter-timeline {
+    color: #292F33;
+    font-weight: 300;
+    font-family: Helvetica, Roboto, "Segoe UI", Calibri, sans-serif;
+    font-size: 21px;
+    line-height: 24px;
+    padding: 5px 25px 9px 25px;
+    margin-bottom: -1px;
+  }
+
+  .tabs-content {
+    border: none;
+  }
+
+  .tabs-panel {
+    padding: 15px 0;
+  }
+
+  .tabs-panel .row {
+    margin-bottom: 15px;
+  }
+
+  .tabs-panel .large-6 iframe {
+    height: 156px;
+  }
+
+  .tabs-panel .large-12 iframe {
+    height: 312px;
+  }
+
+  .expandVideo {
+    position: absolute;
+    bottom: 0;
+    right: -5px;
+    background-color: white;
+    padding: 5px;
+    border-radius: 50%;
+  }
+
+  .large-12 .expandVideo {
+    transform: rotate(180deg);
+  }
+
+  .logo-hero {
+    opacity: 1;
+    transition: opacity 1s;
+  }
+
+  /* hide the white logo when parent has .dark */
+  .dark .logo-hero {
+    opacity: 0;
+  }
+
+  /* tooltip content hidden */
+  .studyThumb .idr_tooltip {
+    display: none;
+  }
+
+  /* tooltip viewer link */
+  .tippy-content a .fa-eye {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: white
+  }
+
+  .tippy-content a:hover .fa-eye {
+    color: #1e94e6;
+  }
+
+  .tooltipThumb {
+    float: right;
+  }
+
+  mark {
+    background: yellow;
+  }
+
+  #filterText {
+    display: inline;
+    width: 200px;
+    margin: 0;
+  }
+</style>
+
+
+<header class="marketing-hero">
+
+  {% include 'idr_gallery/background_carousel.html' %}
+  <div class="row homepage text-center">
+    <div class="medium-12 columns">
+      <div style="display: inline-block; position: relative; width:160px; height:62px; margin-bottom: 20px;">
+        <img style="left: 0; position: absolute; width:160px; margin-bottom: 20px;"
+          src="{% static 'idr_gallery/images/logo-idr-dark.svg' %}" alt="IDR logo" class="logo-dark" />
+        <img style="left: 0; position: absolute; width:160px; margin-bottom: 20px;"
+          src="https://idr.openmicroscopy.org/about/img/logos/logo-idr-white.svg" alt="IDR logo" class="logo-hero">
+      </div>
+      <!-- <h1 class="hero-main-header">Image Data Resource</h1> -->
+      <h2 class="hero-subheader small-10 medium-10 large-10 small-offset-1 medium-offset-1 large-offset-1">
+        The Image Data Resource (IDR) is a public repository of image datasets from published scientific studies,
+        where the community can submit, search and access high-quality bio-image data.
+      </h2>
+      <div class="cats">
+        {% for c, data in super_categories.items %}
+        <a href="{% url 'gallery_super_category' super_category=c %}" class="large button sites-button" +
+          style="margin-right: 10px; {% if c == category %}background-color: #ffc107{% endif %}">{{ data.label }}</a>
+        {% endfor %}
+      </div>
     </div>
-</div>
-{% endblock %}
+  </div>
 
-{% block body %}
-
-<div class="row">
-    {% for g in groups %}
-    <div class="col-md-4">
-        <h2>{{ g.name }}</h2>
-        <p class="pull-left">
-            {% if g.image %}
-            <a href="{% url 'idr_gallery_show_group' g.id %}">
-                <img class="img-thumbnail" title="{{ g.image.name }}" style="width:96px; height:96px" 
-                src="{% url 'webgateway_render_thumbnail' g.image.id 96 %}"/>
-            </a>
-            {% endif %}
-        </p>
-        <div class="pull-left">
-            <ul>
-                <li>Projects: {{ g.projectCount }}</li>
-                <li>Datasets: {{ g.datasetCount }}</li>
-                <li>Images: {{ g.imageCount }}</li>
-            </ul>
-            <div class="clearfix"></div>
-            <p style="margin-left:20px">
-                <a class="btn btn-default" href="{% url 'idr_gallery_show_group' g.id %}" role="button">View details &raquo;</a>
-            </p>
-        </div>
-        <div class="clearfix"></div>
+  <div id='search-form' class="row horizontal">
+    <div class="small-12 medium-4 large-4 columns">
+      <select id="maprConfig">
+        {% if filter_keys %}
+        <optgroup id="studyKeys" label="Study Attributes">
+          {% for key in filter_keys %}
+          <option value="{% if key.value %}{{ key.value }}{% else %}{{ key }}{% endif %}">
+            {% if key.label %}{{ key.label }}{% else %}{{ key }}{% endif %}
+          </option>`
+          {% endfor %}
+        </optgroup>
+        {% endif %}
+        <optgroup id="maprKeys" style='display:none' label="Image Attributes">
+          <!-- Map-Annotation keys loaded here -->
+        </optgroup>
+      </select>
     </div>
-    {% endfor %}
+    <div style="position: relative" class="small-12 medium-8 large-8 columns">
+      <input id="maprQuery" type="text" placeholder="Type to filter values...">
+      <svg id="spinner" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img"
+        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg">
+        <path fill="currentColor"
+          d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z"
+          class=""></path>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<div class="row horizontal" style="position: relative; margin-top: 25px; margin-bottom: 15px">
+  <div class="small-12 medium-12 large-12 columns">
+    <div class="panel" style="float: left; width: 100%; color: #333">
+      <div class="stats small-12 medium-4 large-4 columns">
+        <span id="studyCount"></span> Studies
+      </div>
+      <div class="stats small-12 medium-4 large-4 columns">
+        <span id="imageCount"></span> Images
+      </div>
+      <div class="stats small-12 medium-4 large-4 columns">
+        <span id="tbCount"></span> TB
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row horizontal" style="position: relative">
+  <div class="small-12 medium-12 large-12 columns">
+    <div class="panel" style="float: left">
+      <form>
+        <label class="switchLabel">Group Studies by type</label>
+        <label class="switch">
+          <input id="groupByType" type="checkbox">
+          <span class="sliderToggle round"></span>
+        </label>
+        <label class="switchLabel" style="margin-left: 20px">or Filter by:</label>
+        <input type="text" id="filterText" placeholder="authors or keywords" />
+        <span class="switchLabel" id="filterResults" style="margin-left: 10px"></span>
+      </form>
+      <div id="studies">
+        <!-- Placeholder thumbnails - updated by render() once studies have loaded -->
+        <script>document.write((new Array(100)).fill(`<div class="studyThumb"></div>`).join(""))</script>
+      </div>
+    </div>
+  </div>
 </div>
 
+<div class="row horizontal" style="position: relative; margin-top: 15px; margin-bottom: 15px">
+  <div class="stats small-12 medium-9 large-8 columns" style="position: relative">
+  </div>
+</div>
+
+<div class="row horizontal" style="position: relative;">
+  <div class="small-12 medium-12 large-8 columns" style>
+    <div class="panel" id="tabs">
+      <!-- tab headers and content loaded here - see tabs.js -->
+    </div>
+  </div>
+
+  <div class="small-12 medium-12 large-4 columns">
+    <div class="panel" style="padding: 10px">
+      <!-- <a class="twitter-timeline" data-height="610" href="https://twitter.com/IDRnews?ref_src=twsrc%5Etfw">Tweets by
+      IDRnews</a>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
+
+
+      <a class="twitter-timeline" href="https://twitter.com/IDRnews?ref_src=twsrc%5Etfw">Tweets by IDRnews</a>
+      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="{% static 'idr_gallery/categories.js' %}"></script>
+<script src="{% static 'idr_gallery/autocomplete.js' %}"></script>
+
+<script>
+
+  // Handle filtering studies when user types in [filter] text input
+  $("#filterText").on("keyup", function (event) {
+    let text = event.target.value;
+
+    if (text.length == 0) {
+      render();
+      document.getElementById('filterResults').innerHTML = "";
+      return;
+    }
+
+    let results = model.filterStudiesAnyText(text);
+    let html = results.map(studyText => {
+      let [study, matchingStrings] = studyText;
+
+      let regexes = text.split(" ").map(token => new RegExp(token, "i"))
+      function markup(string) {
+        return regexes.reduce((prev, regex) => prev.replace(regex, "<mark>$&</mark>"), string)
+      }
+      let matchingString = matchingStrings.map(markup).join('<br>');
+      let idrId = study.Name.split('-')[0];
+      let pubmed = model.getStudyValue(study, 'PubMed ID')?.split(" ")[1];
+      let authors = model.getStudyValue(study, "Publication Authors") || " ";
+      authors = authors.split(",")[0];
+
+      return `<tr style="font-size: 13px">
+        <td>
+          ${idrId}<br>
+          <span style="white-space:nowrap">${pubmed ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>` : `<b> ${authors} et. al </b>`}</span><br>
+          <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
+            <img src="${study.thumbnail}"/><br>
+            ${study.Name.split("/").pop()}
+          </a>
+        </td>
+        <td>${matchingString}</td>
+        </tr>`
+    }).join("\n");
+
+    if (results.length == 0) {
+      html = "No studies found"
+      if (SUPER_CATEGORY) {
+        if (SUPER_CATEGORY.id === "cell") {
+          html += ` in Cell IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
+        } else if (SUPER_CATEGORY.id === "tissue") {
+          html += ` in Tissue IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
+        }
+      } else {
+        html += ". Try searching for Image attributes above."
+      }
+    }
+
+    let containerCount = results.length;
+    let idrIds = results.map(r => r[0].Name.split("-")[0]);
+    let studyCount = (new Set(idrIds)).size;
+
+    document.getElementById('filterResults').innerHTML = `found ${containerCount} containers in ${studyCount} studies`;
+    document.getElementById('studies').innerHTML = `<table>${html}</table>`;
+  });
+</script>
 
 {% endblock %}

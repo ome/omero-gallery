@@ -44,7 +44,7 @@ GALLERY_SETTINGS_MAPPING = {
           " e.g. 'https://idr.openmicroscopy.org/' is gallery index on IDR."
           " This allows data to be loaded from another OMERO server, e.g. run"
           " locally or on test server, but load data from IDR."
-          " Default behaviour is to use current server webgallery_index")],
+          " Default behaviour is to use current server idr_gallery_index")],
 
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
