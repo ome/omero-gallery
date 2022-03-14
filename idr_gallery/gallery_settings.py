@@ -31,10 +31,20 @@ GALLERY_SETTINGS_MAPPING = {
         ["BASE_URL",
          None,
          str_slash,
-         ("Base URL to use for JSON AJAX requests."
+         ("Base URL to use for non-gallery JSON AJAX requests."
           " e.g. 'https://demo.openmicroscopy.org'."
           " This allows data to be loaded from another OMERO server."
           " The default behaviour is to use the current server.")],
+
+    "omero.web.gallery.gallery_index":
+        ["GALLERY_INDEX",
+         None,
+         str_slash,
+         ("Base gallery URL to use for gallery JSON AJAX requests."
+          " e.g. 'https://idr.openmicroscopy.org/' is gallery index on IDR."
+          " This allows data to be loaded from another OMERO server, e.g. run"
+          " locally or on test server, but load data from IDR."
+          " Default behaviour is to use current server webgallery_index")],
 
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
@@ -142,6 +152,19 @@ GALLERY_SETTINGS_MAPPING = {
           " Description or the key for a Key:Value pair on the object."
           " If a 'regex' and 'template' are specified, we try"
           " name.replace(regex, template).")],
+
+    "omero.web.gallery.index_json_url":
+        ["INDEX_JSON_URL",
+         'https://raw.githubusercontent.com/will-moore/idr.openmicroscopy.org/idr_index_data/_data/idr_index.json',
+         str,
+         "URL to load JSON, with a 'tabs' list of {'title':'', 'text':'', 'videos':[]}"
+        ],
+    "omero.web.gallery.idr_studies_url":
+        ["IDR_STUDIES_URL",
+         'https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv',
+         str,
+         "URL to IDR studies as a tsv table"
+        ],
 
 }
 
