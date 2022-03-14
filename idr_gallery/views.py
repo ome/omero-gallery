@@ -154,7 +154,6 @@ def index(request, super_category=None, conn=None, **kwargs):
     context = {'template': kwargs.get('template', "idr_gallery/index.html")}
     context['favicon'] = settings.FAVICON
     context['gallery_title'] = settings.GALLERY_TITLE
-    context['gallery_heading'] = settings.GALLERY_HEADING
     context['top_right_links'] = settings.TOP_RIGHT_LINKS
     context['top_left_logo'] = settings.TOP_LEFT_LOGO
     context['INDEX_JSON_URL'] = settings.INDEX_JSON_URL
@@ -166,8 +165,6 @@ def index(request, super_category=None, conn=None, **kwargs):
         pass
     # used by /search page
     context['SUPER_CATEGORIES'] = json.dumps(settings.SUPER_CATEGORIES)
-    context['subheading_html'] = settings.SUBHEADING_HTML
-    context['footer_html'] = settings.FOOTER_HTML
     context['filter_keys'] = settings.FILTER_KEYS
     context['TITLE_KEYS'] = json.dumps(settings.TITLE_KEYS)
     context['STUDY_SHORT_NAME'] = json.dumps(settings.STUDY_SHORT_NAME)
@@ -177,9 +174,6 @@ def index(request, super_category=None, conn=None, **kwargs):
     category = settings.SUPER_CATEGORIES.get(super_category)
     if category is not None:
         category['id'] = super_category
-        label = category.get('label', context['gallery_heading'])
-        title = category.get('title', label)
-        context['gallery_heading'] = title
         context['super_category'] = json.dumps(category)
         context['category'] = super_category
     base_url = reverse('index')
@@ -204,7 +198,6 @@ def gallery_settings(request):
 
     attrs = ['CATEGORY_QUERIES',
              'GALLERY_TITLE',
-             'GALLERY_HEADING',
              'FILTER_KEYS',
              'TITLE_KEYS',
              'FILTER_MAPR_KEYS',
@@ -212,8 +205,6 @@ def gallery_settings(request):
              'BASE_URL',
              'TOP_RIGHT_LINKS',
              'TOP_LEFT_LOGO',
-             'FOOTER_HTML',
-             'SUBHEADING_HTML',
              'FAVICON',
              'STUDY_SHORT_NAME',
              ]

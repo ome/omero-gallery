@@ -137,16 +137,6 @@ these will be shown in a dropdown menu::
 **omero.web.gallery.favicon:**
 Set a URL to a favicon to use for the browser.
 
-**omero.web.gallery.subheading_html:**
-Set some HTML to show as a sub-heading on the home page, within a <p> tag::
-
-    $ omero config set omero.web.gallery.subheading_html "This is an image gallery using <b>OMERO</b>."
-
-**omero.web.gallery.footer_html:**
-Set some HTML to show as a footer on each page::
-
-    $ omero config set omero.web.gallery.footer_html "<a href='https://blog.openmicroscopy.org/'>Blog</a>"
-
 **omero.web.gallery.study_short_name:**
 This specifies a short name for Screen or Project to show above the study Image
 in the categories or search page, instead of the default 'Project: 123'.

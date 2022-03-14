@@ -92,10 +92,8 @@
 
         <hr class="whitespace">
 
-        {% if footer_html %}
         <div class="callout large secondary">
             <div class="row">
-                {% if footer_html == 'IDR' %}
                 <div class="row small-up-2 medium-up-5 large-up-5">
                     <div class="column"><a href="https://www.openmicroscopy.org/" target="_blank"><img class="thumbnail their-logo" src="{{ base_url }}about/img/logos/ome-logo-200.png" alt="OME"></a></div>
                     <div class="column"><a href="https://www.eurobioimaging.eu/" target="_blank"><img class="thumbnail their-logo" src="{{ base_url }}about/img/logos/eurobioimaging_logo.png" alt="Euro-Bioimaging"></a></div>
@@ -119,12 +117,8 @@
                         <a href="https://www.twitter.com/idrstatus" target="_blank"><i class="fab fa-fw fa-twitter"></i> @IDRstatus</a></li>
                     </div>
                 </div>
-                {% else %}
-                    {{ footer_html|safe }}
-                {% endif %}
             </div>
         </div>
-        {% endif %}
 
         <script>
             $(document).foundation();
