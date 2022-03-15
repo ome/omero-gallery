@@ -495,7 +495,7 @@ function noStudiesMessage() {
     let others = [];
     for (let cat in SUPER_CATEGORIES) {
       if (SUPER_CATEGORIES[cat].label !== currLabel) {
-        others.push(`<a href="${GALLERY_INDEX}${cat}/search/?query=${configId}:${maprQuery}">${SUPER_CATEGORIES[cat].label}</a>`);
+        others.push(`<a href="${GALLERY_HOME}${cat}/search/?query=${configId}:${maprQuery}">${SUPER_CATEGORIES[cat].label}</a>`);
       }
     }
     if (others.length > 0) {

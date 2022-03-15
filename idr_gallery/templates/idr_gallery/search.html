@@ -106,7 +106,10 @@
   // Various global constants from omero config set...
   var FILTER_KEYS = {{ filter_keys|safe }};
   var FILTER_MAPR_KEYS = {{ filter_mapr_keys|safe }};
-  const GALLERY_INDEX = "{% url 'idr_gallery_index' %}";
+  // e.g. GALLEY_INDEX/api-gallery/thumbnails for loading from IDR
+  const GALLERY_INDEX = "{{ gallery_index }}";
+  // this is the home of this app, e.g. for GALLERY_HOME/search/
+  const GALLERY_HOME = "{% url 'idr_gallery_index' %}";
   const BASE_URL = "{{ base_url }}";
   const CATEGORY_QUERIES = {{ category_queries|safe }};
   var TITLE_KEYS = {{ TITLE_KEYS|safe }};

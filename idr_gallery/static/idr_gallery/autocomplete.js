@@ -47,7 +47,8 @@ $("#maprQuery")
     .keyup(event => {
         if (event.which == 13) {
             let configId = document.getElementById("maprConfig").value;
-            document.location.href = `search/?query=${configId}:${event.target.value}`;
+            console.log(`${GALLERY_HOME}search/?query=${configId}:${event.target.value}`)
+            // document.location.href = `${GALLERY_HOME}search/?query=${configId}:${event.target.value}`;
         }
     })
     .autocomplete({
@@ -142,7 +143,7 @@ $("#maprQuery")
             $(this).val("loading search results...");
             // Load search page...
             let configId = document.getElementById("maprConfig").value;
-            document.location.href = `search/?query=${configId}:${ui.item.value}`;
+            document.location.href = `${GALLERY_HOME}search/?query=${configId}:${ui.item.value}`;
             return false;
         }
     }).data("ui-autocomplete")._renderItem = function (ul, item) {

@@ -8,7 +8,10 @@
   var FILTER_MAPR_KEYS = {{ filter_mapr_keys| safe }};
   var TITLE_KEYS = {{ TITLE_KEYS| safe }};
   var STUDY_SHORT_NAME = {{ STUDY_SHORT_NAME| safe }};
+  // e.g. GALLEY_INDEX/api-gallery/thumbnails for loading from IDR
   const GALLERY_INDEX = "{{ gallery_index }}";
+  // this is the home of this app, e.g. for GALLERY_HOME/search/
+  const GALLERY_HOME = "{% url 'idr_gallery_index' %}";
   const BASE_URL = "{{ base_url }}";
   const INDEX_JSON_URL = "{{ INDEX_JSON_URL }}";
   const IDR_STUDIES_URL = "{{ IDR_STUDIES_URL }}";
