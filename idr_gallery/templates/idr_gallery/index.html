@@ -13,7 +13,7 @@
   const INDEX_JSON_URL = "{{ INDEX_JSON_URL }}";
   const IDR_STUDIES_URL = "{{ IDR_STUDIES_URL }}";
   const CATEGORY_QUERIES = {{ category_queries| safe }};
-  var SUPER_CATEGORY {% if super_category %} = { { super_category | safe } } {% endif %};
+  var SUPER_CATEGORY {% if super_category %} = {{ super_category | safe }} {% endif %};
 </script>
 
 <script src="{% static 'idr_gallery/tabs.js' %}"></script>
