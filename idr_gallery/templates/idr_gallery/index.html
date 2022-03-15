@@ -354,12 +354,15 @@
     <div class="panel" style="float: left">
       <form>
         <label class="switchLabel">Group Studies by type</label>
-        <label class="switch">
+        <label class="switch" style="margin-right: 20px">
           <input id="groupByType" type="checkbox">
           <span class="sliderToggle round"></span>
         </label>
-        <label class="switchLabel" style="margin-left: 20px">or Filter by:</label>
-        <input type="text" id="filterText" placeholder="authors or keywords" />
+        <!-- Don't show filter controls for now... -->
+        <div style="display:inline-block; visibility: hidden;">
+          <label class="switchLabel">or Filter by:</label>
+          <input type="text" id="filterText" placeholder="authors or keywords" />
+        </div>
         <span class="switchLabel" id="filterResults" style="margin-left: 10px"></span>
       </form>
       <div id="studies">

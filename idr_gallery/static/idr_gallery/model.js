@@ -629,7 +629,7 @@ function getStudyTitle(model, study) {
     }
   }
   if (!title) {
-    title = studyData.Name;
+    title = study.Name;
   }
   return title;
 }
