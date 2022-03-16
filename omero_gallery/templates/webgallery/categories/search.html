@@ -97,15 +97,15 @@
 
 <script>
   // Various global constants from omero config set...
-  var FILTER_KEYS = {{ filter_keys|escape|safe }};
-  var FILTER_MAPR_KEYS = {{ filter_mapr_keys|escape|safe }};
+  var FILTER_KEYS = {{ filter_keys|safe }};
+  var FILTER_MAPR_KEYS = {{ filter_mapr_keys|safe }};
   const GALLERY_INDEX = "{% url 'webgallery_index' %}";
   const BASE_URL = "{{ base_url }}";
-  const CATEGORY_QUERIES = {{ category_queries|escape|safe }};
-  var TITLE_KEYS = {{ TITLE_KEYS|escape|safe }};
-  var STUDY_SHORT_NAME = {{ STUDY_SHORT_NAME|escape|safe }};
-  var SUPER_CATEGORIES = {{ SUPER_CATEGORIES|escape|safe }};
-  var SUPER_CATEGORY {% if super_category %} = {{ super_category|escape|safe }} {% endif %};
+  const CATEGORY_QUERIES = {{ category_queries|safe }};
+  var TITLE_KEYS = {{ TITLE_KEYS|safe }};
+  var STUDY_SHORT_NAME = {{ STUDY_SHORT_NAME|safe }};
+  var SUPER_CATEGORIES = {{ SUPER_CATEGORIES|safe }};
+  var SUPER_CATEGORY {% if super_category %} = {{ super_category|safe }} {% endif %};
   var STATIC_DIR = "{% static 'gallery/' %}";
 </script>
 
