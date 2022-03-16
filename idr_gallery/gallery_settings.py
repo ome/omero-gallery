@@ -136,12 +136,6 @@ GALLERY_SETTINGS_MAPPING = {
           " If a 'regex' and 'template' are specified, we try"
           " name.replace(regex, template).")],
 
-    "omero.web.gallery.index_json_url":
-        ["INDEX_JSON_URL",
-         'https://raw.githubusercontent.com/will-moore/idr.openmicroscopy.org/idr_index_data/_data/idr_index.json',
-         str,
-         "URL to load JSON, with a 'tabs' list of {'title':'', 'text':'', 'videos':[]}"
-        ],
     "omero.web.gallery.idr_studies_url":
         ["IDR_STUDIES_URL",
          'https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv',

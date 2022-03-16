@@ -13,13 +13,10 @@
   // this is the home of this app, e.g. for GALLERY_HOME/search/
   const GALLERY_HOME = "{% url 'idr_gallery_index' %}";
   const BASE_URL = "{{ base_url }}";
-  const INDEX_JSON_URL = "{{ INDEX_JSON_URL }}";
   const IDR_STUDIES_URL = "{{ IDR_STUDIES_URL }}";
   const CATEGORY_QUERIES = {{ category_queries| safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category | safe }} {% endif %};
 </script>
-
-<script src="{% static 'idr_gallery/tabs.js' %}"></script>
 
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
@@ -384,7 +381,38 @@
 <div class="row horizontal" style="position: relative;">
   <div class="small-12 medium-12 large-8 columns" style>
     <div class="panel" id="tabs">
-      <!-- tab headers and content loaded here - see tabs.js -->
+      <ul class="tabs" data-tabs id="example-tabs">
+        {% for tab in TABS %}
+        <li class="tabs-title {% if forloop.first %} is-active {% endif %}">
+          <a href="#panel{{ forloop.counter }}" {% if forloop.first %} aria-selected="true" {% endif %}>
+            {{ tab.title }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="tabs-content" data-tabs-content="example-tabs">
+        {% for tab in TABS %}
+        <div class="tabs-panel {% if forloop.first %} is-active {% endif %}" id="panel{{ forloop.counter }}">
+          {{ tab.text|safe }}
+          {% for video in tab.videos %}
+            <div class="row horizontal">
+              <div class="small-6 medium-6 large-6 columns" style="position: relative;">
+                <iframe id="youtube" width="100%" height="100%" src="https://www.youtube.com/embed/{{ video.id }}"
+                  title="YouTube video player" frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                </iframe>
+                <button title="Expand video" class="expandVideo"><i class="fas fa-angle-right"></i><i
+                    class="fas fa-angle-right"></i></button>
+              </div>
+              <div class="columns small-6 medium-6 large-6">
+                <h3>{{video.title}}</h3>
+                {{video.text}}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>`
     </div>
   </div>
 
@@ -407,6 +435,14 @@
 <script src="{% static 'idr_gallery/autocomplete.js' %}"></script>
 
 <script>
+
+  // handle expand/collapse of videos >>
+    $("#tabs").on("click", ".expandVideo", function () {
+      let $row = $(this).closest(".row");
+      // toggle from 2 columns to 1
+      $('.columns', $row).toggleClass("small-12 medium-12 large-12")
+        .toggleClass("small-6 medium-6 large-6");
+    });
 
   // Handle filtering studies when user types in [filter] text input
   $("#filterText").on("keyup", function (event) {
