@@ -1,7 +1,12 @@
-3.4.0 (March 2021)
+3.4.2 (March 2021)
 ------------------
 
-- Make app compatible with Django 1.11.x and 3.2.x [#74](https://github.com/ome/omero-gallery/pull/93)
+- Fix search regression introduced in 3.4.1 [#96](https://github.com/ome/omero-gallery/pull/96)
+
+3.4.1 (March 2021)
+------------------
+
+- Make app compatible with Django 1.11.x and 3.2.x [#93](https://github.com/ome/omero-gallery/pull/93)
 
 3.4.0 (March 2021)
 -------------------
