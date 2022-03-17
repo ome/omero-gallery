@@ -57,7 +57,7 @@ function studyHtml(study, studyObj) {
               <div style="margin-bottom:5px">${idrId}</div>
               <div style="width: 300px; display:flex">
                 <div style="width:96px; position: relative" title="Open image viewer">
-                  <a class="viewer_link" target="_blank" href="#">
+                  <a class="viewer_link" target="_blank" href="${ BASE_URL }webclient/img_detail/${ study.image?.id }/">
                     <img class="tooltipThumb" src="${study.thumbnail ? study.thumbnail : ''}"></img>
                     <i class="fas fa-eye"></i>
                   </a>
