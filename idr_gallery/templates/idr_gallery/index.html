@@ -177,6 +177,12 @@
     width: 100%;
   }
 
+  @media screen and (min-width: 64em) {
+      #tabs {
+      min-height: 635px;
+    }
+  }
+
   .panel .tabs {
     border-width: 0;
     border-bottom-width: 1px;
@@ -209,7 +215,7 @@
   }
 
   .tabs-panel {
-    padding: 15px 0;
+    padding: 15px 0 0 0;
   }
 
   .tabs-panel .row {
@@ -222,6 +228,10 @@
 
   .tabs-panel .large-12 iframe {
     height: 312px;
+  }
+
+  .tabs-panel .row:last-child {
+    margin-bottom: 0;
   }
 
   .expandVideo {
@@ -412,7 +422,7 @@
           {% endfor %}
         </div>
         {% endfor %}
-      </div>`
+      </div>
     </div>
   </div>
 
