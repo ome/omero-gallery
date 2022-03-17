@@ -4,8 +4,8 @@
 .. image:: https://badge.fury.io/py/omero-gallery.svg
     :target: https://badge.fury.io/py/omero-gallery
 
-OMERO.gallery
-=============
+IDR gallery
+===========
 
 This is an OMERO.web plugin (Django app) that provides a 'gallery' view of images in OMERO, ideal for public browsing without editing.
 
@@ -157,6 +157,7 @@ like: ``idr0001-graml-sysgro/screenA``::
 Release process
 ---------------
 
+- occasionally update `totalImages` and other fallback counts in loadStudyStats()
 - review and update the [CHANGELOG](https://github.com/ome/omero-gallery/blob/master/CHANGELOG.md)
 - run ``bumpversion release`` to remove the dev suffix and create a signed tag
 - run ``bumpversion --no-tag patch`` to bump the version to the next dev suffix
@@ -166,7 +167,7 @@ Release process
 License
 -------
 
-OMERO.gallery is released under the AGPL.
+`idr_gallery`` is released under the AGPL.
 
 Copyright
 ---------

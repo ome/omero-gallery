@@ -150,4 +150,4 @@ $("#maprQuery")
         return $("<li>")
             .append("<a>" + item.label + "</a>")
             .appendTo(ul);
-    } 
+    }
