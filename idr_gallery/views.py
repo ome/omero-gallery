@@ -19,7 +19,6 @@ from . import gallery_settings as settings
 from .data.background_images import IDR_IMAGES, TISSUE_IMAGES, CELL_IMAGES
 from .data.tabs import TABS
 
-print("TABS", TABS)
 logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
 
