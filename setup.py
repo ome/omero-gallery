@@ -22,7 +22,7 @@
 
 import os
 from setuptools import setup, find_packages
-
+from idr_gallery.version import VERSION
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -32,7 +32,6 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-VERSION = '3.4.2.dev0'
 HOMEPAGE = "https://github.com/IDR/idr-gallery"
 
 setup(name="idr-gallery",
