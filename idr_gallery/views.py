@@ -18,6 +18,7 @@ except ImportError:
 from . import gallery_settings as settings
 from .data.background_images import IDR_IMAGES, TISSUE_IMAGES, CELL_IMAGES
 from .data.tabs import TABS
+from .version import VERSION
 
 logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
@@ -70,6 +71,7 @@ def index(request, super_category=None, conn=None, **kwargs):
     elif super_category == "tissue":
         context["idr_images"] = TISSUE_IMAGES
     context["TABS"] = TABS
+    context["VERSION"] = VERSION
     return context
 
 

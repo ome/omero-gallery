@@ -119,7 +119,7 @@
   var STATIC_DIR = "{% static 'gallery/' %}";
 </script>
 
-<script src="{% static 'idr_gallery/search.js' %}"></script>
-<script src="{% static 'idr_gallery/autocomplete.js' %}"></script>
+<script src="{% static 'idr_gallery/search.js' %}?_={{VERSION}}"></script>
+<script src="{% static 'idr_gallery/autocomplete.js' %}?_={{VERSION}}"></script>
 
 {% endblock %}
