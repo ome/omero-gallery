@@ -38,7 +38,7 @@ function renderStudyContainers(containers) {
     let count = studies.length;
     if (count == 0) return;
     // Link to first Project or Screen
-    return `<a target="_blank" href="https://idr.openmicroscopy.org/webclient/?show=${studies[studies.length - 1].objId}">${count} ${objType == 'project' ? 'Experiment' : 'Screen'}${count === 1 ? '' : 's'}</a>`;
+    return `<a target="_blank" href="${BASE_URL}webclient/?show=${studies[studies.length - 1].objId}">${count} ${objType == 'project' ? 'Experiment' : 'Screen'}${count === 1 ? '' : 's'}</a>`;
   }).filter(Boolean).join(", ");
 }
 
