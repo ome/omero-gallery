@@ -167,7 +167,7 @@ Release process
 License
 -------
 
-`idr_gallery`` is released under the AGPL.
+`idr_gallery` is released under the AGPL.
 
 Copyright
 ---------
