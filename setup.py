@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016 University of Dundee.
+# Copyright (c) 2016-2022 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,7 @@
 
 import os
 from setuptools import setup, find_packages
-
+from idr_gallery.version import VERSION
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -32,10 +32,9 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-VERSION = '3.4.2.dev0'
-HOMEPAGE = "https://github.com/ome/omero-gallery"
+HOMEPAGE = "https://github.com/IDR/idr-gallery"
 
-setup(name="omero-gallery",
+setup(name="idr-gallery",
       packages=find_packages(exclude=['ez_setup']),
       version=VERSION,
       description="A Python plugin for OMERO.web",
@@ -62,7 +61,7 @@ setup(name="omero-gallery",
       author='The Open Microscopy Team',
       author_email='ome-devel@lists.openmicroscopy.org.uk',
       license='AGPL-3.0',
-      url="https://github.com/ome/omero-gallery",
+      url=HOMEPAGE,
       download_url='%s/archive/v%s.tar.gz' % (HOMEPAGE, VERSION),
       keywords=['OMERO.web', 'plugin'],
       install_requires=['omero-web>=5.6.0'],

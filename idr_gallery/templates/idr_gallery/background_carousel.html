@@ -1,0 +1,171 @@
+<style>
+    .marketing-background {
+        position: absolute;
+        background-position: center;
+        width: 100%;
+        background-size: cover;
+        height: 400px;
+        height: 100%;
+        top: 0;
+        left: 0;
+        transition: left 1s;
+    }
+
+    .prev {
+        left: -100%
+    }
+
+    .next {
+        left: 100%
+    }
+
+    .bg_controls {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        color: white;
+        font-size: 200%;
+        display: flex;
+    }
+
+    .bg_controls div {
+        width: 14px;
+        height: 14px;
+        border: solid white 1px;
+        border-radius: 50%;
+        cursor: pointer;
+        margin: 7px;
+        background-color: transparent;
+        transition: border-color 1s, background-color 1s;
+        position: static;
+    }
+
+    .dark .bg_controls div {
+        border-color: #222222;
+    }
+
+    .bg_controls .selected {
+        background-color: rgba(255, 255, 255, .9);
+    }
+
+    .dark .bg_controls .selected {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .bg_controls div:hover {
+        opacity: 0.75;
+    }
+
+    .bg_controls div.selected:hover {
+        opacity: 1;
+    }
+
+    .bg_viewer_link {
+        display: block;
+        position: absolute;
+        right: 10px;
+        font-size: 24px;
+        color: white;
+        top: 24px;
+        visibility: hidden;
+    }
+
+    a.bg_viewer_link:hover {
+        color: white;
+    }
+
+    .dark .bg_viewer_link {
+        color: #222222;
+    }
+
+    .bg_controls .selected .bg_viewer_link {
+        visibility: visible;
+    }
+</style>
+
+{% for img in idr_images %}
+<div class="marketing-background {% if not forloop.first %}next{% endif %}" data-src="{{ base_url }}{{ img.src }}"
+    style="background-image: url('{{ img.thumbnail }}');" {% if img.light %}data-light="true" {% endif %}></div>
+{% endfor %}
+
+<div class="bg_controls">
+    {% for img in idr_images %}
+    <div {% if forloop.first %}class="selected" {% endif %} title="{{ img.title }}">
+
+        <a class="bg_viewer_link" style="right:45px; font-size:20px; margin-top:1px" title="Browse background image metadata" target="_blank"
+            href="{{ base_url }}webclient/?show=image-{{ img.image_id }}">
+            <i class="fas fa-info"></i>
+        </a>
+
+        <a class="bg_viewer_link" title="Open background image in viewer" target="_blank"
+            href="{{ base_url }}webclient/img_detail/{{ img.image_id }}/">
+            <i class="fas fa-eye"></i>
+        </a>
+
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    $(function () {
+
+        function renderHeaderBg(clickedIndex) {
+            var isLight;
+            $(".marketing-background").each(function (index, el) {
+                let $bgImg = $(el);
+                $bgImg.css('left', (clickedIndex - index) * -100 + '%');
+                if (clickedIndex == index) {
+                    isLight = $bgImg.data("light");
+                }
+                if (clickedIndex == index || clickedIndex + 1 == index || clickedIndex - 1 == index) {
+                    // load the image (data-src => src) for current background 'previous' and 'next'
+                    let src = $bgImg.attr("data-src");
+                    if (src) {
+                        let i = new Image();
+                        $bgImg.removeAttr("data-src");  // don't process again
+                        i.onload = function () {
+                            // pre-load before updating background, to avoid black while loading
+                            $bgImg.css('background-image', "url('" + src + "')")
+                        };
+                        i.src = src;
+                    }
+                }
+            });
+            $(`.bg_controls div`).removeClass('selected');
+            $(`.bg_controls div:nth-child(${clickedIndex + 1})`).addClass('selected');
+
+            if (isLight) {
+                $(".marketing-hero").addClass("dark");
+            } else {
+                $(".marketing-hero").removeClass("dark");
+            }
+        }
+
+        // header background carousel controls
+        $(".bg_controls div").on("click", function (event) {
+            // ignore click on viewer link
+            if (event.target.tagName == 'I') return;
+            let $target = $(event.target);
+            let clickedIndex = $(".bg_controls div").removeClass('selected').index($target);
+            renderHeaderBg(clickedIndex);
+        });
+
+        function logKey(e) {
+            // ignore keyboard events from input elements
+            if (document.activeElement.tagName == "INPUT") return;
+            let $selected = $(".bg_controls .selected");
+            let index = $(".bg_controls div").index($selected);
+            let count = $(".bg_controls>div").length;
+            if (e.code == "ArrowRight" && (index + 1) < count) {
+                index += 1;
+            } else if (e.code == "ArrowLeft" && index > 0) {
+                index -= 1;
+            }
+            renderHeaderBg(index);
+        }
+        document.addEventListener('keyup', logKey);
+
+        // make sure initial state (controls) are correct
+        renderHeaderBg(0);
+    });
+</script>

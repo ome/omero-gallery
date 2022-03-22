@@ -10,28 +10,26 @@
         {% if favicon %}
         <link rel="shortcut icon" type="image/x-icon" href="{{ favicon }}">
         {% else %}
-        <link rel="shortcut icon" type="image/x-icon" href="{% static 'gallery/images/favicon.ico' %}">
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'idr_gallery/images/favicon.ico' %}?_={{VERSION}}">
         {% endif %}
         <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic">
         <link rel="stylesheet" type="text/css" media="all" href="//fonts.googleapis.com/css?family=Nunito">
-        <link href="{% static 'gallery/3rdparty/foundation/foundation.min.css' %}" rel="stylesheet">
-        <link href="{% static 'gallery/css/openmicroscopy.css' %}" rel="stylesheet">
-        <link href="{% static 'gallery/css/idr.css' %}" rel="stylesheet">
+        <link href="{% static 'idr_gallery/3rdparty/foundation/foundation.min.css' %}?_={{VERSION}}" rel="stylesheet">
+        <link href="{% static 'idr_gallery/css/openmicroscopy.css' %}?_={{VERSION}}" rel="stylesheet">
+        <link href="{% static 'idr_gallery/css/idr.css' %}?_={{VERSION}}" rel="stylesheet">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-        <!-- fetch polyfill for IE -->
-        <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js"></script>
         <!-- Babel polfill (Symbol, Promise) -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js"></script>
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
         <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
 
-        <script src="{% static 'gallery/3rdparty/foundation/foundation.min.js' %}"></script>
+        <script src="{% static 'idr_gallery/3rdparty/foundation/foundation.min.js' %}"></script>
         <script src="{{ base_url }}about/js/version.js"></script>
 
 
-        <script src="{% static 'gallery/model.js' %}"></script>
-        <link href="{% static 'gallery/studies.css' %}" rel="stylesheet">
+        <script src="{% static 'idr_gallery/model.js' %}?_={{VERSION}}"></script>
+        <link href="{% static 'idr_gallery/studies.css' %}?_={{VERSION}}" rel="stylesheet">
     </head>
 
     <body>
@@ -92,10 +90,8 @@
 
         <hr class="whitespace">
 
-        {% if footer_html %}
         <div class="callout large secondary">
             <div class="row">
-                {% if footer_html == 'IDR' %}
                 <div class="row small-up-2 medium-up-5 large-up-5">
                     <div class="column"><a href="https://www.openmicroscopy.org/" target="_blank"><img class="thumbnail their-logo" src="{{ base_url }}about/img/logos/ome-logo-200.png" alt="OME"></a></div>
                     <div class="column"><a href="https://www.eurobioimaging.eu/" target="_blank"><img class="thumbnail their-logo" src="{{ base_url }}about/img/logos/eurobioimaging_logo.png" alt="Euro-Bioimaging"></a></div>
@@ -105,7 +101,7 @@
                 </div>
                 <hr class="whitespace">
                 <div class="large-12 columns text-center">
-                    <p>&copy; 2016-2020 University of Dundee &amp; Open Microscopy Environment. <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.</p>
+                    <p>&copy; 2016-2022 University of Dundee &amp; Open Microscopy Environment. <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.</p>
                     <p>OMERO is distributed under the terms of the GNU GPL. For more information, visit <a href="https://www.openmicroscopy.org">openmicroscopy.org</a></p>
                 </div>
                 <hr class="whitespace">
@@ -119,12 +115,8 @@
                         <a href="https://www.twitter.com/idrstatus" target="_blank"><i class="fab fa-fw fa-twitter"></i> @IDRstatus</a></li>
                     </div>
                 </div>
-                {% else %}
-                    {{ footer_html|safe }}
-                {% endif %}
             </div>
         </div>
-        {% endif %}
 
         <script>
             $(document).foundation();
