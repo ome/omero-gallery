@@ -92,8 +92,13 @@
     {% for img in idr_images %}
     <div {% if forloop.first %}class="selected" {% endif %} title="{{ img.title }}">
 
-        <a class="bg_viewer_link" title="Open background image in new tab" target="_blank"
+        <a class="bg_viewer_link" style="right:45px; font-size:20px; margin-top:1px" title="Browse background image metadata" target="_blank"
             href="{{ base_url }}webclient/?show=image-{{ img.image_id }}">
+            <i class="fas fa-info"></i>
+        </a>
+
+        <a class="bg_viewer_link" title="Open background image in viewer" target="_blank"
+            href="{{ base_url }}webclient/img_detail/{{ img.image_id }}/">
             <i class="fas fa-eye"></i>
         </a>
 
