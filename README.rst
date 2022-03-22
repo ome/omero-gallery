@@ -114,7 +114,7 @@ Sets the html page ```<title>title</title>``` for gallery pages.
 
 
 **omero.web.gallery.top_left_logo:**
-This setting can be used to replace the 'OMERO' logo at the top-left of the
+This setting can be used to replace the 'IDR' logo at the top-left of the
 page with an image hosted elsewhere (png, jpeg or svg). It will be displayed
 with height of 33 pixels and maximum width of 200 pixels::
 
@@ -122,7 +122,7 @@ with height of 33 pixels and maximum width of 200 pixels::
 
 
 **omero.web.gallery.heading:**
-Replace the "Welcome to OMERO.gallery" heading on the home page.
+Replace the "Welcome to IDR.gallery" heading on the home page.
 
 
 **omero.web.gallery.top_right_links:**
@@ -131,7 +131,7 @@ top-right of each page. If a link contains 'submenu':[ ] with more links,
 these will be shown in a dropdown menu::
 
     $ omero config set omero.web.gallery.top_right_links '[
-        {"text":"OME", "href":"https://www.openmicroscopy.org/"}
+        {"text":"IDR", "href":"https://idr.openmicroscopy.org/"}
     ]'
 
 **omero.web.gallery.favicon:**
