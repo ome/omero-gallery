@@ -6,17 +6,17 @@ TABS = [
         "text": "",
         "videos": [
             {
-                "id": "N9Den172mHo",
+                "id": "dFg2PAF3k7s",
                 "title": "From publication to IDR",
                 "text": "Find a specific IDR study from a publication. View images and Regions of Interest (ROIs) in IDR. Explore study metadata.",
             },
             {
-                "id": "gjVZut7fL4E",
+                "id": "JboK6Kds28U",
                 "title": "From gene to phenotypes",
                 "text": "Query images by gene. Explore retrieved images and metadata, including associated phenotypes. View images in context of a plate.",
             },
             {
-                "id": "rG-qAHZl-p0",
+                "id": "stF4Q4m5GZg",
                 "title": "From compound to analytics",
                 "text": "Query images by compound. Find SARS-CoV-2 dataset. Explore images in relation to analytical data submitted by authors.",
             },
