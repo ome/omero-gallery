@@ -1,3 +1,5 @@
+# flake8: noqa
+
 TABS = [
     {
         "title": "Exploring IDR",

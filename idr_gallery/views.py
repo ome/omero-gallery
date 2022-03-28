@@ -1,4 +1,3 @@
-from django.http import Http404
 from django.urls import reverse, NoReverseMatch
 import json
 import logging
@@ -22,6 +21,7 @@ from .version import VERSION
 
 logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
+
 
 @login_required()
 @render_response()
@@ -102,7 +102,8 @@ def gallery_settings(request):
     return context
 
 
-def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0, tag_text=None):
+def _get_study_images(conn, obj_type, obj_id, limit=1,
+                      offset=0, tag_text=None):
 
     query_service = conn.getQueryService()
     params = omero.sys.ParametersI()
@@ -132,8 +133,8 @@ def _get_study_images(conn, obj_type, obj_id, limit=1, offset=0, tag_text=None):
                  " join well.plate as pt"
                  " left outer join pt.screenLinks as sl"
                  " join sl.parent as screen"
-                 " left outer join i.annotationLinks as al"\
-                 " join al.child as annotation"\
+                 " left outer join i.annotationLinks as al"
+                 " join al.child as annotation"
                  " where screen.id = :id%s"
                  " order by well.column, well.row" % and_text_value)
 
@@ -155,7 +156,8 @@ def api_thumbnails(request, conn=None, **kwargs):
     image_ids = {}
     for obj_type, ids in zip(['project', 'screen'], [project_ids, screen_ids]):
         for obj_id in ids:
-            images = _get_study_images(conn, obj_type, obj_id, tag_text="Study Example Image")
+            images = _get_study_images(conn, obj_type, obj_id,
+                                       tag_text="Study Example Image")
             if len(images) == 0:
                 # None found with Tag - just load untagged image
                 images = _get_study_images(conn, obj_type, obj_id)

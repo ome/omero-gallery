@@ -48,7 +48,27 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.category_queries":
         ["CATEGORY_QUERIES",
-         ('{"others":{ "label": "Others", "query": "LAST200:date", "index": 10 },"lightsheet":{"label":"Light-sheet imaging","index":0,"query":"Imaging Method:light sheet fluorescence microscopy OR Imaging Method:light sheet fluorescence microscopy, SPIM"},"infection":{"label":"Infection studies","index":1,"query":"Study Type:infection"},"timelapse":{"label":"Time-lapse imaging","index":2,"query":"Study Type:time OR Study Type:5D OR Study Type:3D-tracking"},"lightsheet":{"label":"Light sheet fluorescence microscopy","index":3,"query":"Imaging Method: light sheet fluorescence microscopy OR Imaging Method: light sheet fluorescence microscopy, SPIM"},"proteinlocalization":{"label":"Protein localization studies","index":4,"query":"Study Type:protein localization"},"histology":{"label":"Digital pathology imaging","index":5,"query":"Study Type:histology"},"yeast":{"label":"Yeast studies","index":6,"query":"Organism: Saccharomyces cerevisiae OR Organism:Schizosaccharomyces pombe"},"humancellscreen":{"label":"High-content screening (human)","index":7,"query":"Organism:Homo sapiens AND Study Type:high content screen"}}'),
+         ('{"others":{ "label": "Others", "query": "LAST200:date", "index": '
+          '10 },"lightsheet":{"label":"Light-sheet imaging","index":0,'
+          '"query":'
+          '"Imaging Method:light sheet fluorescence microscopy OR '
+          'Imaging Method:light sheet fluorescence microscopy, SPIM"},'
+          '"infection":{"label":'
+          '"Infection studies","index":1,"query":"Study Type:infection"},'
+          '"timelapse":{"label":"Time-lapse imaging","index":2,"query":'
+          '"Study Type:time OR Study Type:5D OR Study Type:3D-tracking"}'
+          ',"lightsheet":{"label":"Light sheet fluorescence microscopy",'
+          '"index":3,"query":"Imaging Method: light sheet fluorescence '
+          'microscopy OR Imaging Method:'
+          'light sheet fluorescence microscopy, SPIM"},"proteinlocalization":'
+          '{"label":"Protein localization studies","index":4,"query":'
+          '"Study Type:protein localization"},"histology":{"label":'
+          '"Digital pathology imaging","index":5,"query":"Study Type:'
+          'histology"},"yeast":{"label":"Yeast studies"'
+          ',"index":6,"query":"Organism: Saccharomyces cerevisiae OR Organism:'
+          'Schizosaccharomyces pombe"},"humancellscreen":{"label":'
+          '"High-content screening (human)","index":7,"query":"Organism:'
+          'Homo sapiens AND Study Type:high content screen"}}'),
          json.loads,
          ("If this is configured then the gallery Home Page shows a list"
           " of categories containing Projects and Screens that match the"
@@ -61,7 +81,10 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.filter_keys":
         ["FILTER_KEYS",
-         ('[{"label": "Name (IDR number)", "value": "Name" }, "Imaging Method", "License", "Organism", "Publication Authors", "Publication Title", "Screen Technology Type", "Screen Type", "Study Type"]'),
+         ('[{"label": "Name (IDR number)", "value": "Name" }, '
+          '"Imaging Method", "License", "Organism", "Publication Authors", '
+          '"Publication Title", "Screen Technology Type", "Screen Type",'
+          '"Study Type"]'),
          json.loads,
          ("If this is configured then we allow filtering of Screens and"
           " Projects by Key:Value pairs linked to them. This list allows us"
@@ -88,7 +111,9 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.super_categories":
         ["SUPER_CATEGORIES",
-         ('{"cell": {"label": "Cell - IDR","title": "Welcome to Cell-IDR","query": "Sample Type:cell"},"tissue": {"label": "Tissue - IDR","title": "Welcome to Tissue-IDR","query": "Sample Type:tissue"}}'),
+         ('{"cell": {"label": "Cell - IDR","title": "Welcome to Cell-IDR",'
+          '"query": "Sample Type:cell"},"tissue": {"label": "Tissue - IDR",'
+          '"title": "Welcome to Tissue-IDR","query": "Sample Type:tissue"}}'),
          json.loads,
          ("Optional config to provide top-level categories, similar to"
           " category_queries, using the same config format and 'query' syntax."
@@ -102,7 +127,26 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.top_right_links":
         ["TOP_RIGHT_LINKS",
-         ('[{"text":"About","href":"https://idr.openmicroscopy.org/about/index.html","submenu":[{"text":"Overview","href":"https://idr.openmicroscopy.org/about/index.html"},{"text":"Published studies","href":"https://idr.openmicroscopy.org/about/studies.html"},{"text":"Linked resources","href":"https://idr.openmicroscopy.org/about/linked-resources.html"},{"text":"API Access","href":"https://idr.openmicroscopy.org/about/api.html"},{"text":"Data download","href":"https://idr.openmicroscopy.org/about/download.html"},{"text":"Image Tools Resource (ITR)","href":"https://idr.openmicroscopy.org/about/itr.html"},{"text":"Analysis Environments","href":"https://idr.openmicroscopy.org/about/analysis-environments.html"},{"text":"Deployment","href":"https://idr.openmicroscopy.org/about/deployment.html"},{"text":"FAQ","href":"https://idr.openmicroscopy.org/about/faq/"}]},{"text":"Submissions","href":"https://idr.openmicroscopy.org/about/submission.html","submenu":[{"text":"Overview","href":"https://idr.openmicroscopy.org/about/submission.html"},{"text":"Screens","href":"https://idr.openmicroscopy.org/about/screens.html"},{"text":"Experiments","href":"https://idr.openmicroscopy.org/about/experiments.html"}]}]'),
+         ('[{"text":"About","href":"https://idr.openmicroscopy.org/about/'
+          'index.html","submenu":[{"text":"Overview","href":"https://idr.'
+          'openmicroscopy.org/about/index.html"},{"text":"Published studies"'
+          ',"href":"https://idr.openmicroscopy.org/about/studies.html"},'
+          '{"text":"Linked resources","href":"https://idr.openmicroscopy.org'
+          '/about/linked-resources.html"},{"text":"API Access","href":'
+          '"https://idr.openmicroscopy.org/about/api.html"},{"text":"Data '
+          'download","href":"https://idr.openmicroscopy.org/about/download.'
+          'html"},{"text":"Image Tools Resource (ITR)","href":"https://idr.'
+          'openmicroscopy.org/about/itr.html"},{"text":"Analysis Environments"'
+          ',"href":"https://idr.openmicroscopy.org/about/analysis-environments'
+          '.html"},{"text":"Deployment","href":"https://idr.openmicroscopy.org'
+          '/about/deployment.html"},{"text":"FAQ","href":"https://idr.open'
+          'microscopy.org/about/faq/"}]},{"text":"Submissions","href":'
+          '"https://idr.openmicroscopy.org/about/submission.html","submenu":'
+          '[{"text":"Overview","href":"https://idr.openmicroscopy.org/about/'
+          'submission.html"},{"text":"Screens","href":"https://idr.'
+          'openmicroscopy.org/about/screens.html"},{"text":"Experiments",'
+          '"href":"https://idr.openmicroscopy.org/about/experiments.html"'
+          '}]}]'),
          json.loads,
          ("List of {'text':'Text','href':'www.url'} links for top-right of"
           " page. If a link contains 'submenu':[ ] with more links,"
@@ -110,7 +154,8 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.top_left_logo":
         ["TOP_LEFT_LOGO",
-         ('{"src": "https://idr.openmicroscopy.org/about/img/logos/logo-idr.svg","href": "/"}'),
+         ('{"src": "https://idr.openmicroscopy.org/about/img/logos/logo-idr'
+          '.svg","href": "/"}'),
          json.loads,
          ("Logo image and link. e.g."
           " {'src':'url.png','href':'www.url', 'alt':'Image alt text'}"
@@ -138,10 +183,10 @@ GALLERY_SETTINGS_MAPPING = {
 
     "omero.web.gallery.idr_studies_url":
         ["IDR_STUDIES_URL",
-         'https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master/_data/studies.tsv',
+         'https://raw.githubusercontent.com/IDR/idr.openmicroscopy.org/master'
+         '/_data/studies.tsv',
          str,
-         "URL to IDR studies as a tsv table"
-        ],
+         "URL to IDR studies as a tsv table"],
 
 }
 
