@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Settings for the OMERO.gallery app."""
+"""Settings for the idr_gallery app."""
 
 import sys
 from omeroweb.settings import process_custom_settings, \

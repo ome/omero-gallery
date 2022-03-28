@@ -114,7 +114,7 @@ Sets the html page ```<title>title</title>``` for gallery pages.
 
 
 **omero.web.gallery.top_left_logo:**
-This setting can be used to replace the 'OMERO' logo at the top-left of the
+This setting can be used to replace the 'IDR' logo at the top-left of the
 page with an image hosted elsewhere (png, jpeg or svg). It will be displayed
 with height of 33 pixels and maximum width of 200 pixels::
 
@@ -122,7 +122,7 @@ with height of 33 pixels and maximum width of 200 pixels::
 
 
 **omero.web.gallery.heading:**
-Replace the "Welcome to OMERO.gallery" heading on the home page.
+Replace the "Welcome to IDR.gallery" heading on the home page.
 
 
 **omero.web.gallery.top_right_links:**
@@ -131,7 +131,7 @@ top-right of each page. If a link contains 'submenu':[ ] with more links,
 these will be shown in a dropdown menu::
 
     $ omero config set omero.web.gallery.top_right_links '[
-        {"text":"OME", "href":"https://www.openmicroscopy.org/"}
+        {"text":"IDR", "href":"https://idr.openmicroscopy.org/"}
     ]'
 
 **omero.web.gallery.favicon:**
@@ -158,7 +158,7 @@ Release process
 ---------------
 
 - occasionally update `totalImages` and other fallback counts in loadStudyStats()
-- review and update the [CHANGELOG](https://github.com/ome/omero-gallery/blob/master/CHANGELOG.md)
+- review and update the `CHANGELOG <https://github.com/ome/omero-gallery/blob/master/CHANGELOG.md>`_
 - run ``bumpversion release`` to remove the dev suffix and create a signed tag
 - run ``bumpversion --no-tag patch`` to bump the version to the next dev suffix
 - push the newly created tag and ``master`` to ``origin``. e.g. ``git push origin master v3.3.3``
@@ -167,7 +167,7 @@ Release process
 License
 -------
 
-`idr_gallery`` is released under the AGPL.
+`idr_gallery` is released under the AGPL.
 
 Copyright
 ---------
