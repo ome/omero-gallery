@@ -458,13 +458,26 @@ function render(filterFunc) {
     studiesToRender = model.studies.filter(filterFunc);
   }
 
+  let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+  configId = (mapr_settings && mapr_settings[configId]) || configId;
+  let maprValue = document.getElementById('maprQuery').value;
+
+  if (configId === "Name") {
+    // If searching by idrID (Number)  show best match first...
+    let value = document.getElementById("maprQuery").value;
+    if (!isNaN(value)) {
+      let padZeros = ("0000" + value)
+      let idrId = `idr${padZeros.slice(padZeros.length-4)}`
+      studiesToRender.sort(function (a, b) {
+        return (a.Name.includes(idrId) ? -1 : 1);
+      });
+    }
+  }
+
   let filterMessage = "";
   if (studiesToRender.length === 0) {
     filterMessage = noStudiesMessage();
   } else if (studiesToRender.length < model.studies.length) {
-    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
-    configId = (mapr_settings && mapr_settings[configId]) || configId;
-    let maprValue = document.getElementById('maprQuery').value;
     filterMessage = `<p class="filterMessage">
       Found <strong>${studiesToRender.length}</strong> studies with
       <strong>${configId}</strong>: <strong>${maprValue}</strong></p>`;
