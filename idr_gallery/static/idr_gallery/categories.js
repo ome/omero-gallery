@@ -288,6 +288,8 @@ async function init() {
     render();
   })
 
+  // auto-complete: 'Enter' key will browse to results page
+  enableEnterGoesToResultsPage();
 
   // Load MAPR config
   fetch(BASE_URL + 'mapr/api/config/')
