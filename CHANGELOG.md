@@ -1,4 +1,17 @@
-3.4.0 (March 2021)
+3.6.0 (March 2022)
+------------------
+
+- Migration and renaming fixes [#3](https://github.com/IDR/idr-gallery/pull/3)
+- Fixed carousel links [#4](https://github.com/IDR/idr-gallery/pull/4)
+- Added 3 videos [#5](https://github.com/IDR/idr-gallery/pull/5)
+
+3.5.0 (March 2022)
+------------------
+
+- The `omero-gallery` repository was forked to `idr-gallery` [#1](https://github.com/IDR/idr-gallery/pull/1)
+- New front page [#2](https://github.com/IDR/idr-gallery/pull/2)
+
+3.4.0 (March 2022)
 ------------------
 
 - Make app compatible with Django 1.11.x and 3.2.x [#74](https://github.com/ome/omero-gallery/pull/93)

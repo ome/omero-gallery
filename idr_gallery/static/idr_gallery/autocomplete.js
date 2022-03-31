@@ -42,15 +42,19 @@ function hideSpinner() {
     document.getElementById('spinner').style.visibility = 'hidden';
 }
 
+// This is used by the home page but NOT by the search page itself
+function enableEnterGoesToResultsPage() {
+    $("#maprQuery")
+        .keyup(event => {
+            if (event.which == 13) {
+                let configId = document.getElementById("maprConfig").value;
+                document.location.href = `${GALLERY_HOME}search/?query=${configId}:${event.target.value}`;
+            }
+        });
+}
+
 // Initial setup...
 $("#maprQuery")
-    .keyup(event => {
-        if (event.which == 13) {
-            let configId = document.getElementById("maprConfig").value;
-            console.log(`${GALLERY_HOME}search/?query=${configId}:${event.target.value}`)
-            // document.location.href = `${GALLERY_HOME}search/?query=${configId}:${event.target.value}`;
-        }
-    })
     .autocomplete({
         autoFocus: false,
         delay: 1000,
