@@ -57,10 +57,9 @@ class StudiesModel {
       return s.Name;
     });
 
-    if (filterQuery)
-    {
+    if (filterQuery) {
       names = names.filter(function (name) {
-        return name.toLowerCase().indexOf(filterQuery)> -1;
+        return name.toLowerCase().indexOf(filterQuery) > -1;
       });
     }
 
