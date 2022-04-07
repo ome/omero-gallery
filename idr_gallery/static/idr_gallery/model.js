@@ -53,7 +53,8 @@ class StudiesModel {
   }
 
   getStudiesNames(filterQuery) {
-    var names = this.studies.map(function (s) {
+    var names = this.studies.map(function (s)
+    {
       return s.Name;
     });
 
