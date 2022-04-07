@@ -19,68 +19,73 @@
 // Model for loading Projects, Screens and their Map Annotations
 let model = new StudiesModel();
 
-model.subscribe('thumbnails', (event, data) => {
+model.subscribe("thumbnails", (event, data) => {
   // Will get called when each batch of thumbnails is loaded
   renderThumbnails(data);
 });
 
 let mapr_settings;
 
-
 // FIRST, populate forms from query string
 function populateInputsFromSearch() {
   let search = window.location.search.substr(1);
-  let query = '';
-  var searchParams = search.split('&');
+  let query = "";
+  var searchParams = search.split("&");
   for (var i = 0; i < searchParams.length; i++) {
-    var paramSplit = searchParams[i].split('=');
-    if (paramSplit[0] === 'query') {
+    var paramSplit = searchParams[i].split("=");
+    if (paramSplit[0] === "query") {
       query = paramSplit[1].replace(/%20/g, " ");
     }
   }
   if (query) {
-    let splitIndex = query.indexOf(':');
+    let splitIndex = query.indexOf(":");
     let configId = query.slice(0, splitIndex);
     let value = query.slice(splitIndex + 1);
     if (configId && value) {
       document.getElementById("maprConfig").value = configId;
       document.getElementById("maprQuery").value = value;
-      let key = configId.replace('mapr_', '');
+      let key = configId.replace("mapr_", "");
       let placeholder = `Type to filter values...`;
       if (mapr_settings && mapr_settings[key]) {
-        placeholder = `Type ${mapr_settings[key]['default'][0]}...`;
+        placeholder = `Type ${mapr_settings[key]["default"][0]}...`;
       }
-      document.getElementById('maprQuery').placeholder = placeholder;
+      document.getElementById("maprQuery").placeholder = placeholder;
     }
   }
 }
 populateInputsFromSearch();
 
-
-// ------------ Handle MAPR searching or filtering --------------------- 
+// ------------ Handle MAPR searching or filtering ---------------------
 
 function filterStudiesByMapr(value) {
-  $('#studies').removeClass('studiesLayout');
-  let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  document.getElementById('studies').innerHTML = "";
-  let key = mapr_settings[value] ? mapr_settings[value].all.join(" or ") : value;
+  $("#studies").removeClass("studiesLayout");
+  let configId = document
+    .getElementById("maprConfig")
+    .value.replace("mapr_", "");
+  document.getElementById("studies").innerHTML = "";
+  let key = mapr_settings[value]
+    ? mapr_settings[value].all.join(" or ")
+    : value;
   showFilterSpinner(`Finding images with ${configId}: ${value}...`);
 
   // Get all terms that match (NOT case_sensitive)
   let url = `${BASE_URL}mapr/api/${configId}/?value=${value}&case_sensitive=false&orphaned=true`;
   $.getJSON(url, (data) => {
-
-    let maprTerms = data.maps.map(term => term.id);
-    let termUrls = maprTerms.map(term => `${BASE_URL}mapr/api/${configId}/?value=${term}`);
+    let maprTerms = data.maps.map((term) => term.id);
+    let termUrls = maprTerms.map(
+      (term) => `${BASE_URL}mapr/api/${configId}/?value=${term}`
+    );
 
     // Get results for All terms
-    Promise.all(termUrls.map(url => fetch(url)))
-      .then(responses => Promise.all(responses.map(res => res.json())))
+    Promise.all(termUrls.map((url) => fetch(url)))
+      .then((responses) => Promise.all(responses.map((res) => res.json())))
       .then((responses) => {
         hideFilterSpinner();
 
         // filter studies by each response
-        let studiesByTerm = responses.map(data => filterStudiesByMaprResponse(data));
+        let studiesByTerm = responses.map((data) =>
+          filterStudiesByMaprResponse(data)
+        );
 
         renderMaprMessage(studiesByTerm, maprTerms);
 
@@ -90,27 +95,32 @@ function filterStudiesByMapr(value) {
             renderMaprResultsTable(studies, maprTerms[idx]);
           }
         });
-      })
+      });
     // .fail(() => {
     //   document.getElementById('filterCount').innerHTML = "Request failed. Server may be busy."
     // })
   });
 }
 
-
 function filterStudiesByMaprResponse(data) {
   // filter studies by 'screens' and 'projects'
   let imageCounts = {};
-  data.screens.forEach(s => { imageCounts[`screen-${s.id}`] = s.extra.counter });
-  data.projects.forEach(s => { imageCounts[`project-${s.id}`] = s.extra.counter });
+  data.screens.forEach((s) => {
+    imageCounts[`screen-${s.id}`] = s.extra.counter;
+  });
+  data.projects.forEach((s) => {
+    imageCounts[`project-${s.id}`] = s.extra.counter;
+  });
 
-  let filterFunc = study => {
-    let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+  let filterFunc = (study) => {
+    let studyId =
+      study["@type"].split("#")[1].toLowerCase() + "-" + study["@id"];
     return imageCounts.hasOwnProperty(studyId);
-  }
+  };
 
-  let filteredStudies = model.studies.filter(filterFunc).map(study => {
-    let studyId = study['@type'].split('#')[1].toLowerCase() + '-' + study['@id'];
+  let filteredStudies = model.studies.filter(filterFunc).map((study) => {
+    let studyId =
+      study["@type"].split("#")[1].toLowerCase() + "-" + study["@id"];
     let studyData = Object.assign({}, study);
     studyData.imageCount = imageCounts[studyId];
     return studyData;
@@ -118,20 +128,26 @@ function filterStudiesByMaprResponse(data) {
   return filteredStudies;
 }
 
-
 function renderMaprMessage(studiesByTerm, maprTerms) {
   // for each term e.g. TOP2, top2 etc sum image counts from each study
   let imageCount = studiesByTerm.reduce((count, studies) => {
-    return count + studies.reduce((count, study) => count + study.imageCount, 0);
+    return (
+      count + studies.reduce((count, study) => count + study.imageCount, 0)
+    );
   }, 0);
-  let studyCount = studiesByTerm.reduce((count, studies) => count + studies.length, 0);
+  let studyCount = studiesByTerm.reduce(
+    (count, studies) => count + studies.length,
+    0
+  );
 
-  let terms = maprTerms.join('/');
+  let terms = maprTerms.join("/");
   let filterMessage = "";
   if (studyCount === 0) {
     filterMessage = noStudiesMessage();
   } else {
-    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+    let configId = document
+      .getElementById("maprConfig")
+      .value.replace("mapr_", "");
     let key = configId;
     if (mapr_settings && mapr_settings[configId]) {
       key = mapr_settings[key].label;
@@ -139,15 +155,18 @@ function renderMaprMessage(studiesByTerm, maprTerms) {
     filterMessage = `<p class="filterMessage">
       Found <strong>${imageCount}</strong> images with
       <strong>${key}</strong>: <strong>${terms}</strong>
-      in <strong>${studyCount}</strong> stud${studyCount == 1 ? 'y' : 'ies'}</strong></p>`;
+      in <strong>${studyCount}</strong> stud${
+      studyCount == 1 ? "y" : "ies"
+    }</strong></p>`;
   }
-  document.getElementById('filterCount').innerHTML = filterMessage;
+  document.getElementById("filterCount").innerHTML = filterMessage;
 }
 
-
 function renderMaprResultsTable(maprData, term) {
-  let configId = document.getElementById("maprConfig").value.replace("mapr_", "");
-  let elementId = 'maprResultsTable' + term;
+  let configId = document
+    .getElementById("maprConfig")
+    .value.replace("mapr_", "");
+  let elementId = "maprResultsTable" + term;
   let html = `
     <h2>${term}</h2>
     <table class='maprResultsTable' style='margin-top:20px'>
@@ -162,89 +181,93 @@ function renderMaprResultsTable(maprData, term) {
         </tr>
       </tbody>
     </table>`;
-  $('#studies').append(html);
+  $("#studies").append(html);
   renderMapr(maprData, term);
 }
 
 // ----- event handling --------
 
-document.getElementById('maprConfig').onchange = (event) => {
-  document.getElementById('maprQuery').value = '';
-  let value = event.target.value.replace('mapr_', '');
+document.getElementById("maprConfig").onchange = (event) => {
+  document.getElementById("maprQuery").value = "";
+  let value = event.target.value.replace("mapr_", "");
   let placeholder = `Type to filter values...`;
   if (mapr_settings[value]) {
-    placeholder = `Type ${mapr_settings[value]['default'][0]}...`;
+    placeholder = `Type ${mapr_settings[value]["default"][0]}...`;
   }
-  document.getElementById('maprQuery').placeholder = placeholder;
+  document.getElementById("maprQuery").placeholder = placeholder;
   // Show all autocomplete options...
   $("#maprQuery").focus();
   render();
-}
+};
 
 // We want to show auto-complete options when user
 // clicks on the field.
 function showAutocomplete(event) {
   let configId = document.getElementById("maprConfig").value;
   let autoCompleteValue = event.target.value;
-  if (configId.indexOf('mapr_') != 0) {
+  if (configId.indexOf("mapr_") != 0) {
     // If not MAPR search, show all auto-complete results
-    autoCompleteValue = '';
+    autoCompleteValue = "";
   }
   $("#maprQuery").autocomplete("search", autoCompleteValue);
 }
 
-document.getElementById('maprQuery').onfocus = (event) => {
+document.getElementById("maprQuery").onfocus = (event) => {
   showAutocomplete(event);
-}
-document.getElementById('maprQuery').onclick = (event) => {
+};
+document.getElementById("maprQuery").onclick = (event) => {
   showAutocomplete(event);
-}
+};
 
 // ------ AUTO-COMPLETE -------------------
 
 function showSpinner() {
-  document.getElementById('spinner').style.visibility = 'visible';
+  document.getElementById("spinner").style.visibility = "visible";
 }
 function hideSpinner() {
-  document.getElementById('spinner').style.visibility = 'hidden';
+  document.getElementById("spinner").style.visibility = "hidden";
 }
 // timeout to avoid flash of spinner
 let filterSpinnerTimout;
 function showFilterSpinner(message) {
   filterSpinnerTimout = setTimeout(() => {
-    document.getElementById('filterSpinnerMessage').innerHTML = message ? message : '';
-    document.getElementById('filterSpinner').style.display = 'block';
+    document.getElementById("filterSpinnerMessage").innerHTML = message
+      ? message
+      : "";
+    document.getElementById("filterSpinner").style.display = "block";
   }, 500);
 }
 function hideFilterSpinner() {
   clearTimeout(filterSpinnerTimout);
-  document.getElementById('filterSpinnerMessage').innerHTML = '';
-  document.getElementById('filterSpinner').style.display = 'none';
+  document.getElementById("filterSpinnerMessage").innerHTML = "";
+  document.getElementById("filterSpinner").style.display = "none";
 }
 
 $("#maprQuery")
-  .keyup(event => {
+  .keyup((event) => {
     if (event.which == 13) {
       $(event.target).autocomplete("close");
       filterAndRender();
       // Add to browser history. Handled by onpopstate on browser Back
       let configId = document.getElementById("maprConfig").value;
-      window.history.pushState({}, "", `?query=${configId}:${event.target.value}`);
+      window.history.pushState(
+        {},
+        "",
+        `?query=${configId}:${event.target.value}`
+      );
     }
   })
   .autocomplete({
     autoFocus: false,
     delay: 1000,
     source: function (request, response) {
-
       // if configId is not from mapr, we filter on mapValues...
       let configId = document.getElementById("maprConfig").value;
-      if (configId.indexOf('mapr_') != 0) {
-
+      if (configId.indexOf("mapr_") != 0) {
         let matches;
-        if (configId === 'Name') {
+        if (configId === "Name") {
           matches = model.getStudiesNames(request.term);
-        } else if (configId === 'Group') {
+        } else if (configId === "Group") {
           matches = model.getStudiesGroups(request.term);
         } else {
           matches = model.getKeyValueAutoComplete(configId, request.term);
@@ -262,30 +285,32 @@ $("#maprQuery")
       }
 
       // Auto-complete to filter by mapr...
-      configId = configId.replace('mapr_', '');
+      configId = configId.replace("mapr_", "");
       let case_sensitive = false;
 
       let requestData = {
         case_sensitive: case_sensitive,
-      }
+      };
       let url;
       if (request.term.length === 0) {
         // Try to list all top-level values.
         // This works for 'wild-card' configs where number of values is small e.g. Organism
         // But will return empty list for e.g. Gene
         url = `${BASE_URL}mapr/api/${configId}/`;
-        requestData.orphaned = true
+        requestData.orphaned = true;
       } else {
         // Find auto-complete matches
         url = `${BASE_URL}mapr/api/autocomplete/${configId}/`;
-        requestData.value = case_sensitive ? request.term : request.term.toLowerCase();
-        requestData.query = true;   // use a 'like' HQL query
+        requestData.value = case_sensitive
+          ? request.term
+          : request.term.toLowerCase();
+        requestData.query = true; // use a 'like' HQL query
       }
 
       showSpinner();
       $.ajax({
         dataType: "json",
-        type: 'GET',
+        type: "GET",
         url: url,
         data: requestData,
         success: function (data) {
@@ -293,33 +318,39 @@ $("#maprQuery")
           if (request.term.length === 0) {
             // Top-level terms in 'maps'
             if (data.maps && data.maps.length > 0) {
-              let terms = data.maps.map(m => m.id);
+              let terms = data.maps.map((m) => m.id);
               terms.sort();
               response(terms);
             }
-          }
-          else if (data.length > 0) {
-            response($.map(data, function (item) {
-              return item;
-            }));
+          } else if (data.length > 0) {
+            response(
+              $.map(data, function (item) {
+                return item;
+              })
+            );
           } else {
-            response([{ label: 'No results found.', value: -1 }]);
+            response([{ label: "No results found.", value: -1 }]);
           }
         },
         error: function (data) {
           hideSpinner();
           // E.g. status 504 for timeout
-          response([{ label: 'Loading auto-complete terms failed. Server may be busy.', value: -1 }]);
-        }
+          response([
+            {
+              label: "Loading auto-complete terms failed. Server may be busy.",
+              value: -1,
+            },
+          ]);
+        },
       });
     },
     minLength: 0,
-    open: function () { },
+    open: function () {},
     close: function () {
       // $(this).val('');
       return false;
     },
-    focus: function (event, ui) { },
+    focus: function (event, ui) {},
     select: function (event, ui) {
       if (ui.item.value == -1) {
         // Ignore 'No results found'
@@ -332,13 +363,13 @@ $("#maprQuery")
       window.history.pushState({}, "", `?query=${configId}:${ui.item.value}`);
 
       return false;
-    }
-  }).data("ui-autocomplete")._renderItem = function (ul, item) {
-    return $("<li>")
-      .append("<a>" + item.label + "</a>")
-      .appendTo(ul);
-  }
-
+    },
+  })
+  .data("ui-autocomplete")._renderItem = function (ul, item) {
+  return $("<li>")
+    .append("<a>" + item.label + "</a>")
+    .appendTo(ul);
+};
 
 // ------------ Render -------------------------
 
@@ -349,28 +380,28 @@ function filterAndRender() {
     render();
     return;
   }
-  if (configId.indexOf('mapr_') != 0) {
+  if (configId.indexOf("mapr_") != 0) {
     // filter studies by Key-Value pairs
-    let filterFunc = study => {
+    let filterFunc = (study) => {
       let toMatch = value.toLowerCase();
-      if (configId === 'Name') {
+      if (configId === "Name") {
         return study.Name.toLowerCase().indexOf(toMatch) > -1;
       }
-      if (configId === 'Group') {
-        var group = study['omero:details'].group;
+      if (configId === "Group") {
+        var group = study["omero:details"].group;
         return group.Name.toLowerCase().indexOf(toMatch) > -1;
       }
       // Filter by Map-Annotation Key-Value
       let show = false;
       if (study.mapValues) {
-        study.mapValues.forEach(kv => {
+        study.mapValues.forEach((kv) => {
           if (kv[0] === configId && kv[1].toLowerCase().indexOf(toMatch) > -1) {
             show = true;
           }
         });
       }
       return show;
-    }
+    };
     render(filterFunc);
   } else {
     filterStudiesByMapr(value);
@@ -378,22 +409,21 @@ function filterAndRender() {
 }
 
 function renderMapr(maprData, term) {
-
   maprData.sort((a, b) => {
     return a.Name > b.Name ? 1 : -1;
   });
 
-  let elementId = 'maprResultsTable' + term;
+  let elementId = "maprResultsTable" + term;
 
   let configId = document.getElementById("maprConfig").value;
   let linkFunc = (studyData) => {
-    let type = studyData['@type'].split('#')[1].toLowerCase();
-    let maprKey = configId.replace('mapr_', '');
-    return `/mapr/${maprKey}/?value=${term}&show=${type}-${studyData['@id']}`;
-  }
+    let type = studyData["@type"].split("#")[1].toLowerCase();
+    let maprKey = configId.replace("mapr_", "");
+    return `/mapr/${maprKey}/?value=${term}&show=${type}-${studyData["@id"]}`;
+  };
   let elementSelector = `[data-id="${elementId}"]`;
 
-  maprData.forEach(s => renderStudy(s, elementSelector, linkFunc, maprHtml));
+  maprData.forEach((s) => renderStudy(s, elementSelector, linkFunc, maprHtml));
 
   // load images for each study...
   $(`[data-id="${elementId}"] tr`).each(function () {
@@ -404,22 +434,27 @@ function renderMapr(maprData, term) {
     let objType = studyId.split("-")[0];
     if (!objId || !objType) return;
     let childType = objType === "project" ? "datasets" : "plates";
-    let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+    let configId = document
+      .getElementById("maprConfig")
+      .value.replace("mapr_", "");
     let maprValue = term;
     // We want to link to the dataset or plate...
     let imgContainer;
     let url = `${BASE_URL}mapr/api/${configId}/${childType}/?value=${maprValue}&id=${objId}`;
     fetch(url)
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         let firstChild = data[childType][0];
         imgContainer = `${firstChild.extra.node}-${firstChild.id}`;
         let imagesUrl = `${BASE_URL}mapr/api/${configId}/images/?value=${maprValue}&id=${firstChild.id}&node=${firstChild.extra.node}`;
         return fetch(imagesUrl);
       })
-      .then(response => response.json())
-      .then(data => {
-        let html = data.images.slice(0, 3).map(i => `
+      .then((response) => response.json())
+      .then((data) => {
+        let html = data.images
+          .slice(0, 3)
+          .map(
+            (i) => `
           <a href="${BASE_URL}webclient/img_detail/${i.id}/"
              target="_blank" title="Open image in viewer" class="maprViewerLink">
             <div>
@@ -427,16 +462,18 @@ function renderMapr(maprData, term) {
                 data-src="${BASE_URL}webgateway/render_thumbnail/${i.id}/">
               <i class="fas fa-eye"></i>
             </div>
-          </a>`).join("");
+          </a>`
+          )
+          .join("");
         let linkHtml = `<a target="_blank" href="${BASE_URL}mapr/${configId}/?value=${maprValue}&show=${imgContainer}">
                   more...
-                </a>`
+                </a>`;
         // Find the container and add placeholder images html
         $("#" + element.id + " .exampleImages").html(html);
         $("#" + element.id + " .exampleImagesLink").append(linkHtml);
         // Update the src to load the thumbnails. Timeout to let placeholder render while we wait for thumbs
         setTimeout(() => {
-          $('img', "#" + element.id).each((index, img) => {
+          $("img", "#" + element.id).each((index, img) => {
             img.src = img.dataset.src;
           });
         }, 0);
@@ -445,11 +482,11 @@ function renderMapr(maprData, term) {
 }
 
 function render(filterFunc) {
-  $('#studies').addClass('studiesLayout');
-  document.getElementById('studies').innerHTML = "";
+  $("#studies").addClass("studiesLayout");
+  document.getElementById("studies").innerHTML = "";
 
   if (!filterFunc) {
-    document.getElementById('filterCount').innerHTML = "";
+    document.getElementById("filterCount").innerHTML = "";
     return;
   }
 
@@ -458,18 +495,20 @@ function render(filterFunc) {
     studiesToRender = model.studies.filter(filterFunc);
   }
 
-  let configId = document.getElementById("maprConfig").value.replace('mapr_', '');
+  let configId = document
+    .getElementById("maprConfig")
+    .value.replace("mapr_", "");
   configId = (mapr_settings && mapr_settings[configId]) || configId;
-  let maprValue = document.getElementById('maprQuery').value;
+  let maprValue = document.getElementById("maprQuery").value;
 
   if (configId === "Name") {
     // If searching by idrID (Number)  show best match first...
     let value = document.getElementById("maprQuery").value;
     if (!isNaN(value)) {
-      let padZeros = ("0000" + value)
-      let idrId = `idr${padZeros.slice(padZeros.length-4)}`
+      let padZeros = "0000" + value;
+      let idrId = `idr${padZeros.slice(padZeros.length - 4)}`;
       studiesToRender.sort(function (a, b) {
-        return (a.Name.includes(idrId) ? -1 : 1);
+        return a.Name.includes(idrId) ? -1 : 1;
       });
     }
   }
@@ -482,21 +521,22 @@ function render(filterFunc) {
       Found <strong>${studiesToRender.length}</strong> studies with
       <strong>${configId}</strong>: <strong>${maprValue}</strong></p>`;
   }
-  document.getElementById('filterCount').innerHTML = filterMessage;
+  document.getElementById("filterCount").innerHTML = filterMessage;
 
   // By default, we link to the study itself in IDR...
   let linkFunc = (studyData) => {
-    let type = studyData['@type'].split('#')[1].toLowerCase();
-    return `${BASE_URL}webclient/?show=${type}-${studyData['@id']}`;
-  }
+    let type = studyData["@type"].split("#")[1].toLowerCase();
+    return `${BASE_URL}webclient/?show=${type}-${studyData["@id"]}`;
+  };
   let htmlFunc = studyHtml;
 
-  studiesToRender.forEach(s => renderStudy(s, '#studies', linkFunc, htmlFunc));
+  studiesToRender.forEach((s) =>
+    renderStudy(s, "#studies", linkFunc, htmlFunc)
+  );
 
   // loadStudyThumbnails();
   model.loadStudiesThumbnails();
 }
-
 
 // When no studies match the filter, show message/link.
 function noStudiesMessage() {
@@ -508,7 +548,9 @@ function noStudiesMessage() {
     let others = [];
     for (let cat in SUPER_CATEGORIES) {
       if (SUPER_CATEGORIES[cat].label !== currLabel) {
-        others.push(`<a href="${GALLERY_HOME}${cat}/search/?query=${configId}:${maprQuery}">${SUPER_CATEGORIES[cat].label}</a>`);
+        others.push(
+          `<a href="${GALLERY_HOME}${cat}/search/?query=${configId}:${maprQuery}">${SUPER_CATEGORIES[cat].label}</a>`
+        );
       }
     }
     if (others.length > 0) {
@@ -518,13 +560,11 @@ function noStudiesMessage() {
   return filterMessage;
 }
 
-
 function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
-
   // Add Project or Screen to the page
   var title = model.getStudyTitle(studyData);
 
-  let type = studyData['@type'].split('#')[1].toLowerCase();
+  let type = studyData["@type"].split("#")[1].toLowerCase();
   let studyLink = linkFunc(studyData);
   // save for later
   studyData.title = title;
@@ -534,27 +574,33 @@ function renderStudy(studyData, elementSelector, linkFunc, htmlFunc) {
   let shortName = getStudyShortName(studyData);
   let authors = model.getStudyValue(studyData, "Publication Authors") || "";
 
-  let div = htmlFunc({ studyLink, studyDesc, shortName, title, authors, BASE_URL, type }, studyData);
+  let div = htmlFunc(
+    { studyLink, studyDesc, shortName, title, authors, BASE_URL, type },
+    studyData
+  );
   document.querySelector(elementSelector).appendChild(div);
 }
 
 // --------- Render utils -----------
 
 function studyHtml(props, studyData) {
-
-  let pubmed = model.getStudyValue(studyData, 'PubMed ID');
+  let pubmed = model.getStudyValue(studyData, "PubMed ID");
   if (pubmed) {
     pubmed = pubmed.split(" ")[1];
   }
-  let author = props.authors.split(',')[0] || '';
+  let author = props.authors.split(",")[0] || "";
   if (author) {
     author = `${author} et al.`;
-    author = author.length > 23 ? author.slice(0, 20) + '...' : author;
+    author = author.length > 23 ? author.slice(0, 20) + "..." : author;
   }
   let html = `
   <div style='white-space:nowrap'>
     ${props.shortName}
-    ${pubmed ? `<a class='pubmed' target="_blank" href="${pubmed}"> ${author}</a>` : author}
+    ${
+      pubmed
+        ? `<a class='pubmed' target="_blank" href="${pubmed}"> ${author}</a>`
+        : author
+    }
   </div>
   <div class="studyImage">
     <a target="_blank" href="${props.studyLink}">
@@ -574,12 +620,12 @@ function studyHtml(props, studyData) {
       <i class="fas fa-eye"></i>
     </a>
   </div>
-  `
+  `;
   var div = document.createElement("div");
   div.innerHTML = html;
-  div.id = props.type + '-' + studyData['@id'];
+  div.id = props.type + "-" + studyData["@id"];
   div.dataset.obj_type = props.type;
-  div.dataset.obj_id = studyData['@id'];
+  div.dataset.obj_id = studyData["@id"];
   div.className = "row study ";
   return div;
 }
@@ -591,33 +637,35 @@ function maprHtml(props, studyData) {
         ${props.shortName}
       </a>
     </td>
-    <td>${model.getStudyValue(studyData, 'Organism')}</td>
+    <td>${model.getStudyValue(studyData, "Organism")}</td>
     <td>${studyData.imageCount}</td>
-    <td title="${props.title}">${props.title.slice(0, 40)}${props.title.length > 40 ? '...' : ''}</td>
+    <td title="${props.title}">${props.title.slice(0, 40)}${
+    props.title.length > 40 ? "..." : ""
+  }</td>
     <td class='exampleImages'>loading...</td>
     <td class='exampleImagesLink'></td>
-  `
+  `;
   var tr = document.createElement("tr");
   tr.innerHTML = html;
-  tr.id = props.type + '-' + studyData['@id'];
+  tr.id = props.type + "-" + studyData["@id"];
   tr.dataset.obj_type = props.type;
-  tr.dataset.obj_id = studyData['@id'];
+  tr.dataset.obj_id = studyData["@id"];
   return tr;
 }
 
-
 function renderThumbnails(data) {
-
   // data is e.g. { project-1: {thumbnail: base64data, image: {id:1}} }
   for (let id in data) {
-    if (!data[id]) continue;  // may be null
-    let obj_type = id.split('-')[0];
-    let obj_id = id.split('-')[1];
-    let elements = document.querySelectorAll(`div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`);
+    if (!data[id]) continue; // may be null
+    let obj_type = id.split("-")[0];
+    let obj_id = id.split("-")[1];
+    let elements = document.querySelectorAll(
+      `div[data-obj_type="${obj_type}"][data-obj_id="${obj_id}"]`
+    );
     for (let e = 0; e < elements.length; e++) {
       // Find all studies matching the study ID and set src on image
       let element = elements[e];
-      let studyImage = element.querySelector('.studyImage');
+      let studyImage = element.querySelector(".studyImage");
       if (data[id].thumbnail) {
         studyImage.style.backgroundImage = `url(${data[id].thumbnail})`;
       }
@@ -625,7 +673,7 @@ function renderThumbnails(data) {
       if (data[id].image && data[id].image.id) {
         let iid = data[id].image.id;
         let link = `${BASE_URL}webclient/img_detail/${iid}/`;
-        element.querySelector('a.viewerLink').href = link;
+        element.querySelector("a.viewerLink").href = link;
       }
     }
   }
@@ -655,16 +703,15 @@ init();
 window.onpopstate = (event) => {
   populateInputsFromSearch();
   filterAndRender();
-}
-
+};
 
 // Load MAPR config
-fetch(BASE_URL + 'mapr/api/config/')
-  .then(response => response.json())
-  .then(data => {
+fetch(BASE_URL + "mapr/api/config/")
+  .then((response) => response.json())
+  .then((data) => {
     mapr_settings = data;
 
-    let options = FILTER_MAPR_KEYS.map(key => {
+    let options = FILTER_MAPR_KEYS.map((key) => {
       let config = mapr_settings[key];
       if (config) {
         return `<option value="mapr_${key}">${config.label}</option>`;
@@ -673,12 +720,13 @@ fetch(BASE_URL + 'mapr/api/config/')
       }
     });
     if (options.length > 0) {
-      document.getElementById('maprKeys').innerHTML = options.join("\n");
+      document.getElementById("maprKeys").innerHTML = options.join("\n");
       // Show the <optgroup> and the whole form
-      document.getElementById('maprKeys').style.display = 'block';
-      document.getElementById('search-form').style.display = 'block';
+      document.getElementById("maprKeys").style.display = "block";
+      document.getElementById("search-form").style.display = "block";
     }
     populateInputsFromSearch();
-  }).catch(function (err) {
+  })
+  .catch(function (err) {
     console.log("mapr not installed (config not available)");
   });
