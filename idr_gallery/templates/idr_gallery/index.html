@@ -320,6 +320,7 @@
       <select id="maprConfig">
         {% if filter_keys %}
         <optgroup id="studyKeys" label="Study Attributes">
+          <option value="any">Search by 'Any' key</option>
           {% for key in filter_keys %}
           <option value="{% if key.value %}{{ key.value }}{% else %}{{ key }}{% endif %}">
             {% if key.label %}{{ key.label }}{% else %}{{ key }}{% endif %}

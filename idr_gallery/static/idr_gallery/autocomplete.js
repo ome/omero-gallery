@@ -59,7 +59,8 @@ $("#maprQuery")
     source: function (request, response) {
       // if configId is not from mapr, we filter on mapValues...
       let configId = document.getElementById("maprConfig").value;
-      if (configId.indexOf("mapr_") != 0) {
+
+      if (configId.indexOf("mapr_") != 0 && configId != "any") {
         let matches;
         if (configId === "Name") {
           matches = model.getStudiesNames(request.term);
@@ -85,14 +86,12 @@ $("#maprQuery")
         case_sensitive: case_sensitive,
       };
       let url;
-      if (request.term.length === 0) {
-        // Try to list all top-level values.
-        // This works for 'wild-card' configs where number of values is small e.g. Organism
-        // But will return empty list for e.g. Gene
-        url = `${BASE_URL}mapr/api/${configId}/`;
-        requestData.orphaned = true;
+      if (configId === "any") {
+        // Use searchengine...
+        url = `https://idr-testing.openmicroscopy.org/searchengine/searchusingvaluesonly/`;
+        requestData = { value: request.term, resource: "image" };
       } else {
-        // Find auto-complete matches
+        // Use mapr to find auto-complete matches
         url = `${BASE_URL}mapr/api/autocomplete/${configId}/`;
         requestData.value = case_sensitive
           ? request.term
@@ -107,22 +106,25 @@ $("#maprQuery")
         data: requestData,
         success: function (data) {
           hideSpinner();
-          if (request.term.length === 0) {
-            // Top-level terms in 'maps'
-            if (data.maps && data.maps.length > 0) {
-              let terms = data.maps.map((m) => m.id);
-              terms.sort();
-              response(terms);
-            }
-          } else if (data.length > 0) {
-            response(
-              $.map(data, function (item) {
-                return item;
-              })
-            );
+          console.log("data", data);
+          let results = [];
+          if (configId === "any") {
+            let studies = getMatchingStudiesResults(request.term);
+            let images = data.results.map((result) => {
+              return {
+                key: result.Attribute,
+                label: `<b>${result.Value}</b> (${result.Attribute}) <span style="color:#bbb">${result["Number of images"]} images</span>`,
+                value: `${result.Value}`,
+              };
+            });
+            results = studies.concat(images);
           } else {
-            response([{ label: "No results found.", value: -1 }]);
+            results = data;
           }
+          if (results.length === 0) {
+            results = [{ label: "No results found.", value: -1 }];
+          }
+          response(results);
         },
         error: function (data) {
           hideSpinner();
@@ -156,7 +158,56 @@ $("#maprQuery")
     },
   })
   .data("ui-autocomplete")._renderItem = function (ul, item) {
+  console.log("item", item.label);
   return $("<li>")
     .append("<a>" + item.label + "</a>")
     .appendTo(ul);
 };
+
+function getMatchingStudiesResults(text) {
+  let matches = model.filterStudiesAnyText(text);
+
+  let groupStudiesByMatches = {};
+
+  matches.forEach((studyText) => {
+    // matches are list of [study, ["key: value", "Description: this study is great"]]
+    let [study, matchingKvps] = studyText;
+    matchingKvps.forEach((kvp) => {
+      let matchingStr = `${kvp[1]} (${kvp[0]})`;
+      if (!groupStudiesByMatches[matchingStr]) {
+        groupStudiesByMatches[matchingStr] = [];
+      }
+      groupStudiesByMatches[matchingStr].push(kvp[1]);
+    });
+  });
+
+  let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
+  function markup(string) {
+    return regexes.reduce(
+      (prev, regex) => prev.replace(regex, "<b>$&</b>"),
+      string
+    );
+  }
+
+  let results = Object.keys(groupStudiesByMatches).map((keyVal) => {
+    return {
+      keyVal,
+      count: groupStudiesByMatches[keyVal].length,
+      value: groupStudiesByMatches[keyVal][0],
+    };
+  });
+  results.sort(function (a, b) {
+    // sort - largest hit-count first
+    return a.count < b.count ? 1 : -1;
+  });
+
+  let rsp = results.map((r) => {
+    return {
+      label: `${markup(r.keyVal)} <span style="color:#bbb">${
+        r.count
+      } Studies</span>`,
+      value: r.value,
+    };
+  });
+  return rsp;
+}

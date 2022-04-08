@@ -369,32 +369,26 @@ class StudiesModel {
 
   filterStudiesAnyText(text) {
     // Search for studies with text in their keys, values, or description.
-    // Returns a list of matching studies. Each study is returned along with text matches
-    // [study, ["key: value", "description"]]
+    // Returns a list of matching studies. Each study is returned along with kvps that matches text
+    // [study, [{key: value}, {Description: this study is great}]]
     let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
-    function matchSome(str) {
-      return regexes.some((re) => re.test(str));
+    function matchSome(kvp) {
+      return regexes.some((re) => re.test(kvp[1]));
     }
     const re = new RegExp(text, "i");
     return this.studies
       .map((study) => {
-        let mapValues = [];
-        if (study.mapValues) {
-          mapValues = study.mapValues.map((kv) => kv.join(": "));
-        }
-        let studyStrings = mapValues.concat([study.Description]);
-
-        // we want ALL the search tokens to match at least somewhere in studyStrings
+        // we want ALL the search tokens to match at least somewhere in kvp or Description
+        let keyValuePairs = study.mapValues || [];
+        keyValuePairs.push({"Description": study.Description})
         let match = regexes.every((re) =>
-          studyStrings.some((str) => re.test(str))
+          keyValuePairs.some((kvp) => re.test(kvp[1]))
         );
+        console.log("match", match);
         if (!match) return;
 
         // return [study, "key: value string showing matching text"]
-        let matches = mapValues.filter(matchSome);
-        if (matchSome(study.Description)) {
-          matches.push(study.Description);
-        }
+        let matches = keyValuePairs.filter(matchSome);
         return [study, matches];
       })
       .filter(Boolean);
