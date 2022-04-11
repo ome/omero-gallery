@@ -109,21 +109,24 @@ $("#maprQuery")
           console.log("data", data);
           let results = [];
           if (configId === "any") {
-            let studies = getMatchingStudiesResults(request.term);
-            let images = data.results.map((result) => {
-              return {
-                key: result.Attribute,
-                label: `<b>${result.Value}</b> (${result.Attribute}) <span style="color:#bbb">${result["Number of images"]} images</span>`,
-                value: `${result.Value}`,
-              };
-            });
-            results = studies.concat(images);
+            let studiesHtml = getMatchingStudiesResults(request.term);
+            let imagesHtml = data.results
+              .map((result) => {
+                return `<b>${result.Value}</b> (${result.Attribute}) <span style="color:#bbb">${result["Number of images"]} images</span>`;
+              })
+              .join("<br>");
+            let html =
+              "<h2>Studies</h2>" +
+              studiesHtml +
+              "<hr><h2>Images</h2>" +
+              imagesHtml;
+            document.getElementById("searchResults").innerHTML = html;
           } else {
             results = data;
           }
-          if (results.length === 0) {
-            results = [{ label: "No results found.", value: -1 }];
-          }
+          // if (results.length === 0) {
+          //   results = [{ label: "No results found.", value: -1 }];
+          // }
           response(results);
         },
         error: function (data) {
@@ -175,30 +178,35 @@ function getMatchingStudiesResults(text) {
       (prev, regex) => prev.replace(regex, "<b>$&</b>"),
       string
     );
-    // truncate around <b>...</b>
-    let start = markedUp.indexOf("<b>") - 20;
-    let end = markedUp.indexOf("</b>") + 20;
-    return (
-      (start > 0 ? "..." : "") +
-      markedUp.slice(start, end) +
-      (end < markedUp.length ? "..." : "")
-    );
+    return markedUp;
+    // // truncate around <b>...</b>
+    // let start = markedUp.indexOf("<b>") - 20;
+    // let end = markedUp.indexOf("</b>") + 20;
+    // return (
+    //   (start > 0 ? "..." : "") +
+    //   markedUp.slice(start, end) +
+    //   (end < markedUp.length ? "..." : "")
+    // );
   }
 
   // return a list of STUDIES, not Values
-  return matches.map((match) => {
-    let study = match[0];
-    let studyId = study.Name.split("-")[0];
-    // find any key/value match other than 'Description'
-    let kvps = match[1].filter((kv) => kv[0] != "Description");
-    let matchingText = "";
-    if (kvps.length > 0) {
-      let kvp = kvps[0];
-      matchingText = `(${kvp[0]}: ${markup(kvp[1])})`;
-    } else {
-      matchingText = `(${markup(study.Description)})`;
-    }
+  return matches
+    .map((match) => {
+      let study = match[0];
+      let studyId = study.Name.split("-")[0];
+      // find any key/value match other than 'Description'
+      let kvps = match[1].filter((kv) => kv[0] != "Description");
+      let matchingText = "";
+      if (kvps.length > 0) {
+        let kvp = kvps[0];
+        matchingText = `(${kvp[0]}: ${markup(kvp[1])})`;
+      } else {
+        matchingText = `(${markup(study.Description)})`;
+      }
 
-    return `${study.Name} ${matchingText}`;
-  });
+      let imgCount = imageCount(studyId);
+      return `<img style="margin: 2px" src="${study.thumbnail}"/> ${study.Name} ${matchingText}
+    <span style="color:#bbb">${imgCount}</span>`;
+    })
+    .join("<br>");
 }
