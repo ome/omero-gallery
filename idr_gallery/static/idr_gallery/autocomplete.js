@@ -166,48 +166,39 @@ $("#maprQuery")
 
 function getMatchingStudiesResults(text) {
   let matches = model.filterStudiesAnyText(text);
-
-  let groupStudiesByMatches = {};
-
-  matches.forEach((studyText) => {
-    // matches are list of [study, ["key: value", "Description: this study is great"]]
-    let [study, matchingKvps] = studyText;
-    matchingKvps.forEach((kvp) => {
-      let matchingStr = `${kvp[1]} (${kvp[0]})`;
-      if (!groupStudiesByMatches[matchingStr]) {
-        groupStudiesByMatches[matchingStr] = [];
-      }
-      groupStudiesByMatches[matchingStr].push(kvp[1]);
-    });
-  });
+  // matches are list of [study, ["key: value", "Description: this study is great"]]
+  console.log("getMatchingStudiesResults", text, matches);
 
   let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
   function markup(string) {
-    return regexes.reduce(
+    let markedUp = regexes.reduce(
       (prev, regex) => prev.replace(regex, "<b>$&</b>"),
       string
     );
+    // truncate around <b>...</b>
+    let start = markedUp.indexOf("<b>") - 20;
+    let end = markedUp.indexOf("</b>") + 20;
+    return (
+      (start > 0 ? "..." : "") +
+      markedUp.slice(start, end) +
+      (end < markedUp.length ? "..." : "")
+    );
   }
 
-  let results = Object.keys(groupStudiesByMatches).map((keyVal) => {
-    return {
-      keyVal,
-      count: groupStudiesByMatches[keyVal].length,
-      value: groupStudiesByMatches[keyVal][0],
-    };
-  });
-  results.sort(function (a, b) {
-    // sort - largest hit-count first
-    return a.count < b.count ? 1 : -1;
-  });
+  // return a list of STUDIES, not Values
+  return matches.map((match) => {
+    let study = match[0];
+    let studyId = study.Name.split("-")[0];
+    // find any key/value match other than 'Description'
+    let kvps = match[1].filter((kv) => kv[0] != "Description");
+    let matchingText = "";
+    if (kvps.length > 0) {
+      let kvp = kvps[0];
+      matchingText = `(${kvp[0]}: ${markup(kvp[1])})`;
+    } else {
+      matchingText = `(${markup(study.Description)})`;
+    }
 
-  let rsp = results.map((r) => {
-    return {
-      label: `${markup(r.keyVal)} <span style="color:#bbb">${
-        r.count
-      } Studies</span>`,
-      value: r.value,
-    };
+    return `${study.Name} ${matchingText}`;
   });
-  return rsp;
 }
