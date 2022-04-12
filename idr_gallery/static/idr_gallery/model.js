@@ -382,7 +382,7 @@ class StudiesModel {
         // TODO: clone object first...!
         console.log("study.mapValues", study.mapValues);
         let keyValuePairs = [...study.mapValues];
-        keyValuePairs.push(['Description', study.Description]);
+        keyValuePairs.push(["Description", study.Description]);
         let match = regexes.every((re) =>
           keyValuePairs.some((kvp) => re.test(kvp[1]))
         );

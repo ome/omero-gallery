@@ -188,7 +188,10 @@ function getMatchingStudiesHtml(text) {
           string
         );
       }
-      let matchingString = matchingStrings.map(kvp => kvp.join(': ')).map(markup).join("<br>");
+      let matchingString = matchingStrings
+        .map((kvp) => kvp.join(": "))
+        .map(markup)
+        .join("<br>");
       let idrId = study.Name.split("-")[0];
       let pubmed = model.getStudyValue(study, "PubMed ID")?.split(" ")[1];
       let authors = model.getStudyValue(study, "Publication Authors") || " ";
@@ -231,8 +234,8 @@ function getMatchingStudiesHtml(text) {
   let idrIds = results.map((r) => r[0].Name.split("-")[0]);
   let studyCount = new Set(idrIds).size;
 
-  // document.getElementById('filterResults').innerHTML = `found ${containerCount} containers in ${studyCount} studies`;
-  // document.getElementById('studies').innerHTML = `<table>${html}</table>`;
-  html = `<div class="resultCounts">found ${containerCount} containers in ${studyCount} studies</div>` + html;
+  html =
+    `<div class="resultCounts">found ${containerCount} containers in ${studyCount} studies</div>` +
+    html;
   return html;
 }
