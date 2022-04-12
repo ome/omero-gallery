@@ -282,11 +282,74 @@
     background: yellow;
   }
 
-  #filterText {
-    display: inline;
-    width: 200px;
-    margin: 0;
+  #searchResults {
+    position: relative;
   }
+  #searchResults li {
+    list-style: none;
+    display: inline-block;
+  }
+  #searchResults p {
+    margin: 10px;
+  }
+  #searchResults img {
+    float: left;
+    margin: 2px;
+    margin-right: 10px;
+  }
+  #searchResults span {
+    color:#bbb
+  }
+  .resultCounts {
+    position: absolute;
+    top: 10px;
+    right: 35px;
+  }
+  .searchScroll {
+    max-height: 300px;
+    overflow-y: auto;
+    /* word-break: break-all; */
+  }
+  #hideSearchResults {
+    border: none;
+    background: none;
+    position: absolute;
+    right: 25px;
+    top: 10px;
+    z-index: 1;
+  }
+
+  /* Always show scrollbars https://gist.github.com/IceCreamYou/cd517596e5847a88e2bb0a091da43fb4 */
+.scrollBarVisible::-webkit-scrollbar-track:vertical {
+    border-left: 1px solid #E7E7E7;
+    box-shadow: 1px 0 1px 0 #F6F6F6 inset, -1px 0 1px 0 #F6F6F6 inset;
+}
+
+.scrollBarVisible::-webkit-scrollbar-track:horizontal {
+    border-top: 1px solid #E7E7E7;
+    box-shadow: 0 1px 1px 0 #F6F6F6 inset, 0 -1px 1px 0 #F6F6F6 inset;
+}
+
+.scrollBarVisible::-webkit-scrollbar {
+    -webkit-appearance: none;
+    background-color: #FAFAFA;
+    width: 16px;
+}
+
+.scrollBarVisible::-webkit-scrollbar-thumb {
+    background-clip: padding-box;
+    background-color: #C1C1C1;
+    border-color: transparent;
+    border-radius: 9px 8px 8px 9px;
+    border-style: solid;
+    border-width: 3px 3px 3px 4px; /* Workaround because margins aren't supported */
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.scrollBarVisible::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 </style>
 
 
@@ -345,8 +408,10 @@
   </div>
 </header>
 
-<div class="row horizontal" style="position: relative; margin-top: -35px; margin-bottom: 15px">
+<!-- Search results - hidden till needed -->
+<div id="searchResultsContainer" class="row horizontal" style="display: none; position: relative; margin-top: -35px; margin-bottom: 15px">
   <div class="small-12 medium-12 large-12 columns">
+    <button id="hideSearchResults" onclick="document.getElementById('searchResultsContainer').style.display = 'none'">X</button>
     <div id="searchResults" class="panel" style="float: left; width: 100%; color: #333">
       Search results
     </div>
@@ -377,12 +442,6 @@
           <input id="groupByType" type="checkbox">
           <span class="sliderToggle round"></span>
         </label>
-        <!-- Don't show filter controls for now... -->
-        <div style="display:none;">
-          <label class="switchLabel">or Filter by:</label>
-          <input type="text" id="filterText" placeholder="authors or keywords" />
-        </div>
-        <span class="switchLabel" id="filterResults" style="margin-left: 10px"></span>
       </form>
       <div id="studies">
         <!-- Placeholder thumbnails - updated by render() once studies have loaded -->
@@ -459,64 +518,6 @@
       $('.columns', $row).toggleClass("small-12 medium-12 large-12")
         .toggleClass("small-6 medium-6 large-6");
     });
-
-  // Handle filtering studies when user types in [filter] text input
-  $("#filterText").on("keyup", function (event) {
-    let text = event.target.value;
-
-    if (text.length == 0) {
-      render();
-      document.getElementById('filterResults').innerHTML = "";
-      return;
-    }
-
-    let results = model.filterStudiesAnyText(text);
-    let html = results.map(studyText => {
-      let [study, matchingStrings] = studyText;
-
-      let regexes = text.split(" ").map(token => new RegExp(token, "i"))
-      function markup(string) {
-        return regexes.reduce((prev, regex) => prev.replace(regex, "<mark>$&</mark>"), string)
-      }
-      let matchingString = matchingStrings.map(markup).join('<br>');
-      let idrId = study.Name.split('-')[0];
-      let pubmed = model.getStudyValue(study, 'PubMed ID')?.split(" ")[1];
-      let authors = model.getStudyValue(study, "Publication Authors") || " ";
-      authors = authors.split(",")[0];
-
-      return `<tr style="font-size: 13px">
-        <td>
-          ${idrId}<br>
-          <span style="white-space:nowrap">${pubmed ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>` : `<b> ${authors} et. al </b>`}</span><br>
-          <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
-            <img src="${study.thumbnail}"/><br>
-            ${study.Name.split("/").pop()}
-          </a>
-        </td>
-        <td>${matchingString}</td>
-        </tr>`
-    }).join("\n");
-
-    if (results.length == 0) {
-      html = "No studies found"
-      if (SUPER_CATEGORY) {
-        if (SUPER_CATEGORY.id === "cell") {
-          html += ` in Cell IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
-        } else if (SUPER_CATEGORY.id === "tissue") {
-          html += ` in Tissue IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
-        }
-      } else {
-        html += ". Try searching for Image attributes above."
-      }
-    }
-
-    let containerCount = results.length;
-    let idrIds = results.map(r => r[0].Name.split("-")[0]);
-    let studyCount = (new Set(idrIds)).size;
-
-    document.getElementById('filterResults').innerHTML = `found ${containerCount} containers in ${studyCount} studies`;
-    document.getElementById('studies').innerHTML = `<table>${html}</table>`;
-  });
 </script>
 
 {% endblock %}

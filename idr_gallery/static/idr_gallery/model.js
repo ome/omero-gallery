@@ -380,8 +380,9 @@ class StudiesModel {
       .map((study) => {
         // we want ALL the search tokens to match at least somewhere in kvp or Description
         // TODO: clone object first...!
-        let keyValuePairs = study.mapValues || [];
-        keyValuePairs.push({ Description: study.Description });
+        console.log("study.mapValues", study.mapValues);
+        let keyValuePairs = [...study.mapValues];
+        keyValuePairs.push(['Description', study.Description]);
         let match = regexes.every((re) =>
           keyValuePairs.some((kvp) => re.test(kvp[1]))
         );

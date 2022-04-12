@@ -109,18 +109,22 @@ $("#maprQuery")
           console.log("data", data);
           let results = [];
           if (configId === "any") {
-            let studiesHtml = getMatchingStudiesResults(request.term);
+            let studiesHtml = getMatchingStudiesHtml(request.term);
             let imagesHtml = data.results
               .map((result) => {
-                return `<b>${result.Value}</b> (${result.Attribute}) <span style="color:#bbb">${result["Number of images"]} images</span>`;
+                return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${result.Attribute}:${result.Value}">
+                    <b>${result.Value}</b> (${result.Attribute}) <span style="color:#bbb">${result["Number of images"]} images</span>
+                  </a></li>
+                  `;
               })
               .join("<br>");
             let html =
               "<h2>Studies</h2>" +
               studiesHtml +
               "<hr><h2>Images</h2>" +
-              imagesHtml;
+              `<div class="searchScroll scrollBarVisible"><ul>${imagesHtml}</ul></div>`;
             document.getElementById("searchResults").innerHTML = html;
+            $("#searchResultsContainer").show();
           } else {
             results = data;
           }
@@ -167,46 +171,68 @@ $("#maprQuery")
     .appendTo(ul);
 };
 
-function getMatchingStudiesResults(text) {
-  let matches = model.filterStudiesAnyText(text);
-  // matches are list of [study, ["key: value", "Description: this study is great"]]
-  console.log("getMatchingStudiesResults", text, matches);
-
-  let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
-  function markup(string) {
-    let markedUp = regexes.reduce(
-      (prev, regex) => prev.replace(regex, "<b>$&</b>"),
-      string
-    );
-    return markedUp;
-    // // truncate around <b>...</b>
-    // let start = markedUp.indexOf("<b>") - 20;
-    // let end = markedUp.indexOf("</b>") + 20;
-    // return (
-    //   (start > 0 ? "..." : "") +
-    //   markedUp.slice(start, end) +
-    //   (end < markedUp.length ? "..." : "")
-    // );
+function getMatchingStudiesHtml(text) {
+  if (text.length == 0) {
+    return "";
   }
 
-  // return a list of STUDIES, not Values
-  return matches
-    .map((match) => {
-      let study = match[0];
-      let studyId = study.Name.split("-")[0];
-      // find any key/value match other than 'Description'
-      let kvps = match[1].filter((kv) => kv[0] != "Description");
-      let matchingText = "";
-      if (kvps.length > 0) {
-        let kvp = kvps[0];
-        matchingText = `(${kvp[0]}: ${markup(kvp[1])})`;
-      } else {
-        matchingText = `(${markup(study.Description)})`;
-      }
+  let results = model.filterStudiesAnyText(text);
+  let html = results
+    .map((studyText) => {
+      let [study, matchingStrings] = studyText;
 
-      let imgCount = imageCount(studyId);
-      return `<img style="margin: 2px" src="${study.thumbnail}"/> ${study.Name} ${matchingText}
-    <span style="color:#bbb">${imgCount}</span>`;
+      let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
+      function markup(string) {
+        return regexes.reduce(
+          (prev, regex) => prev.replace(regex, "<mark>$&</mark>"),
+          string
+        );
+      }
+      let matchingString = matchingStrings.map(kvp => kvp.join(': ')).map(markup).join("<br>");
+      let idrId = study.Name.split("-")[0];
+      let pubmed = model.getStudyValue(study, "PubMed ID")?.split(" ")[1];
+      let authors = model.getStudyValue(study, "Publication Authors") || " ";
+      authors = authors.split(",")[0];
+
+      return `<tr style="font-size: 13px">
+        <td>
+          ${idrId}<br>
+          <span style="white-space:nowrap">${
+            pubmed
+              ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>`
+              : `<b> ${authors} et. al </b>`
+          }</span><br>
+          <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
+            <img src="${study.thumbnail}"/><br>
+            ${study.Name.split("/").pop()}
+          </a>
+        </td>
+        <td>${matchingString}</td>
+        </tr>`;
     })
-    .join("<br>");
+    .join("\n");
+
+  if (results.length == 0) {
+    html = "No studies found";
+    // if (SUPER_CATEGORY) {
+    //   if (SUPER_CATEGORY.id === "cell") {
+    //     html += ` in Cell IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
+    //   } else if (SUPER_CATEGORY.id === "tissue") {
+    //     html += ` in Tissue IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
+    //   }
+    // } else {
+    //   html += ". Try searching for Image attributes above."
+    // }
+  } else {
+    html = `<div class="searchScroll scrollBarVisible"><table><tbody>${html}</tbody></table></div>`;
+  }
+
+  let containerCount = results.length;
+  let idrIds = results.map((r) => r[0].Name.split("-")[0]);
+  let studyCount = new Set(idrIds).size;
+
+  // document.getElementById('filterResults').innerHTML = `found ${containerCount} containers in ${studyCount} studies`;
+  // document.getElementById('studies').innerHTML = `<table>${html}</table>`;
+  html = `<div class="resultCounts">found ${containerCount} containers in ${studyCount} studies</div>` + html;
+  return html;
 }
