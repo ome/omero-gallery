@@ -318,6 +318,13 @@
     top: 10px;
     z-index: 1;
   }
+  /* overwrite foundation styles for table... */
+  #studySearchResults tbody {
+    border: none;
+  }
+  #studySearchResults tr {
+    background-color: transparent;
+  }
 
   /* Always show scrollbars https://gist.github.com/IceCreamYou/cd517596e5847a88e2bb0a091da43fb4 */
 .scrollBarVisible::-webkit-scrollbar-track:vertical {
@@ -412,8 +419,11 @@
 <div id="searchResultsContainer" class="row horizontal" style="display: none; position: relative; margin-top: -35px; margin-bottom: 15px">
   <div class="small-12 medium-12 large-12 columns">
     <button id="hideSearchResults" onclick="document.getElementById('searchResultsContainer').style.display = 'none'">X</button>
-    <div id="searchResults" class="panel" style="float: left; width: 100%; color: #333">
+    <div id="studySearchResults" class="panel" style="float: left; width: 100%; color: #333">
       Search results
+    </div>
+    <div id="imageSearchResults" class="panel" style="float: left; width: 100%; color: #333">
+      <!-- spinner? -->
     </div>
   </div>
 </div>

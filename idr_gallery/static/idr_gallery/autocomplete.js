@@ -51,6 +51,22 @@ function enableEnterGoesToResultsPage() {
   });
 }
 
+// "instant" auto-complete for 'Any' key searches Studies and shows
+// full-page results panel (the ajax search results for images are added to
+// this from the $.autocomplete response below)
+$("#maprQuery").on("keyup", function(event){
+  let configId = document.getElementById("maprConfig").value;
+  if (configId != "any") {
+    $("#searchResultsContainer").hide();
+    return;
+  }
+  let input = event.target.value.trim();
+  let studiesHtml = getMatchingStudiesHtml(input);
+  let html = `<h2>Studies</h2><ul>${studiesHtml}</ul>`;
+  document.getElementById("studySearchResults").innerHTML = html;
+  $("#searchResultsContainer").show();
+});
+
 // Initial setup...
 $("#maprQuery")
   .autocomplete({
@@ -109,7 +125,6 @@ $("#maprQuery")
           console.log("data", data);
           let results = [];
           if (configId === "any") {
-            let studiesHtml = getMatchingStudiesHtml(request.term);
             let imagesHtml = data.results
               .map((result) => {
                 return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${result.Attribute}:${result.Value}">
@@ -118,13 +133,8 @@ $("#maprQuery")
                   `;
               })
               .join("<br>");
-            let html =
-              "<h2>Studies</h2>" +
-              studiesHtml +
-              "<hr><h2>Images</h2>" +
-              `<div class="searchScroll scrollBarVisible"><ul>${imagesHtml}</ul></div>`;
-            document.getElementById("searchResults").innerHTML = html;
-            $("#searchResultsContainer").show();
+            let html = `<h2>Images</h2><div class="searchScroll scrollBarVisible"><ul>${imagesHtml}</ul></div>`;
+            document.getElementById("imageSearchResults").innerHTML = html;
           } else {
             results = data;
           }
