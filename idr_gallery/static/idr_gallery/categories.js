@@ -122,7 +122,7 @@ function render() {
     }
     let objType = study.objId.split("-")[0]; // 'screen' or 'project'
     studyContainers[idrId][objType].push(study);
-    studyContainers[idrId]["description"] = model.getStudyDescription(study);
+    studyContainers[idrId]["description"] = study["StudyDescription"];
     let pubmed = model.getStudyValue(study, "PubMed ID");
     if (pubmed) {
       studyContainers[idrId]["pubmed_id"] = pubmed.split(" ")[1];

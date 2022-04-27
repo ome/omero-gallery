@@ -296,6 +296,12 @@ class StudiesModel {
 
     // Load Map Annotations
     await this.loadStudiesMapAnnotations();
+
+    // Generate StudyDescription (removes 'Publication Title' etc from project.Description)
+    this.studies.forEach(study => {
+      study["StudyTitle"] = this.getStudyTitle(study);
+      study["StudyDescription"] = this.getStudyDescription(study);
+    });
   }
 
   loadStudiesThumbnails() {
@@ -382,7 +388,7 @@ class StudiesModel {
         // TODO: clone object first...!
         console.log("study.mapValues", study.mapValues);
         let keyValuePairs = [...study.mapValues];
-        keyValuePairs.push(["Description", study.Description]);
+        keyValuePairs.push(["Description", study.StudyDescription]);
         let match = regexes.every((re) =>
           keyValuePairs.some((kvp) => re.test(kvp[1]))
         );
