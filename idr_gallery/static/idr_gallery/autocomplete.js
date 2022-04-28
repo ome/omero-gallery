@@ -127,7 +127,7 @@ $("#maprQuery")
           if (configId === "any") {
             let imagesHtml = data.results
               .map((result) => {
-                return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${result.Attribute}:${result.Value}">
+                return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(result.Attribute)}:${encodeURI(result.Value)}">
                     <b>${result.Value}</b> (${result.Attribute}) <span style="color:#bbb">${result["Number of images"]} images</span>
                   </a></li>
                   `;
