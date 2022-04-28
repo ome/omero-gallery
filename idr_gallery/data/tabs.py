@@ -27,9 +27,14 @@ TABS = [
         "text": "<p>The IDR server is built with <a target='_blank' href='https://www.openmicroscopy.org/omero/'>OMERO</a>, allowing access to all image data and metadata via an open API in Python, R, Java, MATLAB and REST/JSON. See the <a target='_blank' href='https://omero-guides.readthedocs.io/en/latest/api_usage.html'>OMERO API guide</a> for more information.</p><p>For examples of analysis tools working with OMERO to access and analyze data, see the <a target='_blank' href='https://omero-guides.readthedocs.io/en/latest/external_tools.html'>analysis tools guide</a>.</p>",
         "videos": [
             {
-                "id": "2qeJbudXnp4",
-                "title": "Compound analysis: SARS-CoV-2",
-                "text": "Build analysis environment. Access metadata and images. Calculate IC50 and download. Explore dose-response curves.",
+                "id": "tOgKlxyyvSc",
+                "title": "Analysis environment setup",
+                "text": "Set-up local or on-the-cloud analysis environment. Access images and metadata using API. Run analysis examples. Add your own code.",
+            },
+            {
+                "id": "z19EE0_2JBs",
+                "title": "Segment image and compare",
+                "text": "Fetch image and labels from IDR. Segment nuclei using StarDist. Compare new labels with original. Save segmentation polygons.",
             }
         ],
     },
