@@ -34,7 +34,7 @@ TABS = [
             {
                 "id": "z19EE0_2JBs",
                 "title": "Segment image and compare",
-                "text": "Fetch image and labels from IDR. Segment nuclei using StarDist. Compare new labels with original. Save segmentation polygons.",
+                "text": "Fetch image and labels from IDR. Segment nuclei using <a target='_blank' href='https://github.com/stardist/stardist'>StarDist</a>. Compare new labels with original. Validate software package. Save locally segmentation polygons as geojson.",
             }
         ],
     },
