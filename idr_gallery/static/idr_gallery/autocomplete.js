@@ -54,7 +54,7 @@ function enableEnterGoesToResultsPage() {
 // "instant" auto-complete for 'Any' key searches Studies and shows
 // full-page results panel (the ajax search results for images are added to
 // this from the $.autocomplete response below)
-$("#maprQuery").on("keyup", function(event){
+$("#maprQuery").on("keyup", function (event) {
   let configId = document.getElementById("maprConfig").value;
   if (configId != "any") {
     $("#searchResultsContainer").hide();
@@ -127,8 +127,14 @@ $("#maprQuery")
           if (configId === "any") {
             let imagesHtml = data.results
               .map((result) => {
-                return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(result.Attribute)}:${encodeURI(result.Value)}">
-                    <b>${result.Value}</b> (${result.Attribute}) <span style="color:#bbb">${result["Number of images"]} images</span>
+                return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(
+                  result.Attribute
+                )}:${encodeURI(result.Value)}">
+                    <b>${result.Value}</b> (${
+                  result.Attribute
+                }) <span style="color:#bbb">${
+                  result["Number of images"]
+                } images</span>
                   </a></li>
                   `;
               })

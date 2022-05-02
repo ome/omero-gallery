@@ -298,7 +298,7 @@ class StudiesModel {
     await this.loadStudiesMapAnnotations();
 
     // Generate StudyDescription (removes 'Publication Title' etc from project.Description)
-    this.studies.forEach(study => {
+    this.studies.forEach((study) => {
       study["StudyTitle"] = this.getStudyTitle(study);
       study["StudyDescription"] = this.getStudyDescription(study);
     });
