@@ -103,9 +103,9 @@ $("#maprQuery")
       };
       let url;
       if (configId === "any") {
-        // Use searchengine...
-        url = `https://idr-testing.openmicroscopy.org/searchengine/searchusingvaluesonly/`;
-        requestData = { value: request.term, resource: "image" };
+        // Use searchengine... #TODO: make configurable
+        url = `http://idr-testing.openmicroscopy.org/searchengineapi/api/v1/resources/image/searchvalues/`;
+        requestData = { value: request.term };
       } else {
         // Use mapr to find auto-complete matches
         url = `${BASE_URL}mapr/api/autocomplete/${configId}/`;
@@ -125,13 +125,13 @@ $("#maprQuery")
           console.log("data", data);
           let results = [];
           if (configId === "any") {
-            let imagesHtml = data.results
+            let imagesHtml = data.data
               .map((result) => {
                 return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(
-                  result.Attribute
+                  result.Key
                 )}:${encodeURI(result.Value)}">
                     <b>${result.Value}</b> (${
-                  result.Attribute
+                  result.Key
                 }) <span style="color:#bbb">${
                   result["Number of images"]
                 } images</span>
