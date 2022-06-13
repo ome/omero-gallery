@@ -172,10 +172,14 @@ $("#maprQuery")
         // Ignore 'No results found'
         return false;
       }
+      let configId = document.getElementById("maprConfig").value;
+      if (configId == "any") {
+        // 'any' auto-complete actions handled elsewhere
+        return false;
+      }
       // show temp message in case loading search page is slow
       $(this).val("loading search results...");
       // Load search page...
-      let configId = document.getElementById("maprConfig").value;
       document.location.href = `${GALLERY_HOME}search/?query=${configId}:${ui.item.value}`;
       return false;
     },
