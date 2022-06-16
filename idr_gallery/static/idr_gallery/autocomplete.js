@@ -107,7 +107,7 @@ $("#maprQuery")
       let url;
       if (configId === "any") {
         // Use searchengine... #TODO: make configurable
-        url = `https://idr-testing.openmicroscopy.org/searchengineapi/v1/resources/image/searchvalues/`;
+        url = `https://idr-testing.openmicroscopy.org/searchengine/api/v1/resources/image/searchvalues/`;
         requestData = { value: request.term };
       } else {
         // Use mapr to find auto-complete matches
