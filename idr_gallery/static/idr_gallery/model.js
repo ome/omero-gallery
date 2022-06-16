@@ -393,7 +393,6 @@ class StudiesModel {
         let match = regexes.every((re) =>
           keyValuePairs.some((kvp) => re.test(kvp[1]))
         );
-        console.log("match", match);
         if (!match) return;
 
         // return [study, "key: value string showing matching text"]
