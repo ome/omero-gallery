@@ -72,6 +72,28 @@ $("#maprQuery").on("keyup", function (event) {
   $("#searchResultsContainer").show();
 });
 
+function autocompleteSort(queryVal) {
+  // returns a sort function based on the current query Value
+  return (a, b) => {
+    // if exact match, show first
+    let aMatch = queryVal == a.Value;
+    let bMatch = queryVal == b.Value;
+    if (aMatch != bMatch) {
+      return aMatch ? -1 : 1;
+    }
+    // show all known Keys before unknown
+    let aKnown = KNOWN_KEYS.image.includes(a.Key);
+    let bKnown = KNOWN_KEYS.image.includes(b.Key);
+    if (aKnown != bKnown) {
+      return aKnown ? -1 : 1;
+    }
+    // Show highest Image counts first
+    let aCount = a["Number of images"];
+    let bCount = b["Number of images"];
+    return aCount > bCount ? -1 : (aCount < bCount ? 1 : 0);
+  }
+}
+
 // Initial setup...
 $("#maprQuery")
   .autocomplete({
@@ -132,21 +154,7 @@ $("#maprQuery")
           let results = [];
           if (configId === "any") {
             let results = [...data.data];
-            results.sort((a, b) => {
-              // if exact match, show first
-              if (queryVal == a.Value) return -1;
-              if (queryVal == b.Value) return 1;
-              // show all known Keys before unknown
-              let aKnown = KNOWN_KEYS.image.includes(a.Key);
-              let bKnown = KNOWN_KEYS.image.includes(b.Key);
-              if (aKnown != bKnown) {
-                return aKnown ? -1 : 1;
-              }
-              // Show highest Image counts first
-              let aCount = a["Number of images"];
-              let bCount = b["Number of images"];
-              return aCount > bCount ? -1 : (aCount < bCount ? 1 : 0);
-            });
+            results.sort(autocompleteSort(queryVal));
             let imagesHtml = results
               .map((result) => {
                 return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(
