@@ -46,6 +46,9 @@ function enableEnterGoesToResultsPage() {
   $("#maprQuery").keyup((event) => {
     if (event.which == 13) {
       let configId = document.getElementById("maprConfig").value;
+      if (configId == "any") {
+        return false;
+      }
       document.location.href = `${GALLERY_HOME}search/?query=${configId}:${event.target.value}`;
     }
   });
