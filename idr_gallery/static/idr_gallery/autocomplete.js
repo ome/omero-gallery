@@ -1,6 +1,35 @@
 // ------ AUTO-COMPLETE -------------------
 
-const KNOWN_KEYS = {"image":["Antibody","siRNA Pool Identifier","PubChem CID","Pathology Identifier","Cell Line","Antibody Identifier","Organism Part","InChIKey","Gene Symbol","Organism","Protein","Pathology","Phenotype Term Accession","Compound Name","Gene Name","siRNA Identifier","Phenotype"],"project":["Publication Authors","Study Type","License","Publication Title","Imaging Method","Name (IDR number)"],"screen":["Screen Technology Type","Screen Type"]}
+const KNOWN_KEYS = {
+  image: [
+    "Antibody",
+    "siRNA Pool Identifier",
+    "PubChem CID",
+    "Pathology Identifier",
+    "Cell Line",
+    "Antibody Identifier",
+    "Organism Part",
+    "InChIKey",
+    "Gene Symbol",
+    "Organism",
+    "Protein",
+    "Pathology",
+    "Phenotype Term Accession",
+    "Compound Name",
+    "Gene Name",
+    "siRNA Identifier",
+    "Phenotype",
+  ],
+  project: [
+    "Publication Authors",
+    "Study Type",
+    "License",
+    "Publication Title",
+    "Imaging Method",
+    "Name (IDR number)",
+  ],
+  screen: ["Screen Technology Type", "Screen Type"],
+};
 
 document.getElementById("maprConfig").onchange = (event) => {
   document.getElementById("maprQuery").value = "";
@@ -89,8 +118,8 @@ function autocompleteSort(queryVal) {
     // Show highest Image counts first
     let aCount = a["Number of images"];
     let bCount = b["Number of images"];
-    return aCount > bCount ? -1 : (aCount < bCount ? 1 : 0);
-  }
+    return aCount > bCount ? -1 : aCount < bCount ? 1 : 0;
+  };
 }
 
 // Initial setup...
@@ -159,8 +188,14 @@ $("#maprQuery")
               .map((result) => {
                 return `<div>
                   <a target="_blank"
-                    href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(result.Key)}:${encodeURI(result.Value)}">
-                    ${result["Number of images"]} Images <span style="color:#bbb">matched</span> ${result.Key}: ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
+                    href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(
+                      result.Key
+                    )}:${encodeURI(result.Value)}">
+                    ${
+                      result["Number of images"]
+                    } Images <span style="color:#bbb">matched</span> ${
+                  result.Key
+                }: ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
                   </a></div>
                   `;
               })
@@ -234,23 +269,19 @@ function getMatchingStudiesHtml(text) {
           string
         );
       }
-      // let matchingString = matchingStrings
-      //   .map((kvp) => kvp.join(": "))
-      //   .map(markup)
-      //   .join("<br>");
       let idrId = study.Name.split("-")[0];
       let container = study.Name.split("/").pop();
 
       let imgCount = imageCount(idrId, container);
       let matchingString = "";
-      let matchingDesc = matchingStrings.find(kvp => kvp[0] == "Description");
+      let matchingDesc = matchingStrings.find((kvp) => kvp[0] == "Description");
       if (matchingDesc) {
         matchingString = markup(matchingDesc.join(": "));
       } else {
         matchingString = matchingStrings
-        .map((kvp) => kvp.join(": "))
-        .map(markup)
-        .join("<br>");
+          .map((kvp) => kvp.join(": "))
+          .map(markup)
+          .join("<br>");
       }
 
       return `<div>
