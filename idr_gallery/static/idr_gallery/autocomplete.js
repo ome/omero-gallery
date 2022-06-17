@@ -151,25 +151,22 @@ $("#maprQuery")
           hideSpinner();
           console.log("data", data);
           let queryVal = $("#maprQuery").val();
+          let queryRegex = new RegExp(queryVal, "ig"); // ignore-case, global
           let results = [];
           if (configId === "any") {
             let results = [...data.data];
             results.sort(autocompleteSort(queryVal));
             let imagesHtml = results
               .map((result) => {
-                return `<li><a target="_blank" href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(
-                  result.Key
-                )}:${encodeURI(result.Value)}">
-                    <b>${result.Value}</b> (${
-                  result.Key
-                }) <span style="color:#bbb">${
-                  result["Number of images"]
-                } images</span>
-                  </a></li>
+                return `<div style="margin: 10px 0">
+                  <a target="_blank"
+                    href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(result.Key)}:${encodeURI(result.Value)}">
+                    ${result["Number of images"]} Images <span style="color:#bbb">matched</span> ${result.Key}: ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
+                  </a></div>
                   `;
               })
-              .join("<br>");
-            let html = `<h2>Images</h2><div class="searchScroll scrollBarVisible"><ul>${imagesHtml}</ul></div>`;
+              .join("\n");
+            let html = `<h2>Images</h2><div class="searchScroll scrollBarVisible">${imagesHtml}</div>`;
             document.getElementById("imageSearchResults").innerHTML = html;
           } else {
             results = data;
