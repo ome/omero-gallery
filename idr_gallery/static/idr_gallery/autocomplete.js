@@ -67,8 +67,7 @@ $("#maprQuery").on("keyup", function (event) {
   }
   let input = event.target.value.trim();
   let studiesHtml = getMatchingStudiesHtml(input);
-  let html = `<h2>Studies</h2><ul>${studiesHtml}</ul>`;
-  document.getElementById("studySearchResults").innerHTML = html;
+  document.getElementById("studySearchResults").innerHTML = studiesHtml;
   $("#searchResultsContainer").show();
 });
 
@@ -158,7 +157,7 @@ $("#maprQuery")
             results.sort(autocompleteSort(queryVal));
             let imagesHtml = results
               .map((result) => {
-                return `<div style="margin: 10px 0">
+                return `<div>
                   <a target="_blank"
                     href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(result.Key)}:${encodeURI(result.Value)}">
                     ${result["Number of images"]} Images <span style="color:#bbb">matched</span> ${result.Key}: ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
@@ -166,7 +165,7 @@ $("#maprQuery")
                   `;
               })
               .join("\n");
-            let html = `<h2>Images</h2><div class="searchScroll scrollBarVisible">${imagesHtml}</div>`;
+            let html = `<div class="searchScroll scrollBarVisible">${imagesHtml}</div>`;
             document.getElementById("imageSearchResults").innerHTML = html;
           } else {
             results = data;
@@ -235,30 +234,30 @@ function getMatchingStudiesHtml(text) {
           string
         );
       }
-      let matchingString = matchingStrings
+      // let matchingString = matchingStrings
+      //   .map((kvp) => kvp.join(": "))
+      //   .map(markup)
+      //   .join("<br>");
+      let idrId = study.Name.split("-")[0];
+      let container = study.Name.split("/").pop();
+
+      let imgCount = imageCount(idrId, container);
+      let matchingString = "";
+      let matchingDesc = matchingStrings.find(kvp => kvp[0] == "Description");
+      if (matchingDesc) {
+        matchingString = markup(matchingDesc.join(": "));
+      } else {
+        matchingString = matchingStrings
         .map((kvp) => kvp.join(": "))
         .map(markup)
         .join("<br>");
-      let idrId = study.Name.split("-")[0];
-      let pubmed = model.getStudyValue(study, "PubMed ID")?.split(" ")[1];
-      let authors = model.getStudyValue(study, "Publication Authors") || " ";
-      authors = authors.split(",")[0];
+      }
 
-      return `<tr style="font-size: 13px">
-        <td>
-          ${idrId}<br>
-          <span style="white-space:nowrap">${
-            pubmed
-              ? `<a target="_blank" href="${pubmed}"> ${authors} et. al </a>`
-              : `<b> ${authors} et. al </b>`
-          }</span><br>
-          <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
-            <img src="${study.thumbnail}"/><br>
-            ${study.Name.split("/").pop()}
-          </a>
-        </td>
-        <td>${matchingString}</td>
-        </tr>`;
+      return `<div>
+        <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">Study ${idrId}</a>
+        (${imgCount})
+        <span style="color:#bbb">matched</span> ${matchingString}
+        </div>`;
     })
     .join("\n");
 
@@ -274,15 +273,8 @@ function getMatchingStudiesHtml(text) {
     //   html += ". Try searching for Image attributes above."
     // }
   } else {
-    html = `<div class="searchScroll scrollBarVisible"><table><tbody>${html}</tbody></table></div>`;
+    html = `<div class="searchScroll scrollBarVisible">${html}</div>`;
   }
 
-  let containerCount = results.length;
-  let idrIds = results.map((r) => r[0].Name.split("-")[0]);
-  let studyCount = new Set(idrIds).size;
-
-  html =
-    `<div class="resultCounts">found ${containerCount} containers in ${studyCount} studies</div>` +
-    html;
   return html;
 }

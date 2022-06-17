@@ -211,10 +211,14 @@ function render() {
 
 // --------- Render utils -----------
 
-function imageCount(idrId) {
+function imageCount(idrId, container) {
+  // idrId e.g. "idr0001". container optional e.g. "experimentA"
   if (!model.studyStats) return "";
 
   let containers = model.studyStats[idrId];
+  if (container) {
+    containers.filter(c => c.Container == container)
+  }
   if (!containers) return "";
 
   let imgCount = containers
