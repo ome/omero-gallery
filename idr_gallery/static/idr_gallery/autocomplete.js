@@ -178,7 +178,7 @@ $("#maprQuery")
         success: function (data) {
           hideSpinner();
           console.log("data", data);
-          let queryVal = $("#maprQuery").val();
+          let queryVal = $("#maprQuery").val().trim();
           let queryRegex = new RegExp(queryVal, "ig"); // ignore-case, global
           let results = [];
           if (configId === "any") {
@@ -262,32 +262,45 @@ function getMatchingStudiesHtml(text) {
     .map((studyText) => {
       let [study, matchingStrings] = studyText;
 
-      let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
+      let regexes = text.trim().split(" ").map((token) => new RegExp(token, "i"));
       function markup(string) {
-        return regexes.reduce(
+        const marked = regexes.reduce(
           (prev, regex) => prev.replace(regex, "<mark>$&</mark>"),
           string
         );
+        // truncate to include <mark> and text either side
+        let start = marked.indexOf("<mark>");
+        let end = marked.lastIndexOf("</mark>");
+        let length = end - start;
+        let targetLength = 80;
+        let padding = (targetLength - length)/2;
+        if (start - padding < 0) {
+          start = 0;
+        } else {
+          start = start - padding;
+        }
+        let truncated = marked.substr(start, targetLength);
+        if (start > 0) {
+          truncated = "..." + truncated;
+        }
+        if (start + targetLength < marked.length) {
+          truncated = truncated + "...";
+        }
+        return truncated;
       }
       let idrId = study.Name.split("-")[0];
       let container = study.Name.split("/").pop();
 
       let imgCount = imageCount(idrId, container);
-      let matchingString = "";
-      let matchingDesc = matchingStrings.find((kvp) => kvp[0] == "Description");
-      if (matchingDesc) {
-        matchingString = markup(matchingDesc.join(": "));
-      } else {
-        matchingString = matchingStrings
-          .map((kvp) => kvp.join(": "))
-          .map(markup)
+      let matchingString = matchingStrings
+          .map((kvp) => `<b>${markup(kvp[0])}</b>: ${markup(kvp[1])}`)
           .join("<br>");
-      }
 
-      return `<div>
+      return `<div class="matchingStudy">
+       <div>
         <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">Study ${idrId}</a>
         (${imgCount})
-        <span style="color:#bbb">matched</span> ${matchingString}
+        </div><div>${matchingString}</div>
         </div>`;
     })
     .join("\n");
