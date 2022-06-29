@@ -193,9 +193,9 @@ $("#maprQuery")
                     )}:${encodeURI(result.Value)}">
                     ${
                       result["Number of images"]
-                    } Images <span style="color:#bbb">matched</span> ${
+                    } Images <span style="color:#bbb">matched</span> <span class="black">${
                   result.Key
-                }: ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
+                }:</span> ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
                   </a></div>
                   `;
               })
@@ -296,12 +296,15 @@ function getMatchingStudiesHtml(text) {
           .map((kvp) => `<b>${markup(kvp[0])}</b>: ${markup(kvp[1])}`)
           .join("<br>");
 
-      return `<div class="matchingStudy">
-       <div>
-        <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">Study ${idrId}</a>
-        (${imgCount})
-        </div><div>${matchingString}</div>
-        </div>`;
+      return `<a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
+      <div class="matchingStudy">
+        <div>
+          Study ${idrId} <span class="imgCount">(${imgCount})</span>
+        </div>
+        <div class="matchingString">
+          ${matchingString}
+        </div>
+      </div></a>`;
     })
     .join("\n");
 
