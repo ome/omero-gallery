@@ -126,6 +126,9 @@ maprText {
 .ui-autocomplete {
   padding-left: 20px;
   text-indent: -10px;
+  /* scroll if longer than... */
+  max-height: 450px;
+  overflow: auto
 }
 
 #studies.studiesLayout {
