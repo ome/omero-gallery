@@ -1,3 +1,8 @@
+3.6.1 (August 2022)
+-------------------
+
+- Fix scrolling on auto-complete results [#10](https://github.com/IDR/idr-gallery/pull/10)
+
 3.6.0 (March 2022)
 ------------------
 
