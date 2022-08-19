@@ -415,9 +415,9 @@
   <div id='search-form' class="row horizontal">
     <div class="small-12 medium-4 large-4 columns">
       <select id="maprConfig">
+        <option value="any">Choose search field (optional)</option>
         {% if filter_keys %}
         <optgroup id="studyKeys" label="Study Attributes">
-          <option value="any">Search by 'Any' key</option>
           {% for key in filter_keys %}
           <option value="{% if key.value %}{{ key.value }}{% else %}{{ key }}{% endif %}">
             {% if key.label %}{{ key.label }}{% else %}{{ key }}{% endif %}
@@ -431,7 +431,7 @@
       </select>
     </div>
     <div style="position: relative" class="small-12 medium-8 large-8 columns">
-      <input id="maprQuery" type="text" placeholder="Type to filter values...">
+      <input id="maprQuery" type="text" placeholder="Search for anything...">
       <svg id="spinner" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img"
         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg">
         <path fill="currentColor"

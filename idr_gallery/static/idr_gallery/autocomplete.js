@@ -37,6 +37,8 @@ document.getElementById("maprConfig").onchange = (event) => {
   let placeholder = `Type to filter values...`;
   if (mapr_settings[value]) {
     placeholder = `Type ${mapr_settings[value]["default"][0]}...`;
+  } else if (value == "any") {
+    placeholder = "Search for anything..."
   }
   document.getElementById("maprQuery").placeholder = placeholder;
   // Show all autocomplete options...
