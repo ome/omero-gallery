@@ -32,7 +32,15 @@ def index(request, super_category=None, conn=None, **kwargs):
     """
 
     # template is different for '/search' page
-    context = {'template': kwargs.get('template', "idr_gallery/index.html")}
+    template = "idr_gallery/index.html"
+    if "search" in request.path:
+        query = request.GET.get("query")
+        # TEMP: support deprecated ?query=K:V
+        if query:
+            template = "idr_gallery/mapr_search.html"
+        else:
+            template = "idr_gallery/search.html"
+    context = {'template': template}
     context["idr_images"] = IDR_IMAGES
     if super_category == "cell":
         context["idr_images"] = CELL_IMAGES

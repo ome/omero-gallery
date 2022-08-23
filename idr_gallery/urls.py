@@ -11,8 +11,7 @@ urlpatterns = [
     url(r'^gallery_settings/$', views.gallery_settings),
 
     # Search page shows Projects / Screens filtered by Map Annotation
-    url(r'^search/$', views.index, {
-        'super_category': None, 'template': 'idr_gallery/search.html'}),
+    url(r'^search/$', views.index, {'super_category': None}),
 
     # Supports e.g. ?project=1&project=2&screen=3
     url(r'^gallery-api/thumbnails/$', views.api_thumbnails,
@@ -23,5 +22,4 @@ for c in SUPER_CATEGORIES:
     urlpatterns.append(url(r'^%s/$' % c, views.index, {'super_category': c},
                            name="gallery_super_category"))
     urlpatterns.append(url(r'^%s/search/$' % c, views.index,
-                           {'super_category': c,
-                            'template': 'idr_gallery/search.html'}))
+                           {'super_category': c}))
