@@ -160,8 +160,8 @@ $("#maprQuery")
       };
       let url;
       if (configId === "any") {
-        // Use searchengine... #TODO: make configurable
-        url = `https://idr-testing.openmicroscopy.org/searchengine/api/v1/resources/image/searchvalues/`;
+        // Use searchengine...
+        url = `${BASE_URL}searchengine/api/v1/resources/image/searchvalues/`;
         requestData = { value: request.term };
       } else {
         // Use mapr to find auto-complete matches
@@ -190,7 +190,7 @@ $("#maprQuery")
               .map((result) => {
                 return `<div>
                   <a target="_blank"
-                    href="https://idr-testing.openmicroscopy.org/webclient/search/?search_query=${encodeURI(
+                    href="${BASE_URL}webclient/search/?search_query=${encodeURI(
                       result.Key
                     )}:${encodeURI(result.Value)}">
                     ${
