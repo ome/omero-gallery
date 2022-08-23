@@ -1,0 +1,63 @@
+
+.and_clause {
+    border: solid #aaa 1px;
+    padding: 5px;
+    border-radius: 5px;
+    margin: 5px;
+    position: relative;
+    margin-top: 25px;
+  }
+  .and_clause * {
+    box-sizing: border-box;
+  }
+  .and_clause:before {
+    position: absolute;
+    content: "AND";
+    top: -19px;
+    font-size: 14px;
+    left: 0;
+    margin-left: 5px;
+  }
+  .and_clause:first-child {
+    margin-top: 5px;
+  }
+  .and_clause:first-child:before {
+    display: none;
+  }
+  .or_clause {
+    display: flex;
+    align-items: flex-end;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .or_clause > div {
+    flex: 1;
+  }
+  .or_clause:first-child .or {
+    visibility: hidden;
+  }
+  .or_clause label{
+    display: none;
+  }
+  .or_clause:first-child label{
+    display: block;
+  }
+  .or_clause .no_expand,
+  .or_clause .search_condition {
+    flex: 0;
+  }
+  select.condition {
+    width: fit-content;
+  }
+  .and_clause select.keyFields,
+  .and_clause input.valueFields {
+    width: 100%;
+  }
+  
+  /* Results table */
+  
+  .filterColumn {
+    background: transparent;
+    border: none;
+  }
