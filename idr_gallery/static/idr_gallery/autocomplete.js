@@ -38,7 +38,7 @@ document.getElementById("maprConfig").onchange = (event) => {
   if (mapr_settings[value]) {
     placeholder = `Type ${mapr_settings[value]["default"][0]}...`;
   } else if (value == "any") {
-    placeholder = "Search for anything..."
+    placeholder = "Search for anything...";
   }
   document.getElementById("maprQuery").placeholder = placeholder;
   // Show all autocomplete options...
@@ -188,11 +188,13 @@ $("#maprQuery")
             results.sort(autocompleteSort(queryVal));
             let imagesHtml = results
               .map((result) => {
+                // TODO: define how to encode query in search URL to support AND/OR clauses
+                let result_url = `${GALLERY_HOME}search/?search_query=${encodeURI(
+                  result.Key
+                )}:${encodeURI(result.Value)}`;
                 return `<div>
                   <a target="_blank"
-                    href="${BASE_URL}webclient/search/?search_query=${encodeURI(
-                      result.Key
-                    )}:${encodeURI(result.Value)}">
+                    href="${result_url}">
                     ${
                       result["Number of images"]
                     } Images <span style="color:#bbb">matched</span> <span class="black">${
@@ -264,7 +266,10 @@ function getMatchingStudiesHtml(text) {
     .map((studyText) => {
       let [study, matchingStrings] = studyText;
 
-      let regexes = text.trim().split(" ").map((token) => new RegExp(token, "i"));
+      let regexes = text
+        .trim()
+        .split(" ")
+        .map((token) => new RegExp(token, "i"));
       function markup(string) {
         const marked = regexes.reduce(
           (prev, regex) => prev.replace(regex, "<mark>$&</mark>"),
@@ -275,7 +280,7 @@ function getMatchingStudiesHtml(text) {
         let end = marked.lastIndexOf("</mark>");
         let length = end - start;
         let targetLength = 80;
-        let padding = (targetLength - length)/2;
+        let padding = (targetLength - length) / 2;
         if (start - padding < 0) {
           start = 0;
         } else {
@@ -295,8 +300,8 @@ function getMatchingStudiesHtml(text) {
 
       let imgCount = imageCount(idrId, container);
       let matchingString = matchingStrings
-          .map((kvp) => `<b>${markup(kvp[0])}</b>: ${markup(kvp[1])}`)
-          .join("<br>");
+        .map((kvp) => `<b>${markup(kvp[0])}</b>: ${markup(kvp[1])}`)
+        .join("<br>");
 
       return `<a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
       <div class="matchingStudy">
