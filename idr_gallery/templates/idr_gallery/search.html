@@ -41,6 +41,9 @@
   .filterMessage strong {
     color: #1976d2;
   }
+  #results td, #results th {
+    text-align: center;
+  }
 </style>
 
 <link rel="stylesheet" href="{% static 'idr_gallery/css/search_form_styles.css' %}?_={{VERSION}}" />
@@ -57,6 +60,7 @@
       </form>
 
       <div id="filterCount" class="row horizontal">
+        <!-- results message here -->
       </div>
     </div>
 
@@ -100,6 +104,19 @@
 
   const searchParams = new URLSearchParams(window.location.search);
   let query = searchParams.get("search_query");
+
+  // custom handling of search results, not handled by OmeroSearchForm
+  searchForm.on("results", function(event, data) {
+    console.log("on.results", event, data);
+    let studiesList = data.results.results;
+    let imgCount = 0;
+    let studies = studiesList.length === 1 ? 'study' : 'studies';
+    let msg = `<p class="filterMessage">
+      Found <strong>${imgCount}</strong> images in <strong>${studiesList.length}</strong> ${studies}
+    </p>`;
+    document.getElementById("filterCount").innerHTML = msg;
+  });
+
   console.log("query", query);
   if (query && query.includes(":")) {
       // Use first ":" to split Key:Value...

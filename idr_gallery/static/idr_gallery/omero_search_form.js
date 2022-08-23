@@ -59,7 +59,7 @@ const FILTER_ICON_SVG = `
 	c-18.249-4.107-23.38-8.521-24.607-9.926C21.56,29.288,26.691,24.874,44.94,20.767z M119.631,116.486
 	c-1.105,1.341-1.711,3.023-1.713,4.761l-0.075,57.413l-25.081,12.432v-69.835c0-1.741-0.605-3.428-1.713-4.771L40.306,54.938
 	C58.1,59.1,81.058,61.387,105.34,61.387c24.283,0,47.24-2.287,65.034-6.449L119.631,116.486z"/>
-</svg>`
+</svg>`;
 
 class OmeroSearchForm {
   constructor(formId, SEARCH_ENGINE_URL, tableId) {
@@ -85,11 +85,11 @@ class OmeroSearchForm {
 
     // TODO: wait for loadResources()
     // then build form...
-    (async function() {
+    (async function () {
       await this.loadResources();
       this.addAnd();
       this.trigger("ready");
-    }.bind(this))()
+    }.bind(this)());
   }
 
   // pub/sub methods. see https://github.com/cowboy/jquery-tiny-pubsub
@@ -133,7 +133,7 @@ class OmeroSearchForm {
     }
     // Not found: e.g. this.resources_data only has common 'searchterms'
     // assume 'image'...
-    return 'image';
+    return "image";
   }
 
   getCurrentQuery() {
@@ -248,7 +248,11 @@ class OmeroSearchForm {
                 });
                 if (result_count > max_shown) {
                   results.push({
-                    key: -1, label: `...and ${result_count - max_shown} more matches not shown`, value: -1
+                    key: -1,
+                    label: `...and ${
+                      result_count - max_shown
+                    } more matches not shown`,
+                    value: -1,
                   });
                 }
               } else {
@@ -317,7 +321,7 @@ class OmeroSearchForm {
   }
 
   setQuery(query) {
-    let {key, value} = query;
+    let { key, value } = query;
     // Clear form and create new...
     $(".clauses", this.$form).empty();
     this.addAnd(query);
@@ -335,7 +339,7 @@ class OmeroSearchForm {
     console.log("addAnd", query);
     if (query?.key) {
       // add <option> if not there
-      this.setKeyField($andClause, query.key)
+      this.setKeyField($andClause, query.key);
     }
     if (query?.value) {
       $(".valueFields", $andClause).val(query.value);
@@ -369,7 +373,9 @@ class OmeroSearchForm {
     console.log(query);
     $.ajax({
       type: "POST",
-      url: SEARCH_ENGINE_URL + "resources/submitquery/?return_columns=True",
+      url:
+        SEARCH_ENGINE_URL +
+        "resources/submitquery_returnstudies/",
       contentType: "application/json;charset=UTF-8",
       dataType: "json",
       data: JSON.stringify(query),
@@ -400,42 +406,29 @@ class OmeroSearchForm {
     //     return;
     // }
 
-    // FIXME:
-    let webindex = "https://idr.openmicroscopy.org/webclient/"   // WEBCLIENT.URLS.webindex;
-    let thumbUrl = webindex + "render_thumbnail/";
-    let showFilterIcon = true;
+    let studyList = data.results.results;
 
-    let results_array = data?.values;
-    if (!results_array) {
+    if (studyList.length == 0) {
         alert("No results");
     }
 
-    // Most columns are the names of Keys
-    let keyColumnNames = data.columns.map(col => col.field);
-    // Full list includes Id, Name, Study name...
-    let columnNames = data.columns_def.map(col => col.field);
+    let thead = `<tr><th>${new Intl.NumberFormat().format(studyList.length)} Studies</th>`;
+    thead += `<th>Count</th><th>Title</th></tr>`;
 
-    let thead = `<th>${new Intl.NumberFormat().format(data.size)} Images</th>`;
-    // thead += ["Name", "Study_name"].map(col => `<th>${col}</th>`).join("");
-    thead += columnNames.map(col => `<th>
-        ${ showFilterIcon && keyColumnNames.includes(col) ?
-          `<button title="Filter by ${col}" class="filterColumn" data-colname="${col}">
-            ${FILTER_ICON_SVG}
-        </button>` : ''}
-        ${col}</th>`).join("");
-    thead += "<th></th>";
-    let tbody = data.values.slice(0,100).map(row => {
-        let thumb = `<td><img loading="lazy" src="${thumbUrl}${ row.Id }/" /></td>`;
-        let tds = columnNames.map(col => `<td>${row[col] ? row[col] : ""}</td>`).join("");
-        let browse = `<td class="browse"><a target="_blank" title="Open this Image in another tab" href="${webindex}?show=image-${ row.Id }">Browse</a></td>`;
-        // let tds = row.key_values.map(kv => `<td>${kv.value}</td>`).join("");
-        return `<tr id="image-${ row.Id }">${thumb}${ tds }${browse}</tr>`;
-    }).join('\n');
+    let tbody = studyList
+      .map((row) => {
+        let studyName = row["Name (IDR number)"];
+        let tokens = studyName.split("-");
+        let studyId = tokens[0] + studyName.slice(studyName.length-1);
+        let tds = `<td>${studyId}</td><td>X</td><td>${studyName}</td>`;
+        return `<tr>${tds}</tr>`;
+      })
+      .join("\n");
 
     let table = `
         <thead>${thead}</thead>
         <tbody>${tbody}</tbody>
-    `
+    `;
     if (this.$table) {
       this.$table.html(table);
     }
@@ -443,36 +436,36 @@ class OmeroSearchForm {
 
   // Set-up event handlers on Buttons
   buttonHandlers() {
-    $("#addAND").on("click", event => {
+    $("#addAND").on("click", (event) => {
       event.preventDefault();
-      this.addAnd()
+      this.addAnd();
     });
 
-    this.$form.on("click", ".addOR", event => {
+    this.$form.on("click", ".addOR", (event) => {
       event.preventDefault();
       let $andClause = $(event.target).closest(".and_clause");
       this.addOr($andClause);
     });
 
-    this.$form.on("click", ".remove_row", event => {
+    this.$form.on("click", ".remove_row", (event) => {
       event.preventDefault();
       let $orClause = $(event.target).closest(".or_clause");
       this.removeOr($orClause);
     });
 
-    $("button[type='submit']", this.$form).on("click", event => {
+    $("button[type='submit']", this.$form).on("click", (event) => {
       event.preventDefault();
       this.submitSearch();
     });
 
     // table - filter button adds an AND filter
     if (this.$table) {
-      $(this.$table).on("click", ".filterColumn", event => {
+      $(this.$table).on("click", ".filterColumn", (event) => {
         event.preventDefault();
         // handle click in svg element within the button
         let $button = $(event.target).closest(".filterColumn");
         let colName = $button.data("colname");
-        this.addAnd({key: colName});
+        this.addAnd({ key: colName });
       });
     }
   }
