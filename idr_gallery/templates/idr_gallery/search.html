@@ -44,13 +44,29 @@
   #results td, #results th {
     text-align: center;
   }
+  #filterCount {
+    clear: right;
+  }
+
+  /* Hide form elements to simplify */
+  #addAND, .addOR, .form-check-label {
+    display: none;
+  }
+  button[type='submit'] {
+    background: #1976d2;
+    float: right;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 5px;
+  }
 </style>
 
 <link rel="stylesheet" href="{% static 'idr_gallery/css/search_form_styles.css' %}?_={{VERSION}}" />
 
 <hr class="whitespace" style="height: 0">
 
-<div class="row column text-center">
+<div class="row column">
 
 <div class="small-12 small-centered medium-12 medium-centered columns">
 
@@ -59,7 +75,7 @@
       <form id="search_form">
       </form>
 
-      <div id="filterCount" class="row horizontal">
+      <div id="filterCount" class="row horizontal text-center">
         <!-- results message here -->
       </div>
     </div>
