@@ -55,11 +55,37 @@
     width: 100%;
   }
   
-  /* Results table */
-  
-  .filterColumn {
-    background: transparent;
-    border: none;
+  /* Results list */
+
+  ul.resultsList li:nth-child(even) {
+    background-color: #f1f1f1;
+  }
+  ul.resultsList li:nth-child(odd) {
+    background-color: #ffffff;
+  }
+  .resultsHeader {
+    font-weight: bold;
+  }
+  .studyRow {
+    display: flex;
+    flex-direction: row;
+  }
+  .studyRow div {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+  }
+  .studyRow .caret {
+    flex: 0 0 50px;
+  }
+  .studyRow .studyId {
+    flex: 0 0 150px;
+  }
+  .studyRow .count {
+    flex: 0 0 100px;
+  }
+  .studyRow .studyName {
+    flex: 1 0 100px;
   }
 
   .fa-caret-right {

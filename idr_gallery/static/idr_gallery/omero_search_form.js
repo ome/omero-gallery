@@ -62,7 +62,7 @@ const FILTER_ICON_SVG = `
 </svg>`;
 
 class OmeroSearchForm {
-  constructor(formId, SEARCH_ENGINE_URL, tableId) {
+  constructor(formId, SEARCH_ENGINE_URL, resultsId) {
     this.SEARCH_ENGINE_URL = SEARCH_ENGINE_URL;
     this.resources_data = {};
     this.query_mode = "searchterms";
@@ -75,9 +75,9 @@ class OmeroSearchForm {
     this.$form.html(`<div class="clauses"></div>`);
     this.$form.append($(FORM_FOOTER_HTML));
 
-    // If tableId, create table element...
-    if (tableId) {
-      this.$table = $(`#${tableId}`);
+    // If resultsId, create results element...
+    if (resultsId) {
+      this.$results = $(`#${resultsId}`);
     }
 
     this.buttonHandlers();
@@ -387,7 +387,7 @@ class OmeroSearchForm {
         // publish results to subscribers
         self.trigger("results", data);
         // can display in table if specified
-        if (self.$table) {
+        if (self.$results) {
           self.displayResults(data);
         }
       },
@@ -413,29 +413,29 @@ class OmeroSearchForm {
         alert("No results");
     }
 
-    let thead = `<tr><th></th><th>Study ID</th>`;
-    thead += `<th>Count</th><th>Title</th></tr>`;
+    let thead = `<li class="studyRow resultsHeader">
+        <div class="caret"></i></div>
+        <div class="studyId">Study ID</div>
+        <div class="count">count?</div>
+        <div class="studyName">Title</div>
+    </li>`;
 
-    let tbody = studyList
+    let resultsList = studyList
       .map((row) => {
         let studyName = row["Name (IDR number)"];
         let tokens = studyName.split("-");
         let studyId = tokens[0] + studyName.slice(studyName.length-1);
-        return `<tr class="studyRow" data-name="${studyName}">
-            <td><i class="fa fa-caret-right"></i></td>
-            <td>${studyId}</td>
-            <td>count?</td>
-            <td>${studyName}</td>
-        </tr>`;
+        return `<li class="studyRow" data-name="${studyName}">
+            <div class="caret"><i class="fa fa-caret-right"></i></div>
+            <div class="studyId">${studyId}</div>
+            <div class="count">count?</div>
+            <div class="studyName">${studyName}</div>
+        </li>`;
       })
       .join("\n");
 
-    let table = `
-        <thead>${thead}</thead>
-        <tbody>${tbody}</tbody>
-    `;
-    if (this.$table) {
-      this.$table.html(table);
+    if (this.$results) {
+      this.$results.html(thead + resultsList);
     }
   }
 
@@ -464,16 +464,16 @@ class OmeroSearchForm {
     });
 
     // table - filter button adds an AND filter
-    if (this.$table) {
+    if (this.$results) {
 
-    //   $(this.$table).on("click", ".filterColumn", (event) => {
+    //   $(this.$results).on("click", ".filterColumn", (event) => {
     //     event.preventDefault();
     //     // handle click in svg element within the button
     //     let $button = $(event.target).closest(".filterColumn");
     //     let colName = $button.data("colname");
     //     this.addAnd({ key: colName });
     //   });
-        $(this.$table).on("click", ".studyRow", (event) => {
+        $(this.$results).on("click", ".studyRow", (event) => {
             console.log("studyRow click", event.target, event.target.nodeName);
             // ignore click on links...
             if (event.target.nodeName == 'A') return;
