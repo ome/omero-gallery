@@ -447,10 +447,20 @@ class OmeroSearchForm {
     console.log("displayImages", imageList);
     let html = imageList
       .map((img) => {
-        return `<img title="${img.name}" src="${BASE_URL}webclient/render_thumbnail/${img.id}/" />`;
+        return `<li class="studyThumb">
+          <img title="${img.name}" src="${BASE_URL}webclient/render_thumbnail/${img.id}/" />
+          <ul class="imgLinks">
+            <li title="Browse image metadata">
+              <a target="_blank" href="${BASE_URL}webclient/?show=image-${img.id}"><i class="fas fa-info"></i></a>
+            </li>
+            <li title="Open Image in Viewer">
+              <a target="_blank" href="${BASE_URL}webclient/img_detail/${img.id}"><i class="fas fa-eye"></i></a>
+            </li>
+          </ul>
+        </li>`;
       })
       .join("\n");
-    $(".studyImages", $studyRow).html(html);
+    $(".studyImages", $studyRow).html(`<ul>${html}</ul>`);
   }
 
   // Set-up event handlers on Buttons
@@ -477,9 +487,9 @@ class OmeroSearchForm {
       this.submitSearch();
     });
 
-    // table - filter button adds an AND filter
+    // click on a Study to load child images...
     if (this.$results) {
-      $(this.$results).on("click", ".studyRow", (event) => {
+      $(this.$results).on("click", ".studyColumns", (event) => {
         console.log("studyRow click", event.target, event.target.nodeName);
         // ignore click on links...
         if (event.target.nodeName == "A") return;
