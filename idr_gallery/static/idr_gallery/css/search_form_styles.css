@@ -67,24 +67,28 @@
     font-weight: bold;
   }
   .studyRow {
+    display: block;
+  }
+  .studyColumns {
     display: flex;
     flex-direction: row;
+    width: 100%;
   }
-  .studyRow div {
+  .studyColumns div {
     flex: 1;
     text-align: center;
     padding: 10px;
   }
-  .studyRow .caret {
+  .studyColumns .caret {
     flex: 0 0 50px;
   }
-  .studyRow .studyId {
+  .studyColumns .studyId {
     flex: 0 0 150px;
   }
-  .studyRow .count {
+  .studyColumns .count {
     flex: 0 0 100px;
   }
-  .studyRow .studyName {
+  .studyColumns .studyName {
     flex: 1 0 100px;
   }
 
@@ -96,4 +100,16 @@
 
   .expanded .fa-caret-right {
     transform: rotate(90deg)
+  }
+
+  .studyImages {
+    visibility: hidden;
+    height: 0;
+    transition: height 0.5s;  /* don't work to max-height */
+    overflow-y: auto;
+  }
+  .expanded .studyImages {
+    visibility: visible;
+    height: auto;
+    max-height: 300px;
   }

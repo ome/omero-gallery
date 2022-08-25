@@ -373,9 +373,7 @@ class OmeroSearchForm {
     console.log(query);
     $.ajax({
       type: "POST",
-      url:
-        SEARCH_ENGINE_URL +
-        "resources/submitquery_returnstudies/",
+      url: SEARCH_ENGINE_URL + "resources/submitquery_returnstudies/",
       contentType: "application/json;charset=UTF-8",
       dataType: "json",
       data: JSON.stringify(query),
@@ -409,27 +407,32 @@ class OmeroSearchForm {
     let studyList = data.results.results;
 
     if (studyList.length == 0) {
-        // TODO: improve display of message...
-        alert("No results");
+      // TODO: improve display of message...
+      alert("No results");
     }
 
     let thead = `<li class="studyRow resultsHeader">
+      <div class="studyColumns">
         <div class="caret"></i></div>
         <div class="studyId">Study ID</div>
         <div class="count">count?</div>
         <div class="studyName">Title</div>
+      </div>
     </li>`;
 
     let resultsList = studyList
       .map((row) => {
         let studyName = row["Name (IDR number)"];
         let tokens = studyName.split("-");
-        let studyId = tokens[0] + studyName.slice(studyName.length-1);
+        let studyId = tokens[0] + studyName.slice(studyName.length - 1);
         return `<li class="studyRow" data-name="${studyName}">
-            <div class="caret"><i class="fa fa-caret-right"></i></div>
-            <div class="studyId">${studyId}</div>
-            <div class="count">count?</div>
-            <div class="studyName">${studyName}</div>
+            <div class="studyColumns">
+                <div class="caret"><i class="fa fa-caret-right"></i></div>
+                <div class="studyId">${studyId}</div>
+                <div class="count">count?</div>
+                <div class="studyName">${studyName}</div>
+            </div>
+            <div class="studyImages">Loading images...</div>
         </li>`;
       })
       .join("\n");
@@ -437,6 +440,17 @@ class OmeroSearchForm {
     if (this.$results) {
       this.$results.html(thead + resultsList);
     }
+  }
+
+  displayImages(data, $studyRow) {
+    const imageList = data.results.results;
+    console.log("displayImages", imageList);
+    let html = imageList
+      .map((img) => {
+        return `<img title="${img.name}" src="${BASE_URL}webclient/render_thumbnail/${img.id}/" />`;
+      })
+      .join("\n");
+    $(".studyImages", $studyRow).html(html);
   }
 
   // Set-up event handlers on Buttons
@@ -465,22 +479,44 @@ class OmeroSearchForm {
 
     // table - filter button adds an AND filter
     if (this.$results) {
+      $(this.$results).on("click", ".studyRow", (event) => {
+        console.log("studyRow click", event.target, event.target.nodeName);
+        // ignore click on links...
+        if (event.target.nodeName == "A") return;
+        let $studyRow = $(event.target).parents(".studyRow");
+        const studyName = $studyRow.data("name");
+        console.log($studyRow, studyName);
+        $studyRow.toggleClass("expanded");
 
-    //   $(this.$results).on("click", ".filterColumn", (event) => {
-    //     event.preventDefault();
-    //     // handle click in svg element within the button
-    //     let $button = $(event.target).closest(".filterColumn");
-    //     let colName = $button.data("colname");
-    //     this.addAnd({ key: colName });
-    //   });
-        $(this.$results).on("click", ".studyRow", (event) => {
-            console.log("studyRow click", event.target, event.target.nodeName);
-            // ignore click on links...
-            if (event.target.nodeName == 'A') return;
-            let $studyRow = $(event.target).parents(".studyRow");
-            console.log($studyRow, $studyRow.data("name"));
-            $studyRow.toggleClass("expanded");
+        // Load study images...
+        let query = this.getCurrentQuery();
+        let self = this;
+        query.query_details.and_filters.push({
+          name: "Name (IDR number)",
+          value: studyName,
+          operator: "equals",
+          resource: "project", // NB: this works for screens too!
         });
+        if ($studyRow.hasClass("expanded")) {
+          $.ajax({
+            type: "POST",
+            url: SEARCH_ENGINE_URL + "resources/submitquery/",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            data: JSON.stringify(query),
+            success: function (data) {
+              if (data["Error"] != "none") {
+                alert(data["Error"]);
+                return;
+              }
+              self.displayImages(data, $studyRow);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              alert("Error: " + errorThrown);
+            },
+          });
+        }
+      });
     }
   }
 }
