@@ -409,10 +409,11 @@ class OmeroSearchForm {
     let studyList = data.results.results;
 
     if (studyList.length == 0) {
+        // TODO: improve display of message...
         alert("No results");
     }
 
-    let thead = `<tr><th>${new Intl.NumberFormat().format(studyList.length)} Studies</th>`;
+    let thead = `<tr><th></th><th>Study ID</th>`;
     thead += `<th>Count</th><th>Title</th></tr>`;
 
     let tbody = studyList
@@ -420,8 +421,12 @@ class OmeroSearchForm {
         let studyName = row["Name (IDR number)"];
         let tokens = studyName.split("-");
         let studyId = tokens[0] + studyName.slice(studyName.length-1);
-        let tds = `<td>${studyId}</td><td>X</td><td>${studyName}</td>`;
-        return `<tr>${tds}</tr>`;
+        return `<tr class="studyRow" data-name="${studyName}">
+            <td><i class="fa fa-caret-right"></i></td>
+            <td>${studyId}</td>
+            <td>count?</td>
+            <td>${studyName}</td>
+        </tr>`;
       })
       .join("\n");
 
@@ -460,13 +465,22 @@ class OmeroSearchForm {
 
     // table - filter button adds an AND filter
     if (this.$table) {
-      $(this.$table).on("click", ".filterColumn", (event) => {
-        event.preventDefault();
-        // handle click in svg element within the button
-        let $button = $(event.target).closest(".filterColumn");
-        let colName = $button.data("colname");
-        this.addAnd({ key: colName });
-      });
+
+    //   $(this.$table).on("click", ".filterColumn", (event) => {
+    //     event.preventDefault();
+    //     // handle click in svg element within the button
+    //     let $button = $(event.target).closest(".filterColumn");
+    //     let colName = $button.data("colname");
+    //     this.addAnd({ key: colName });
+    //   });
+        $(this.$table).on("click", ".studyRow", (event) => {
+            console.log("studyRow click", event.target, event.target.nodeName);
+            // ignore click on links...
+            if (event.target.nodeName == 'A') return;
+            let $studyRow = $(event.target).parents(".studyRow");
+            console.log($studyRow, $studyRow.data("name"));
+            $studyRow.toggleClass("expanded");
+        });
     }
   }
 }

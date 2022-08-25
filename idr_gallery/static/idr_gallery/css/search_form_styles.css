@@ -61,3 +61,13 @@
     background: transparent;
     border: none;
   }
+
+  .fa-caret-right {
+    font-size: 25px;
+    transition: transform 0.2s;
+    transform-origin: 3px center;
+  }
+
+  .expanded .fa-caret-right {
+    transform: rotate(90deg)
+  }
