@@ -377,7 +377,11 @@ class StudiesModel {
     // Search for studies with text in their keys, values, or description.
     // Returns a list of matching studies. Each study is returned along with kvps that matches text
     // [study, [{key: value}, {Description: this study is great}]]
-    let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
+
+    // We don't split words to provide 'AND' functionality (since it's not supported for Images)
+    // let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
+    let regexes = [new RegExp(text, "i")];
+
     function matchSome(kvp) {
       return regexes.some((re) => re.test(kvp[1]));
     }
