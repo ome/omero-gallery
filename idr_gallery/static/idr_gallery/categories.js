@@ -217,7 +217,7 @@ function imageCount(idrId, container) {
 
   let containers = model.studyStats[idrId];
   if (container) {
-    containers.filter(c => c.Container == container)
+    containers.filter((c) => c.Container == container);
   }
   if (!containers) return "";
 

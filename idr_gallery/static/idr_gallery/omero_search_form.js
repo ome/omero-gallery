@@ -206,25 +206,11 @@ class OmeroSearchForm {
           // Need to know what Attribute is of adjacent <select>
           key = $(".keyFields", $orClause).val();
           console.log("key...", key);
-          let url = `${SEARCH_ENGINE_URL}resources/image/getannotationvalueskey/?key=${encodeURI(
-            key
+          let url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/?value=${encodeURI(
+            request.term
           )}&resource=image`;
-
-          // If possible values for current Key are cached...
-          if (self.autoCompleteCache[key]) {
-            let input = request.term.toLowerCase();
-            let results = self.autoCompleteCache[key].filter((term) =>
-              term.toLowerCase().includes(input)
-            );
-            response(results);
-            return;
-          }
-          // ...otherwise we need AJAX call...
-          // 'Any' uses different query
-          if (key == "Any") {
-            url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/?value=${encodeURI(
-              request.term
-            )}&resource=image`;
+          if (key != "Any") {
+            url = url += `&key=${encodeURI(key)}`;
           }
           // showSpinner();
           $.ajax({
@@ -235,14 +221,15 @@ class OmeroSearchForm {
               // hideSpinner();
               console.log(data);
               let results = [{ label: "No results found.", value: -1 }];
-              if (key == "Any" && data.data.length > 0) {
+              if (data.data.length > 0) {
                 // only try to show top 100 items...
                 let max_shown = 100;
                 let result_count = data.data.length;
                 results = data.data.slice(0, 100).map((result) => {
+                  let showKey = key === "Any" ? `(${result.Key})` : "";
                   return {
                     key: result.Key,
-                    label: `<b>${result.Value}</b> (${result.Key}) <span style="color:#bbb">${result["Number of images"]}</span>`,
+                    label: `<b>${result.Value}</b>${showKey} <span style="color:#bbb">${result["Number of images"]}</span>`,
                     value: `${result.Value}`,
                   };
                 });
@@ -255,14 +242,6 @@ class OmeroSearchForm {
                     value: -1,
                   });
                 }
-              } else {
-                // cache for future use
-                self.autoCompleteCache[key] = data;
-                // We need to filter by input text
-                let input = request.term.toLowerCase();
-                results = data.filter((term) =>
-                  term.toLowerCase().includes(input)
-                );
               }
               response(results);
             },
@@ -496,6 +475,9 @@ class OmeroSearchForm {
         let $studyRow = $(event.target).parents(".studyRow");
         const studyName = $studyRow.data("name");
         console.log($studyRow, studyName);
+        if (!studyName) {
+          return; // e.g. clicked on header
+        }
         $studyRow.toggleClass("expanded");
 
         // Load study images...
