@@ -182,14 +182,10 @@ class OmeroSearchForm {
     // Adds <option> to '.keyFields' for each item in pre-cached resources_data
     let $field = $(".keyFields", $orClause);
     let anyOption = `<option value="Any">Any</option>`;
-    let html = Object.entries(this.resources_data)
-      .map((keyValues) => {
-        keyValues[1].sort();
-        return keyValues[1]
-          .map((value) => `<option value="${value}">${value}</option>`)
-          .join("\n");
-      })
-      .join("\n");
+    // only show 'image' attributes
+    let imgKeys = this.resources_data.image;
+    imgKeys.sort();
+    let html = imgKeys.map((value) => `<option value="${value}">${value}</option>`).join("\n");
     $field.html(anyOption + html);
   }
 
