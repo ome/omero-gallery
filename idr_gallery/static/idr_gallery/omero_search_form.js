@@ -21,12 +21,12 @@ const AND_CLAUSE_HTML = `
         <input type="text" class="form-control valueFields" id="valueFields" placeholder="type the attribute value">
     </div>
     <div class="no_expand">
-        <button class="remove_row btn btn-sm btn-outline-danger">
+        <button type="button" class="remove_row btn btn-sm btn-outline-danger">
           X
         </button>
     </div>
   </div>
-  <button class="addOR" href="#" title="Add OR condition to the group">
+  <button type="button" class="addOR" href="#" title="Add OR condition to the group">
     add 'OR'...
   </button>
 </div>`;
@@ -67,7 +67,6 @@ class OmeroSearchForm {
     this.resources_data = {};
     this.query_mode = "searchterms";
     this.cached_key_values = {};
-    this.autoCompleteCache = {};
 
     // build form
     this.formId = formId;
@@ -291,6 +290,11 @@ class OmeroSearchForm {
             // Use 'key' to update KeyField
             self.setKeyField($orClause, ui.item.key);
           }
+          // We perform search with chosen value...
+          setTimeout(() => {
+            // wait for UI to update!
+            self.submitSearch();
+          }, 100);
           return true;
         },
       })
@@ -368,10 +372,20 @@ class OmeroSearchForm {
     this.displayHideRemoveButtons();
   }
 
+  showSpinner() {
+    $("#filterSpinner").show();
+  }
+
+  hideSpinner() {
+    $("#filterSpinner").hide();
+  }
+
   submitSearch() {
     let query = this.getCurrentQuery();
     let self = this;
     console.log(query);
+    this.$results.empty();
+    this.showSpinner();
     $.ajax({
       type: "POST",
       url: SEARCH_ENGINE_URL + "resources/submitquery_returnstudies/",
@@ -379,6 +393,7 @@ class OmeroSearchForm {
       dataType: "json",
       data: JSON.stringify(query),
       success: function (data) {
+        self.hideSpinner();
         if (data["Error"] != "none") {
           alert(data["Error"]);
           return;
@@ -481,6 +496,17 @@ class OmeroSearchForm {
       event.preventDefault();
       let $orClause = $(event.target).closest(".or_clause");
       this.removeOr($orClause);
+    });
+
+    this.$form.on("change", ".keyFields", (event) => {
+      // clear the value field for this clause
+      let $orClause = $(event.target).parents(".or_clause");
+      $(".valueFields", $orClause).val("");
+    });
+
+    // change to 'equals' / 'contains' etc triggers search...
+    this.$form.on("change", ".condition", (event) => {
+      this.submitSearch();
     });
 
     $("button[type='submit']", this.$form).on("click", (event) => {
