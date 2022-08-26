@@ -64,7 +64,19 @@
 
 <link rel="stylesheet" href="{% static 'idr_gallery/css/search_form_styles.css' %}?_={{VERSION}}" />
 
-<hr class="whitespace" style="height: 0">
+<div class="row column">
+  <!-- Home button - bit painful to handle /cell/search etc -->
+  <a  {% if super_category %}
+        {% for c, data in super_categories.items %}
+          {% if c == category %} href="{% url 'gallery_super_category' super_category=c %}" {% endif %}
+        {% endfor %}
+      {% else %}
+        href="{% url 'idr_gallery_index' %}"
+      {% endif %}
+        style="background: #263238; border-radius: 10px; color: #eceff1; padding: 10px; margin:10px 5px 5px; display: inline-block; font-weight: normal;">
+    <i class="fa fa-caret-left"></i> Home
+  </a>
+</div>
 
 <div class="row column">
 
