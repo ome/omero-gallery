@@ -189,6 +189,30 @@ class OmeroSearchForm {
     $field.html(anyOption + html);
   }
 
+  autocompleteSort(queryVal) {
+    // returns a sort function based on the current query Value
+    // NB: same logic in autocompleteSort() function used on front page
+    const KNOWN_KEYS = this.resources_data;
+    return (a, b) => {
+      // if exact match, show first
+      let aMatch = queryVal == a.Value;
+      let bMatch = queryVal == b.Value;
+      if (aMatch != bMatch) {
+        return aMatch ? -1 : 1;
+      }
+      // show all known Keys before unknown
+      let aKnown = KNOWN_KEYS.image.includes(a.Key);
+      let bKnown = KNOWN_KEYS.image.includes(b.Key);
+      if (aKnown != bKnown) {
+        return aKnown ? -1 : 1;
+      }
+      // Show highest Image counts first
+      let aCount = a["Number of images"];
+      let bCount = b["Number of images"];
+      return aCount > bCount ? -1 : aCount < bCount ? 1 : 0;
+    };
+  }
+
   initAutoComplete($orClause) {
     let self = this;
     let $this = $(".valueFields", $orClause);
@@ -215,17 +239,19 @@ class OmeroSearchForm {
             url: url,
             success: function (data) {
               // hideSpinner();
-              console.log(data);
               let results = [{ label: "No results found.", value: -1 }];
               if (data.data.length > 0) {
                 // only try to show top 100 items...
                 let max_shown = 100;
                 let result_count = data.data.length;
-                results = data.data.slice(0, 100).map((result) => {
+                let data_results = data.data;
+                // sort to put exact and 'known' matches first
+                data_results.sort(self.autocompleteSort(request.term));
+                results = data_results.slice(0, 100).map((result) => {
                   let showKey = key === "Any" ? `(${result.Key})` : "";
                   return {
                     key: result.Key,
-                    label: `<b>${result.Value}</b>${showKey} <span style="color:#bbb">${result["Number of images"]}</span>`,
+                    label: `<b>${result.Value}</b> ${showKey} <span style="color:#bbb">${result["Number of images"]} images</span>`,
                     value: `${result.Value}`,
                   };
                 });
