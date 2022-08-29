@@ -466,8 +466,11 @@ class OmeroSearchForm {
     console.log("displayImages", imageList);
     let html = imageList
       .map((img) => {
+        // Each humbnail links to image viewer. Hover menu links to viewer (eye) and webclient (i)
         return `<li class="studyThumb">
-          <img title="${img.name}" src="${BASE_URL}webclient/render_thumbnail/${img.id}/" />
+          <a target="_blank" href="${BASE_URL}webclient/img_detail/${img.id}">
+            <img title="${img.name}" src="${BASE_URL}webclient/render_thumbnail/${img.id}/" />
+          </a>
           <ul class="imgLinks">
             <li title="Browse image metadata">
               <a target="_blank" href="${BASE_URL}webclient/?show=image-${img.id}"><i class="fas fa-info"></i></a>
