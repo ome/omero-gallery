@@ -505,6 +505,11 @@ class OmeroSearchForm {
       </div>
     </li>`;
 
+    // sort by image count
+    studyList.sort((a, b) => {
+      return a["image count"] > b["image count"] ? -1 : 1;
+    });
+
     let resultsList = studyList
       .map((row) => {
         let studyName = row["Name (IDR number)"];
