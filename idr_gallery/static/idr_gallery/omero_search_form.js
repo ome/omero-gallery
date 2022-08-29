@@ -481,7 +481,7 @@ class OmeroSearchForm {
           </ul>
         </li>`;
       })
-      .join("\n");
+      .join("");
     $(".studyImages", $studyRow).html(`<ul>${html}</ul>`);
   }
 

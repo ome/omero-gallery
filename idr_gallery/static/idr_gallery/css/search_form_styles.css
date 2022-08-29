@@ -126,7 +126,7 @@
     display: inline-block;
     width: 96px;
     height: 96px;
-    margin: 0;
+    margin: 1px;
     padding: 0;
     position: relative;
   }
