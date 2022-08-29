@@ -177,6 +177,33 @@ class OmeroSearchForm {
     return query;
   }
 
+  getHumanReadableQuery() {
+    // E.g. "Antibody equals seh1-fl antibody AND (Gene Symbol equals cdc42 OR Gene Symbol equals cdc25c)"
+    let query = this.getCurrentQuery();
+    // name, value, operator, resource
+    let andQuery = query.query_details.and_filters.map(q => `${q.name} ${q.operator} ${q.value}`).join(" AND ");
+    let orQueries = query.query_details.or_filters.map(ors => {
+      return "(" + ors.map(q => `${q.name} ${q.operator} ${q.value}`).join(" OR ") + ")";
+    });
+    let results = [];
+    if (andQuery.length > 0) {
+      results.push(andQuery);
+    }
+    if (orQueries.length > 0) {
+      results.push(orQueries);
+    }
+    return results.join(" AND ");
+  }
+
+  setAdvanced(advanced) {
+    // show/hide advanced search buttons "AND" and "OR" for creating advanced searches
+    if (advanced) {
+      this.$form.removeClass("simpleForm");
+    } else {
+      this.$form.addClass("simpleForm");
+    }
+  }
+
   setKeyValues($orClause) {
     // Adds <option> to '.keyFields' for each item in pre-cached resources_data
     let $field = $(".keyFields", $orClause);
