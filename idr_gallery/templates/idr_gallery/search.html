@@ -128,9 +128,6 @@
 <script>
   const searchForm = new OmeroSearchForm("search_form", SEARCH_ENGINE_URL, "results");
 
-  const searchParams = new URLSearchParams(window.location.search);
-  let query = searchParams.get("search_query");
-
   // custom handling of search results, not handled by OmeroSearchForm
   searchForm.on("results", function(event, data) {
     console.log("on.results", event, data);
@@ -144,26 +141,54 @@
     document.getElementById("filterCount").innerHTML = msg;
   });
 
-  console.log("query", query);
-  if (query && query.includes(":")) {
-      // Use first ":" to split Key:Value...
-      let colonIndex = query.indexOf(":");
-      let key = query.substring(0, colonIndex);
-      let value = query.substring(colonIndex + 1);
-      console.log("Key", key, "Value", value);
-      searchForm.on("ready", function(){
-          searchForm.setQuery({key, value});
-          searchForm.submitSearch();
-      });
+  searchForm.on("form_updated", function(event, data) {
+    // Update URL, adding to browser's history
+    let search_query = searchForm.getCurrentQuery();
+    let params = new URLSearchParams();
+    params.append("search_query", JSON.stringify(search_query));
+    console.log("params", params.toString().length);
+    history.pushState(null, "", "?" + params.toString());
+  });
+
+
+  function searchFromUrl() {
+    const searchParams = new URLSearchParams(window.location.search);
+    let query = searchParams.get("search_query");
+    console.log("searchFromUrl", query);
+    try {
+      const queryJson = JSON.parse(query);
+      searchForm.setQuery(queryJson);
+      searchForm.submitSearch();
+    } catch (error) {
+      if (query.includes(":")) {
+        let colonIndex = query.indexOf(":");
+        let name = query.substring(0, colonIndex);
+        let value = query.substring(colonIndex + 1);
+        console.log("Name", name, "Value", value);
+        searchForm.setKeyValueQuery({name, value});
+        searchForm.submitSearch();
+      }
+    }
+    // 'hidden' support for ?advanced=true to show AND/OR buttons
+    let advanced = searchParams.get("advanced");
+    if (advanced) {
+      searchForm.setAdvanced(true);
+    } else {
+      searchForm.setAdvanced(false);
+    }
   }
 
-  // 'hidden' support for ?advanced=true to show AND/OR buttons
-  let advanced = searchParams.get("advanced");
-  if (advanced) {
-    searchForm.setAdvanced(true);
-  } else {
-    searchForm.setAdvanced(false);
+
+  searchForm.on("ready", function(){
+    searchFromUrl();
+  });
+
+
+  window.onpopstate = (event) => {
+    console.log(`onpopstate location: ${document.location}, state: ${JSON.stringify(event.state)}`)
+    searchFromUrl();
   }
+
 </script>
 
 {% endblock %}

@@ -321,7 +321,7 @@ class OmeroSearchForm {
           // We perform search with chosen value...
           setTimeout(() => {
             // wait for UI to update!
-            self.submitSearch();
+            self.formUpdated();
           }, 100);
           return true;
         },
@@ -353,11 +353,37 @@ class OmeroSearchForm {
     });
   }
 
-  setQuery(query) {
+  setKeyValueQuery(query) {
     let { key, value } = query;
     // Clear form and create new...
     $(".clauses", this.$form).empty();
     this.addAnd(query);
+  }
+
+  setQuery(jsonQuery) {
+    // set complete state of form - opposite of getCurrentQuery()
+    
+    const and_conditions = jsonQuery.query_details["and_filters"];
+    const or_conditions = jsonQuery.query_details["or_filters"];
+    const case_sensitive = jsonQuery.query_details["case_sensitive"]
+
+    document.getElementById("case_sensitive").checked = case_sensitive;
+
+    // Clear form and create new...
+    $(".clauses", this.$form).empty();
+
+    and_conditions.forEach(cond => {
+      console.log("Adding AND", cond, this);
+      this.addAnd(cond);
+    });
+
+    or_conditions.forEach(or_clauses => {
+      
+      let $clause = this.addAnd(or_clauses[0]);
+      or_clauses.slice(1).forEach(or => {
+        this.addOr($clause, or);
+      });
+    });
   }
 
   addAnd(query) {
@@ -370,24 +396,39 @@ class OmeroSearchForm {
     this.setKeyValues($andClause);
 
     console.log("addAnd", query);
-    if (query?.key) {
+    if (query?.name) {
       // add <option> if not there
-      this.setKeyField($andClause, query.key);
+      this.setKeyField($andClause, query.name);
     }
     if (query?.value) {
       $(".valueFields", $andClause).val(query.value);
     }
+    if (query?.operator) {
+      $(".condition", $andClause).val(query.operator);
+    }
 
     this.displayHideRemoveButtons();
+    return $andClause;
   }
 
-  addOr($andClause) {
+  addOr($andClause, query) {
     let $orClause = $(".or_clause", $andClause).last().clone();
     // Clone the last '.or_clause' and insert it before the ".addOR" button
     $(".addOR", $andClause).before($orClause);
     // init auto-complete for ALL 'or' rows (re-init for existing rows)
     this.initAutoComplete($orClause);
     this.displayHideRemoveButtons();
+
+    if (query?.key) {
+      // add <option> if not there
+      this.setKeyField($orClause, query.key);
+    }
+    if (query?.value) {
+      $(".valueFields", $orClause).val(query.value);
+    }
+    if (query?.condition) {
+      $(".condition", $orClause).val(query.condition);
+    }
   }
 
   removeOr($orClause) {
@@ -512,6 +553,11 @@ class OmeroSearchForm {
     $(".studyImages", $studyRow).html(`<ul>${html}</ul>`);
   }
 
+  formUpdated() {
+    this.submitSearch();
+    this.trigger("form_updated");
+  }
+
   // Set-up event handlers on Buttons
   buttonHandlers() {
     $("#addAND").on("click", (event) => {
@@ -539,12 +585,12 @@ class OmeroSearchForm {
 
     // change to 'equals' / 'contains' etc triggers search...
     this.$form.on("change", ".condition", (event) => {
-      this.submitSearch();
+      this.formUpdated();
     });
 
     $("button[type='submit']", this.$form).on("click", (event) => {
       event.preventDefault();
-      this.submitSearch();
+      this.formUpdated();
     });
 
     // click on a Study to load child images...
