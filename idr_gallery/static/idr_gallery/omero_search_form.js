@@ -451,7 +451,7 @@ class OmeroSearchForm {
                 <div class="count">${count}</div>
                 <div class="studyName">${title}</div>
             </div>
-            <div class="studyImages">Loading images...</div>
+            <div class="studyImages"><span class="loadingMsg">Loading images...</span></div>
         </li>`;
       })
       .join("\n");

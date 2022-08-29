@@ -115,6 +115,10 @@
     transition: height 0.5s;  /* don't work to max-height */
     overflow-y: auto;
   }
+  .studyImages .loadingMsg {
+    color: #adb4b7;
+    padding: 5px 8px;
+  }
   .expanded .studyImages {
     visibility: visible;
     height: auto;
