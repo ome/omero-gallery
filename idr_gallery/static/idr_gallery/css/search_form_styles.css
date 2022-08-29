@@ -94,6 +94,9 @@
   }
   .studyColumns .studyName {
     flex: 1 0 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .fa-caret-right {

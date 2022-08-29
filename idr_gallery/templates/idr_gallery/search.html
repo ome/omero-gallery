@@ -139,7 +139,7 @@
   searchForm.on("results", function(event, data) {
     console.log("on.results", event, data);
     let studiesList = data.results.results;
-    let imgCount = 0;
+    let imgCount = studiesList.reduce((prev, study) => prev += study["image count"], 0);
     let studies = studiesList.length === 1 ? 'study' : 'studies';
     let msg = `<p class="filterMessage">
       Found <strong>${imgCount}</strong> images in <strong>${studiesList.length}</strong> ${studies}

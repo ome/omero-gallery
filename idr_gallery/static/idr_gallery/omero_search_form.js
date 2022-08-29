@@ -432,7 +432,7 @@ class OmeroSearchForm {
       <div class="studyColumns">
         <div class="caret"></i></div>
         <div class="studyId">Study ID</div>
-        <div class="count">count?</div>
+        <div class="count">Images</div>
         <div class="studyName">Title</div>
       </div>
     </li>`;
@@ -440,14 +440,16 @@ class OmeroSearchForm {
     let resultsList = studyList
       .map((row) => {
         let studyName = row["Name (IDR number)"];
+        let title = row["title"];
         let tokens = studyName.split("-");
         let studyId = tokens[0] + studyName.slice(studyName.length - 1);
+        let count = row["image count"];
         return `<li class="studyRow" data-name="${studyName}">
             <div class="studyColumns">
                 <div class="caret"><i class="fa fa-caret-right"></i></div>
                 <div class="studyId">${studyId}</div>
-                <div class="count">count?</div>
-                <div class="studyName">${studyName}</div>
+                <div class="count">${count}</div>
+                <div class="studyName">${title}</div>
             </div>
             <div class="studyImages">Loading images...</div>
         </li>`;
