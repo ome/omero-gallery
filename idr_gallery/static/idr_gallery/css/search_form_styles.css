@@ -63,6 +63,9 @@
   ul.resultsList>li:nth-child(odd) {
     background-color: #ffffff;
   }
+  ul.resultsList>li:hover {
+    background-color: #f4f5f9;
+  }
   .resultsHeader {
     font-weight: bold;
   }
@@ -73,6 +76,7 @@
     display: flex;
     flex-direction: row;
     width: 100%;
+    cursor: pointer;
   }
   .studyColumns div {
     flex: 1;
