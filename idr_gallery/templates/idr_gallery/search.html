@@ -48,11 +48,7 @@
     clear: right;
   }
 
-  /* Hide form elements to simplify */
-  #addAND, .addOR, .form-check-label {
-    display: none;
-  }
-  /* hidden for now */
+  /* 'Search' button hidden for now */
   button[type='submit'] {
     display: none;
     background: #1976d2;
@@ -158,6 +154,14 @@
           searchForm.setQuery({key, value});
           searchForm.submitSearch();
       });
+  }
+
+  // 'hidden' support for ?advanced=true to show AND/OR buttons
+  let advanced = searchParams.get("advanced");
+  if (advanced) {
+    searchForm.setAdvanced(true);
+  } else {
+    searchForm.setAdvanced(false);
   }
 </script>
 
