@@ -191,11 +191,12 @@ class OmeroSearchForm {
   autocompleteSort(queryVal) {
     // returns a sort function based on the current query Value
     // NB: same logic in autocompleteSort() function used on front page
+    queryVal = queryVal.toLowerCase();
     const KNOWN_KEYS = this.resources_data;
     return (a, b) => {
       // if exact match, show first
-      let aMatch = queryVal == a.Value;
-      let bMatch = queryVal == b.Value;
+      let aMatch = queryVal == a.Value.toLowerCase();
+      let bMatch = queryVal == b.Value.toLowerCase();
       if (aMatch != bMatch) {
         return aMatch ? -1 : 1;
       }
