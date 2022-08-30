@@ -90,17 +90,63 @@ function enableEnterGoesToResultsPage() {
 // "instant" auto-complete for 'Any' key searches Studies and shows
 // full-page results panel (the ajax search results for images are added to
 // this from the $.autocomplete response below)
-$("#maprQuery").on("keyup", function (event) {
-  let configId = document.getElementById("maprConfig").value;
-  if (configId != "any") {
-    $("#searchResultsContainer").hide();
-    return;
+// $("#maprQuery").on("keyup", function (event) {
+//   let configId = document.getElementById("maprConfig").value;
+//   if (configId != "any") {
+//     $("#searchResultsContainer").hide();
+//     return;
+//   }
+//   let input = event.target.value.trim();
+//   let studiesHtml = getMatchingStudiesHtml(input);
+//   document.getElementById("studySearchResults").innerHTML = studiesHtml;
+//   $("#searchResultsContainer").show();
+// });
+
+function autoCompleteDisplayResults(queryVal, data) {
+  // For showing the searchengine results in a panel
+  let queryRegex = new RegExp(queryVal, "ig"); // ignore-case, global
+
+  // Also show 'instant' filtering of studies
+  let studiesHtml = getMatchingStudiesHtml(queryVal);
+
+  // Search-engine results...
+  let results = [...data.data];
+  results.sort(autocompleteSort(queryVal));
+  let imagesHtml = results
+    .map((result) => {
+      // TODO: define how to encode query in search URL to support AND/OR clauses
+      let result_url = `${GALLERY_HOME}search/?key=${encodeURI(
+        result.Key
+      )}&value=${encodeURI(result.Value)}&operator=equals`;
+      return `<div>
+                  <a target="_blank"
+                    href="${result_url}">
+                    ${
+                      result["Number of images"]
+                    } Images <span style="color:#bbb">matched</span> <span class="black">${
+        result.Key
+      }:</span> ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
+                  </a></div>
+                  `;
+    })
+    .join("\n");
+
+  if (studiesHtml.length == 0 && imagesHtml == 0) {
+    document.getElementById("imageSearchResults").innerHTML = "No matches found";
+  } else {
+    let html = `<div class="searchScroll scrollBarVisible">${imagesHtml}</div>`;
+    document.getElementById("imageSearchResults").innerHTML = html;
   }
-  let input = event.target.value.trim();
-  let studiesHtml = getMatchingStudiesHtml(input);
+  // hide studies panel if not needed
+  if (studiesHtml.length > 0) {
+    $("#studySearchResults").show();
+  } else {
+    $("#studySearchResults").hide();
+  }
   document.getElementById("studySearchResults").innerHTML = studiesHtml;
+
   $("#searchResultsContainer").show();
-});
+}
 
 function autocompleteSort(queryVal) {
   queryVal = queryVal.toLowerCase();
@@ -182,31 +228,9 @@ $("#maprQuery")
           hideSpinner();
           console.log("data", data);
           let queryVal = $("#maprQuery").val().trim();
-          let queryRegex = new RegExp(queryVal, "ig"); // ignore-case, global
           let results = [];
           if (configId === "any") {
-            let results = [...data.data];
-            results.sort(autocompleteSort(queryVal));
-            let imagesHtml = results
-              .map((result) => {
-                // TODO: define how to encode query in search URL to support AND/OR clauses
-                let result_url = `${GALLERY_HOME}search/?key=${encodeURI(
-                  result.Key
-                )}&value=${encodeURI(result.Value)}&operator=equals`;
-                return `<div>
-                  <a target="_blank"
-                    href="${result_url}">
-                    ${
-                      result["Number of images"]
-                    } Images <span style="color:#bbb">matched</span> <span class="black">${
-                  result.Key
-                }:</span> ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
-                  </a></div>
-                  `;
-              })
-              .join("\n");
-            let html = `<div class="searchScroll scrollBarVisible">${imagesHtml}</div>`;
-            document.getElementById("imageSearchResults").innerHTML = html;
+            autoCompleteDisplayResults(queryVal, data);
           } else {
             results = data;
           }
@@ -317,7 +341,7 @@ function getMatchingStudiesHtml(text) {
     .join("\n");
 
   if (results.length == 0) {
-    html = "No studies found";
+    html = "";
     // if (SUPER_CATEGORY) {
     //   if (SUPER_CATEGORY.id === "cell") {
     //     html += ` in Cell IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
