@@ -181,9 +181,15 @@ class OmeroSearchForm {
     // E.g. "Antibody equals seh1-fl antibody AND (Gene Symbol equals cdc42 OR Gene Symbol equals cdc25c)"
     let query = this.getCurrentQuery();
     // name, value, operator, resource
-    let andQuery = query.query_details.and_filters.map(q => `${q.name} ${q.operator} ${q.value}`).join(" AND ");
-    let orQueries = query.query_details.or_filters.map(ors => {
-      return "(" + ors.map(q => `${q.name} ${q.operator} ${q.value}`).join(" OR ") + ")";
+    let andQuery = query.query_details.and_filters
+      .map((q) => `${q.name} ${q.operator} ${q.value}`)
+      .join(" AND ");
+    let orQueries = query.query_details.or_filters.map((ors) => {
+      return (
+        "(" +
+        ors.map((q) => `${q.name} ${q.operator} ${q.value}`).join(" OR ") +
+        ")"
+      );
     });
     let results = [];
     if (andQuery.length > 0) {
@@ -211,7 +217,9 @@ class OmeroSearchForm {
     // only show 'image' attributes
     let imgKeys = this.resources_data.image;
     imgKeys.sort();
-    let html = imgKeys.map((value) => `<option value="${value}">${value}</option>`).join("\n");
+    let html = imgKeys
+      .map((value) => `<option value="${value}">${value}</option>`)
+      .join("\n");
     $field.html(anyOption + html);
   }
 
@@ -361,25 +369,24 @@ class OmeroSearchForm {
 
   setQuery(jsonQuery) {
     // set complete state of form - opposite of getCurrentQuery()
-    
+
     const and_conditions = jsonQuery.query_details["and_filters"];
     const or_conditions = jsonQuery.query_details["or_filters"];
-    const case_sensitive = jsonQuery.query_details["case_sensitive"]
+    const case_sensitive = jsonQuery.query_details["case_sensitive"];
 
     document.getElementById("case_sensitive").checked = case_sensitive;
 
     // Clear form and create new...
     $(".clauses", this.$form).empty();
 
-    and_conditions.forEach(cond => {
+    and_conditions.forEach((cond) => {
       console.log("Adding AND", cond, this);
       this.addAnd(cond);
     });
 
-    or_conditions.forEach(or_clauses => {
-      
+    or_conditions.forEach((or_clauses) => {
       let $clause = this.addAnd(or_clauses[0]);
-      or_clauses.slice(1).forEach(or => {
+      or_clauses.slice(1).forEach((or) => {
         this.addOr($clause, or);
       });
     });
