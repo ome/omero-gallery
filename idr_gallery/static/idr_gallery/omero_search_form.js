@@ -500,7 +500,7 @@ class OmeroSearchForm {
         <div class="caret"></i></div>
         <div class="studyId">Study ID</div>
         <div class="count">Images</div>
-        <div class="studyName">Title</div>
+        <div class="studyName">Publication Title</div>
       </div>
     </li>`;
 
