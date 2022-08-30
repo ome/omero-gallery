@@ -87,20 +87,6 @@ function enableEnterGoesToResultsPage() {
   });
 }
 
-// "instant" auto-complete for 'Any' key searches Studies and shows
-// full-page results panel (the ajax search results for images are added to
-// this from the $.autocomplete response below)
-// $("#maprQuery").on("keyup", function (event) {
-//   let configId = document.getElementById("maprConfig").value;
-//   if (configId != "any") {
-//     $("#searchResultsContainer").hide();
-//     return;
-//   }
-//   let input = event.target.value.trim();
-//   let studiesHtml = getMatchingStudiesHtml(input);
-//   document.getElementById("studySearchResults").innerHTML = studiesHtml;
-//   $("#searchResultsContainer").show();
-// });
 
 function autoCompleteDisplayResults(queryVal, data) {
   // For showing the searchengine results in a panel

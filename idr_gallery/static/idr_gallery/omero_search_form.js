@@ -448,8 +448,32 @@ class OmeroSearchForm {
     $("#filterSpinner").hide();
   }
 
+  modifyQueryCellTissue(query) {
+    // If /cell or /tissue, SUPER_CATEGORY.id
+    // NB: this uses global SUPER_CATEGORY variable
+    if (SUPER_CATEGORY?.id) {
+      let sampleType = SUPER_CATEGORY.id;
+      query.query_details["or_filters"].push([
+        {
+          name: "Sample Type",
+          value: sampleType,
+          resource: "screen",
+          operator: "equals",
+        },
+        {
+          name: "Sample Type",
+          value: sampleType,
+          resource: "project",
+          operator: "equals",
+        },
+      ]);
+    }
+    return query;
+  }
+
   submitSearch() {
     let query = this.getCurrentQuery();
+    query = this.modifyQueryCellTissue(query);
     let self = this;
     console.log(query);
     this.$results.empty();
