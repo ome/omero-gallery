@@ -513,15 +513,18 @@ class OmeroSearchForm {
       .map((row) => {
         let studyName = row["Name (IDR number)"];
         let title = row["title"];
+        let objId = row["id"];
+        let objType = row["type"];
         let tokens = studyName.split("-");
         let studyId = tokens[0] + studyName.slice(studyName.length - 1);
         let count = row["image count"];
         return `<li class="studyRow" data-name="${studyName}">
             <div class="studyColumns">
                 <div class="caret"><i class="fa fa-caret-right"></i></div>
-                <div class="studyId">${studyId}</div>
+                <div class="studyId">
+                  <a href="${BASE_URL}webclient/?show=${objType}-${objId}" target="_blank">${studyId}</a></div>
                 <div class="count">${count}</div>
-                <div class="studyName">${title}</div>
+                <div class="studyName" title="${title}">${title}</div>
             </div>
             <div class="studyImages"><span class="loadingMsg">Loading images...</span></div>
         </li>`;

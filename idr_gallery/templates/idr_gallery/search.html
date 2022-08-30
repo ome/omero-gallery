@@ -145,7 +145,6 @@
     // Update URL, adding to browser's history
     let search_query = searchForm.getCurrentQuery();
     // for now, we only support the first AND clause...
-    console.log(search_query.query_details.and_filters);
     const clause = search_query.query_details.and_filters[0];
     let params = new URLSearchParams();
     params.append("key", clause.name);
@@ -159,7 +158,6 @@
     const searchParams = new URLSearchParams(window.location.search);
     let key = searchParams.get("key");
     let value = searchParams.get("value");
-    console.log("searchFromUrl", key, value);
     if (key && value) {
       let operator = searchParams.get("operator", "equals");
       searchForm.setKeyValueQuery({key, value, operator});
