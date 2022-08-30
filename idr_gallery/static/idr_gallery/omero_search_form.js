@@ -354,7 +354,6 @@ class OmeroSearchForm {
   }
 
   setKeyValueQuery(query) {
-    let { key, value } = query;
     // Clear form and create new...
     $(".clauses", this.$form).empty();
     this.addAnd(query);
@@ -387,7 +386,7 @@ class OmeroSearchForm {
   }
 
   addAnd(query) {
-    // query is e.g. {key: "Antibody", value: "foo"}
+    // query is e.g. {key: "Antibody", value: "foo", operator?: "equals"}
     let $andClause = $(AND_CLAUSE_HTML);
     $(".clauses", this.$form).append($andClause);
 
@@ -396,9 +395,9 @@ class OmeroSearchForm {
     this.setKeyValues($andClause);
 
     console.log("addAnd", query);
-    if (query?.name) {
+    if (query?.key) {
       // add <option> if not there
-      this.setKeyField($andClause, query.name);
+      this.setKeyField($andClause, query.key);
     }
     if (query?.value) {
       $(".valueFields", $andClause).val(query.value);

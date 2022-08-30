@@ -190,9 +190,9 @@ $("#maprQuery")
             let imagesHtml = results
               .map((result) => {
                 // TODO: define how to encode query in search URL to support AND/OR clauses
-                let result_url = `${GALLERY_HOME}search/?search_query=${encodeURI(
+                let result_url = `${GALLERY_HOME}search/?key=${encodeURI(
                   result.Key
-                )}:${encodeURI(result.Value)}`;
+                )}&value=${encodeURI(result.Value)}&operator=equals`;
                 return `<div>
                   <a target="_blank"
                     href="${result_url}">

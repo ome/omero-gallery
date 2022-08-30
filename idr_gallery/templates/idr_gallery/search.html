@@ -144,30 +144,26 @@
   searchForm.on("form_updated", function(event, data) {
     // Update URL, adding to browser's history
     let search_query = searchForm.getCurrentQuery();
+    // for now, we only support the first AND clause...
+    console.log(search_query.query_details.and_filters);
+    const clause = search_query.query_details.and_filters[0];
     let params = new URLSearchParams();
-    params.append("search_query", JSON.stringify(search_query));
-    console.log("params", params.toString().length);
+    params.append("key", clause.name);
+    params.append("value", clause.value);
+    params.append("operator", clause.operator);
     history.pushState(null, "", "?" + params.toString());
   });
 
 
   function searchFromUrl() {
     const searchParams = new URLSearchParams(window.location.search);
-    let query = searchParams.get("search_query");
-    console.log("searchFromUrl", query);
-    try {
-      const queryJson = JSON.parse(query);
-      searchForm.setQuery(queryJson);
+    let key = searchParams.get("key");
+    let value = searchParams.get("value");
+    console.log("searchFromUrl", key, value);
+    if (key && value) {
+      let operator = searchParams.get("operator", "equals");
+      searchForm.setKeyValueQuery({key, value, operator});
       searchForm.submitSearch();
-    } catch (error) {
-      if (query.includes(":")) {
-        let colonIndex = query.indexOf(":");
-        let name = query.substring(0, colonIndex);
-        let value = query.substring(colonIndex + 1);
-        console.log("Name", name, "Value", value);
-        searchForm.setKeyValueQuery({name, value});
-        searchForm.submitSearch();
-      }
     }
     // 'hidden' support for ?advanced=true to show AND/OR buttons
     let advanced = searchParams.get("advanced");
