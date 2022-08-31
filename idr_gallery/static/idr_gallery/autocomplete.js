@@ -77,7 +77,8 @@ function autoCompleteDisplayResults(queryVal, data) {
   let imagesHtml = results
     .map((result) => {
       // TODO: define how to encode query in search URL to support AND/OR clauses
-      let result_url = `${GALLERY_HOME}search/?key=${encodeURI(
+      let cell_tissue = SUPER_CATEGORY ? SUPER_CATEGORY.id + "/" : "";
+      let result_url = `${GALLERY_HOME}${cell_tissue}search/?key=${encodeURI(
         result.Key
       )}&value=${encodeURI(result.Value)}&operator=equals`;
       return `<div>
