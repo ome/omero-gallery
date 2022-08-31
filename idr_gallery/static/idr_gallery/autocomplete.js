@@ -4,7 +4,7 @@ let KNOWN_KEYS = {};
 
 // immediately load keys from search engine. Used for autocomplete sorting
 url = `${BASE_URL}searchengine/api/v1/resources/all/keys/?mode=searchterms`;
-$.getJSON(url, function(data){
+$.getJSON(url, function (data) {
   KNOWN_KEYS = data;
 });
 
@@ -64,7 +64,6 @@ function enableEnterGoesToResultsPage() {
   });
 }
 
-
 function autoCompleteDisplayResults(queryVal, data) {
   // For showing the searchengine results in a panel
   let queryRegex = new RegExp(queryVal, "ig"); // ignore-case, global
@@ -95,7 +94,8 @@ function autoCompleteDisplayResults(queryVal, data) {
     .join("\n");
 
   if (studiesHtml.length == 0 && imagesHtml == 0) {
-    document.getElementById("imageSearchResults").innerHTML = "No matches found";
+    document.getElementById("imageSearchResults").innerHTML =
+      "No matches found";
   } else {
     let html = `<div class="searchScroll scrollBarVisible">${imagesHtml}</div>`;
     document.getElementById("imageSearchResults").innerHTML = html;
@@ -189,7 +189,6 @@ $("#maprQuery")
         data: requestData,
         success: function (data) {
           hideSpinner();
-          console.log("data", data);
           let queryVal = $("#maprQuery").val().trim();
           let results = [];
           if (configId === "any") {
@@ -197,9 +196,6 @@ $("#maprQuery")
           } else {
             results = data;
           }
-          // if (results.length === 0) {
-          //   results = [{ label: "No results found.", value: -1 }];
-          // }
           response(results);
         },
         error: function (data) {
@@ -216,7 +212,6 @@ $("#maprQuery")
     minLength: 0,
     open: function () {},
     close: function () {
-      // $(this).val('');
       return false;
     },
     focus: function (event, ui) {},
@@ -238,7 +233,6 @@ $("#maprQuery")
     },
   })
   .data("ui-autocomplete")._renderItem = function (ul, item) {
-  console.log("item", item.label);
   return $("<li>")
     .append("<a>" + item.label + "</a>")
     .appendTo(ul);
@@ -305,15 +299,6 @@ function getMatchingStudiesHtml(text) {
 
   if (results.length == 0) {
     html = "";
-    // if (SUPER_CATEGORY) {
-    //   if (SUPER_CATEGORY.id === "cell") {
-    //     html += ` in Cell IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
-    //   } else if (SUPER_CATEGORY.id === "tissue") {
-    //     html += ` in Tissue IDR. Try searching <a href="${GALLERY_INDEX}">all Studies in IDR</a>.`;
-    //   }
-    // } else {
-    //   html += ". Try searching for Image attributes above."
-    // }
   } else {
     html = `<div class="searchScroll scrollBarVisible">${html}</div>`;
   }

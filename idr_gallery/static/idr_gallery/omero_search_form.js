@@ -260,7 +260,6 @@ class OmeroSearchForm {
         source: function (request, response) {
           // Need to know what Attribute is of adjacent <select>
           key = $(".keyFields", $orClause).val();
-          console.log("key...", key);
           let url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/?value=${encodeURI(
             request.term
           )}&resource=image`;
@@ -317,7 +316,6 @@ class OmeroSearchForm {
         },
         focus: function (event, ui) {},
         select: function (event, ui) {
-          console.log("select", ui.item, key == "Any");
           if (ui.item.value == -1) {
             // Ignore 'No results found'
             return false;
@@ -380,7 +378,6 @@ class OmeroSearchForm {
     $(".clauses", this.$form).empty();
 
     and_conditions.forEach((cond) => {
-      console.log("Adding AND", cond, this);
       this.addAnd(cond);
     });
 
@@ -401,7 +398,6 @@ class OmeroSearchForm {
     this.initAutoComplete($andClause);
     this.setKeyValues($andClause);
 
-    console.log("addAnd", query);
     if (query?.key) {
       // add <option> if not there
       this.setKeyField($andClause, query.key);
@@ -482,7 +478,6 @@ class OmeroSearchForm {
     let query = this.getCurrentQuery();
     query = this.modifyQueryCellTissue(query);
     let self = this;
-    console.log(query);
     this.$results.empty();
     this.showSpinner();
     $.ajax({
@@ -512,19 +507,7 @@ class OmeroSearchForm {
   }
 
   displayResults(data) {
-    console.log("displayResults", data);
-    // TODO: check how errors are handled
-    // if (data.Error && data.Error != "none") {
-    //     $("#dataTable").html(`<tr><td>${data.Error}</td></tr>`);
-    //     return;
-    // }
-
     let studyList = data.results.results;
-
-    if (studyList.length == 0) {
-      // TODO: improve display of message...
-      alert("No results");
-    }
 
     let thead = `<li class="studyRow resultsHeader">
       <div class="studyColumns">
@@ -569,7 +552,6 @@ class OmeroSearchForm {
 
   displayImages(data, $studyRow) {
     const imageList = data.results.results;
-    console.log("displayImages", imageList);
     let html = imageList
       .map((img) => {
         // Each humbnail links to image viewer. Hover menu links to viewer (eye) and webclient (i)
@@ -634,12 +616,10 @@ class OmeroSearchForm {
     // click on a Study to load child images...
     if (this.$results) {
       $(this.$results).on("click", ".studyColumns", (event) => {
-        console.log("studyRow click", event.target, event.target.nodeName);
         // ignore click on links...
         if (event.target.nodeName == "A") return;
         let $studyRow = $(event.target).parents(".studyRow");
         const studyName = $studyRow.data("name");
-        console.log($studyRow, studyName);
         if (!studyName) {
           return; // e.g. clicked on header
         }
