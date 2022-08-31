@@ -474,9 +474,18 @@ class OmeroSearchForm {
     return query;
   }
 
+  getPreviousSearchQuery() {
+    // deep copy
+    return JSON.parse(JSON.stringify(this.previousSearchQuery));
+  }
+  setPreviousSearchQuery(query) {
+    this.previousSearchQuery = query;
+  }
+
   submitSearch() {
     let query = this.getCurrentQuery();
     query = this.modifyQueryCellTissue(query);
+    this.setPreviousSearchQuery(query);
     let self = this;
     this.$results.empty();
     this.showSpinner();
@@ -625,8 +634,8 @@ class OmeroSearchForm {
         }
         $studyRow.toggleClass("expanded");
 
-        // Load study images...
-        let query = this.getCurrentQuery();
+        // Load study images, using previous query as basis
+        let query = this.getPreviousSearchQuery();
         let self = this;
         query.query_details.and_filters.push({
           name: "Name (IDR number)",
