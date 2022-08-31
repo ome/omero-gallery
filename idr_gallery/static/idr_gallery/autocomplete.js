@@ -1,35 +1,12 @@
 // ------ AUTO-COMPLETE -------------------
 
-const KNOWN_KEYS = {
-  image: [
-    "Antibody",
-    "siRNA Pool Identifier",
-    "PubChem CID",
-    "Pathology Identifier",
-    "Cell Line",
-    "Antibody Identifier",
-    "Organism Part",
-    "InChIKey",
-    "Gene Symbol",
-    "Organism",
-    "Protein",
-    "Pathology",
-    "Phenotype Term Accession",
-    "Compound Name",
-    "Gene Name",
-    "siRNA Identifier",
-    "Phenotype",
-  ],
-  project: [
-    "Publication Authors",
-    "Study Type",
-    "License",
-    "Publication Title",
-    "Imaging Method",
-    "Name (IDR number)",
-  ],
-  screen: ["Screen Technology Type", "Screen Type"],
-};
+let KNOWN_KEYS = {};
+
+// immediately load keys from search engine. Used for autocomplete sorting
+url = `${BASE_URL}searchengine/api/v1/resources/all/keys/?mode=searchterms`;
+$.getJSON(url, function(data){
+  KNOWN_KEYS = data;
+});
 
 document.getElementById("maprConfig").onchange = (event) => {
   document.getElementById("maprQuery").value = "";
@@ -145,8 +122,8 @@ function autocompleteSort(queryVal) {
       return aMatch ? -1 : 1;
     }
     // show all known Keys before unknown
-    let aKnown = KNOWN_KEYS.image.includes(a.Key);
-    let bKnown = KNOWN_KEYS.image.includes(b.Key);
+    let aKnown = KNOWN_KEYS?.image?.includes(a.Key);
+    let bKnown = KNOWN_KEYS?.image?.includes(b.Key);
     if (aKnown != bKnown) {
       return aKnown ? -1 : 1;
     }
