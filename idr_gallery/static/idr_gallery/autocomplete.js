@@ -12,6 +12,8 @@ document.getElementById("maprConfig").onchange = (event) => {
   document.getElementById("maprQuery").value = "";
   let value = event.target.value.replace("mapr_", "");
   let placeholder = `Type to filter values...`;
+  // hide any previous search-engine results
+  $("#searchResultsContainer").hide();
   if (mapr_settings[value]) {
     placeholder = `Type ${mapr_settings[value]["default"][0]}...`;
   } else if (value == "any") {
