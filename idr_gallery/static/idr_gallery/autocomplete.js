@@ -80,9 +80,11 @@ function autoCompleteDisplayResults(queryVal, data) {
     .map((result) => {
       // TODO: define how to encode query in search URL to support AND/OR clauses
       let cell_tissue = SUPER_CATEGORY ? SUPER_CATEGORY.id + "/" : "";
-      let result_url = `${GALLERY_HOME}${cell_tissue}search/?key=${encodeURI(
-        result.Key
-      )}&value=${encodeURI(result.Value)}&operator=equals`;
+      let params = new URLSearchParams();
+      params.append("key", result.Key);
+      params.append("value", result.Value);
+      params.append("operator", "equals");
+      let result_url = `${GALLERY_HOME}${cell_tissue}search/?${params.toString()}`;
       return `<div>
                   <a target="_blank"
                     href="${result_url}">
@@ -194,7 +196,8 @@ $("#maprQuery")
           hideSpinner();
           let queryVal = $("#maprQuery").val().trim();
           let results = [];
-          if (configId === "any") {
+          // check that input hasn't changed during the call
+          if (configId === "any" && request.term == queryVal) {
             autoCompleteDisplayResults(queryVal, data);
           } else {
             results = data;
