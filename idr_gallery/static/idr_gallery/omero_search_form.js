@@ -183,7 +183,10 @@ class OmeroSearchForm {
     let query = this.getCurrentQuery();
     // name, value, operator, resource
     let andQuery = query.query_details.and_filters
-      .map((q) => `${q.name} ${q.operator} ${q.value}`)
+      .map(
+        (q) =>
+          `<strong>${q.name}</strong> ${q.operator} <strong>${q.value}</strong>`
+      )
       .join(" AND ");
     let orQueries = query.query_details.or_filters.map((ors) => {
       return (

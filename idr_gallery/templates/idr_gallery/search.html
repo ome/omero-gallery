@@ -136,7 +136,7 @@
     let studies = studiesList.length === 1 ? 'study' : 'studies';
     let searchQuery = searchForm.getHumanReadableQuery();
     let msg = `<p class="filterMessage">
-      Search <strong>${searchQuery}</strong> found <strong>${imgCount}</strong> images in <strong>${studiesList.length}</strong> ${studies}
+      Search ${searchQuery} found <strong>${imgCount}</strong> images in <strong>${studiesList.length}</strong> ${studies}
     </p>`;
     document.getElementById("filterCount").innerHTML = msg;
   });
