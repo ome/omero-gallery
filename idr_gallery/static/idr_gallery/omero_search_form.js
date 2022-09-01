@@ -619,7 +619,7 @@ class OmeroSearchForm {
           alert(data["Error"]);
           return;
         }
-        let {page, total_pages, bookmark} = data.results;
+        let { page, total_pages, bookmark } = data.results;
         if (bookmark && page < total_pages) {
           $studyRow.data("bookmark", data.results.bookmark);
         } else {
