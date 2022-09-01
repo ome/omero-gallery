@@ -491,7 +491,7 @@ class OmeroSearchForm {
     this.showSpinner();
     $.ajax({
       type: "POST",
-      url: SEARCH_ENGINE_URL + "resources/submitquery_returnstudies/",
+      url: SEARCH_ENGINE_URL + "resources/submitquery/containers/",
       contentType: "application/json;charset=UTF-8",
       dataType: "json",
       data: JSON.stringify(query),
@@ -532,10 +532,16 @@ class OmeroSearchForm {
       return a["image count"] > b["image count"] ? -1 : 1;
     });
 
+    function getValue(keyvals, key) {
+      let kvp = keyvals.find(kv => kv.key == key);
+      return kvp?.value;
+    }
+
     let resultsList = studyList
       .map((row) => {
-        let studyName = row["Name (IDR number)"];
-        let title = row["title"];
+        let studyName = row["name"];
+        let keyVals = row["key_values"];
+        let title = getValue(keyVals, "Publication Title") || getValue(keyVals, "Study Title") || studyName;
         let objId = row["id"];
         let objType = row["type"];
         let tokens = studyName.split("-");
