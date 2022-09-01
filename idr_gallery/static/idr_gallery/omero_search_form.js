@@ -619,14 +619,9 @@ class OmeroSearchForm {
           alert(data["Error"]);
           return;
         }
-        if (
-          data?.results?.bookmark &&
-          data.results.page < data.results.total_pages
-        ) {
-          if (!$studyRow.data("bookmark")) {
-            // don't update if already exists
-            $studyRow.data("bookmark", data.results.bookmark);
-          }
+        let {page, total_pages, bookmark} = data.results;
+        if (bookmark && page < total_pages) {
+          $studyRow.data("bookmark", data.results.bookmark);
         } else {
           $studyRow.data("complete", true);
         }
