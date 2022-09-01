@@ -182,10 +182,16 @@ class OmeroSearchForm {
     // E.g. "Antibody equals seh1-fl antibody AND (Gene Symbol equals cdc42 OR Gene Symbol equals cdc25c)"
     let query = this.getCurrentQuery();
     // name, value, operator, resource
+    const maxLen = 50;
     let andQuery = query.query_details.and_filters
       .map(
+        // show tooltip and truncate if value is too long
         (q) =>
-          `<strong>${q.name}</strong> ${q.operator} <strong>${q.value}</strong>`
+          `<strong>${q.name}</strong>
+          ${q.operator}
+          <strong ${q.value.length > maxLen ? `title="${q.value}"` : ""}>
+            ${q.value.slice(0, maxLen)}${q.value.length > maxLen ? "..." : ""}
+          </strong>`
       )
       .join(" AND ");
     let orQueries = query.query_details.or_filters.map((ors) => {
