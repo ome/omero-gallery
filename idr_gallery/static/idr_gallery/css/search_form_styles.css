@@ -175,3 +175,16 @@
     width: 100%;
     display: inline-block;
   }
+
+  .studyImagesSpinner {
+    text-align: center;
+    color: #ddd;
+    visibility: hidden;
+  }
+  .loading .studyImagesSpinner {
+    visibility: visible;
+  }
+  .studyImagesSpinner svg {
+    width: 50px;
+    margin: 10px;
+  }

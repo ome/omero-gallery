@@ -61,6 +61,7 @@ const FILTER_ICON_SVG = `
 	C58.1,59.1,81.058,61.387,105.34,61.387c24.283,0,47.24-2.287,65.034-6.449L119.631,116.486z"/>
 </svg>`;
 
+const SPINNER_SVG = `<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>`;
 class OmeroSearchForm {
   constructor(formId, SEARCH_ENGINE_URL, resultsId) {
     this.SEARCH_ENGINE_URL = SEARCH_ENGINE_URL;
@@ -533,7 +534,7 @@ class OmeroSearchForm {
     });
 
     function getValue(keyvals, key) {
-      let kvp = keyvals.find(kv => kv.key == key);
+      let kvp = keyvals.find((kv) => kv.key == key);
       return kvp?.value;
     }
 
@@ -541,7 +542,10 @@ class OmeroSearchForm {
       .map((row) => {
         let studyName = row["name"];
         let keyVals = row["key_values"];
-        let title = getValue(keyVals, "Publication Title") || getValue(keyVals, "Study Title") || studyName;
+        let title =
+          getValue(keyVals, "Publication Title") ||
+          getValue(keyVals, "Study Title") ||
+          studyName;
         let objId = row["id"];
         let objType = row["type"];
         let tokens = studyName.split("-");
@@ -555,18 +559,89 @@ class OmeroSearchForm {
                 <div class="count">${count}</div>
                 <div class="studyName" title="${title}">${title}</div>
             </div>
-            <div class="studyImages"><span class="loadingMsg">Loading images...</span></div>
+            <div class="studyImages">
+              <ul></ul>
+              <div class="studyImagesSpinner">
+                ${SPINNER_SVG}
+              <div>
+            </span></div>
         </li>`;
       })
       .join("\n");
 
     if (this.$results) {
       this.$results.html(thead + resultsList);
+
+      // Listen for scroll events to load paginated images...
+      $(".studyImages", this.$results).on("scroll", (event) => {
+        let $scroller = $(event.target);
+        let contentHeight = $scroller.children().height();
+        let scrollBottom = $scroller.scrollTop() + $scroller.height();
+        let distanceToBottom = contentHeight - scrollBottom;
+        if (distanceToBottom < 100) {
+          // load more images...
+          this.loadStudyImages($scroller.parents(".studyRow"));
+        }
+      });
     }
+  }
+
+  loadStudyImages($studyRow) {
+    const studyName = $studyRow.data("name");
+    const bookmark = $studyRow.data("bookmark");
+    if ($studyRow.hasClass("loading") || $studyRow.data("complete")) {
+      return;
+    }
+
+    // Load study images, using previous query as basis
+    let query = this.getPreviousSearchQuery();
+    let self = this;
+    query.query_details.and_filters.push({
+      // TODO: api key should be 'name' not 'Name (IDR number)'
+      name: "Name (IDR number)",
+      value: studyName,
+      operator: "equals",
+      resource: "project", // NB: this works for screens too!
+    });
+    // if bookmark exists, we are loading next pages...
+    if (bookmark) {
+      query.bookmark = bookmark;
+    }
+    $studyRow.addClass("loading", true); // shows spinner
+    $.ajax({
+      type: "POST",
+      url: SEARCH_ENGINE_URL + "resources/submitquery/",
+      contentType: "application/json;charset=UTF-8",
+      dataType: "json",
+      data: JSON.stringify(query),
+      success: function (data) {
+        if (data["Error"] != "none") {
+          alert(data["Error"]);
+          return;
+        }
+        if (
+          data?.results?.bookmark &&
+          data.results.page < data.results.total_pages
+        ) {
+          if (!$studyRow.data("bookmark")) {
+            // don't update if already exists
+            $studyRow.data("bookmark", data.results.bookmark);
+          }
+        } else {
+          $studyRow.data("complete", true);
+        }
+        self.displayImages(data, $studyRow);
+        $studyRow.removeClass("loading");
+      },
+      error: function (XMLHttpRequest, textStatus, errorThrown) {
+        alert("Error: " + errorThrown);
+      },
+    });
   }
 
   displayImages(data, $studyRow) {
     const imageList = data.results.results;
+    const bookmark = data.results.bookmark;
     let html = imageList
       .map((img) => {
         // Each humbnail links to image viewer. Hover menu links to viewer (eye) and webclient (i)
@@ -585,7 +660,9 @@ class OmeroSearchForm {
         </li>`;
       })
       .join("");
-    $(".studyImages", $studyRow).html(`<ul>${html}</ul>`);
+
+    // add to existing list...
+    $(".studyImages>ul", $studyRow).append(html);
   }
 
   formUpdated() {
@@ -640,33 +717,11 @@ class OmeroSearchForm {
         }
         $studyRow.toggleClass("expanded");
 
-        // Load study images, using previous query as basis
-        let query = this.getPreviousSearchQuery();
-        let self = this;
-        query.query_details.and_filters.push({
-          name: "Name (IDR number)",
-          value: studyName,
-          operator: "equals",
-          resource: "project", // NB: this works for screens too!
-        });
         if ($studyRow.hasClass("expanded")) {
-          $.ajax({
-            type: "POST",
-            url: SEARCH_ENGINE_URL + "resources/submitquery/",
-            contentType: "application/json;charset=UTF-8",
-            dataType: "json",
-            data: JSON.stringify(query),
-            success: function (data) {
-              if (data["Error"] != "none") {
-                alert(data["Error"]);
-                return;
-              }
-              self.displayImages(data, $studyRow);
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-              alert("Error: " + errorThrown);
-            },
-          });
+          // Only load if not loaded before
+          if ($(".studyImages li", $studyRow).length == 0) {
+            this.loadStudyImages($studyRow);
+          }
         }
       });
     }
