@@ -147,6 +147,10 @@ $("#maprQuery")
     source: function (request, response) {
       // if configId is not from mapr, we filter on mapValues...
       let configId = document.getElementById("maprConfig").value;
+      // Don't handle empty queries
+      if (request.term.trim().length == 0) {
+        return;
+      }
 
       if (configId.indexOf("mapr_") != 0 && configId != "any") {
         let matches;
@@ -158,11 +162,6 @@ $("#maprQuery")
           matches = model.getKeyValueAutoComplete(configId, request.term);
         }
         response(matches);
-        return;
-      }
-
-      // Don't handle empty query for mapr
-      if (request.term.length == 0) {
         return;
       }
 
@@ -197,7 +196,7 @@ $("#maprQuery")
           let queryVal = $("#maprQuery").val().trim();
           let results = [];
           // check that input hasn't changed during the call
-          if (configId === "any" && request.term == queryVal) {
+          if (configId === "any" && request.term.trim() == queryVal) {
             autoCompleteDisplayResults(queryVal, data);
           } else {
             results = data;
