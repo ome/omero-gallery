@@ -314,23 +314,16 @@
     /* word-break: break-all; */
   }
   .searchScroll>div {
-    margin: 12px 0
+    padding: 5px 10px;
   }
 
   #hideSearchResults {
     border: none;
     background: none;
     position: absolute;
-    right: 25px;
+    right: 40px;
     top: 10px;
     z-index: 1;
-  }
-  /* overwrite foundation styles for table... */
-  #studySearchResults tbody {
-    border: none;
-  }
-  #studySearchResults tr {
-    background-color: transparent;
   }
 
   /* Always show scrollbars https://gist.github.com/IceCreamYou/cd517596e5847a88e2bb0a091da43fb4 */
@@ -446,10 +439,10 @@
 <div id="searchResultsContainer" class="row horizontal" style="display: none; position: relative; margin-top: -35px; margin-bottom: 15px">
   <div class="small-12 medium-12 large-12 columns">
     <button id="hideSearchResults" onclick="document.getElementById('searchResultsContainer').style.display = 'none'">X</button>
-    <div id="studySearchResults" class="panel" style="float: left; width: 100%; color: #333">
+    <div id="studySearchResults" class="panel" style="float: left; width: 100%; color: #333; padding: 0">
       Search results
     </div>
-    <div id="imageSearchResults" class="panel" style="float: left; width: 100%; color: #333">
+    <div id="imageSearchResults" class="panel" style="float: left; width: 100%; color: #333; padding: 0">
       <!-- spinner? -->
     </div>
   </div>

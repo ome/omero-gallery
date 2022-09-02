@@ -1,4 +1,6 @@
 // ------ AUTO-COMPLETE -------------------
+// use this to highlight auto-complete items. Uses css from jQueryUI
+let SELECT_CLASS = "ui-state-active";
 
 let KNOWN_KEYS = {};
 
@@ -59,25 +61,38 @@ function enableEnterGoesToResultsPage() {
     if (event.which == 13) {
       let configId = document.getElementById("maprConfig").value;
       if (configId == "any") {
-        return false;
+        // pick currently highlighted option
+        let $picked = $(`#searchResultsContainer .${SELECT_CLASS} a`);
+        // JS can't open a new tab (user needs to click a link)
+        if ($picked.length > 0) {
+          document.location.href = $picked.attr("href");
+        }
+        return;
       }
       document.location.href = `${GALLERY_HOME}search/?query=${configId}:${event.target.value}`;
     }
   });
 }
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
+
 function autoCompleteDisplayResults(queryVal, data) {
   // For showing the searchengine results in a panel
   let queryRegex = new RegExp(queryVal, "ig"); // ignore-case, global
 
-  // Also show 'instant' filtering of studies
-  let studiesHtml = getMatchingStudiesHtml(queryVal);
-
   // Search-engine results...
   let results = [...data.data];
+
+  // Also show 'instant' filtering of studies
+  // If there are no search-engine Image results, we highlight first Study
+  const highlightStudy = results.length === 0;
+  let studiesHtml = getMatchingStudiesHtml(queryVal, highlightStudy);
+
   results.sort(autocompleteSort(queryVal));
   let imagesHtml = results
-    .map((result) => {
+    .map((result, index) => {
       // TODO: define how to encode query in search URL to support AND/OR clauses
       let cell_tissue = SUPER_CATEGORY ? SUPER_CATEGORY.id + "/" : "";
       let params = new URLSearchParams();
@@ -85,14 +100,17 @@ function autoCompleteDisplayResults(queryVal, data) {
       params.append("value", result.Value);
       params.append("operator", "equals");
       let result_url = `${GALLERY_HOME}${cell_tissue}search/?${params.toString()}`;
-      return `<div>
+      return `<div ${index == 0 && `class="${SELECT_CLASS}"`}>
                   <a target="_blank"
                     href="${result_url}">
                     ${
                       result["Number of images"]
                     } Images <span style="color:#bbb">matched</span> <span class="black">${
         result.Key
-      }:</span> ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
+      }:</span> ${escapeRegExp(result.Value).replace(
+        queryRegex,
+        "<mark>$&</mark>"
+      )}
                   </a></div>
                   `;
     })
@@ -243,25 +261,19 @@ $("#maprQuery")
     .appendTo(ul);
 };
 
-function getMatchingStudiesHtml(text) {
+function getMatchingStudiesHtml(text, highlightStudy) {
   if (text.length == 0) {
     return "";
   }
 
   let results = model.filterStudiesAnyText(text);
   let html = results
-    .map((studyText) => {
+    .map((studyText, index) => {
       let [study, matchingStrings] = studyText;
 
-      let regexes = text
-        .trim()
-        .split(" ")
-        .map((token) => new RegExp(token, "i"));
+      let regex = new RegExp(text.trim(), "i");
       function markup(string) {
-        const marked = regexes.reduce(
-          (prev, regex) => prev.replace(regex, "<mark>$&</mark>"),
-          string
-        );
+        let marked = escapeRegExp(string).replace(regex, "<mark>$&</mark>");
         // truncate to include <mark> and text either side
         let start = marked.indexOf("<mark>");
         let end = marked.lastIndexOf("</mark>");
@@ -290,7 +302,9 @@ function getMatchingStudiesHtml(text) {
         .map((kvp) => `<b>${markup(kvp[0])}</b>: ${markup(kvp[1])}`)
         .join("<br>");
 
-      return `<a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
+      // wrapper class for highlight - <a> child of wrapper is chosen on Enter
+      return `<div class="${highlightStudy && index == 0 && SELECT_CLASS}">
+      <a target="_blank" href="${BASE_URL}webclient/?show=${study.objId}">
       <div class="matchingStudy">
         <div>
           Study ${idrId} <span class="imgCount">(${imgCount})</span>
@@ -298,7 +312,7 @@ function getMatchingStudiesHtml(text) {
         <div class="matchingString">
           ${matchingString}
         </div>
-      </div></a>`;
+      </div></a></div>`;
     })
     .join("\n");
 
