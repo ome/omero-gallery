@@ -14,6 +14,11 @@
 //   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // NB: SOURCE FILES are under /src. Compiled files are under /static/
 
+function escapeRegExp(string) {
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
+
 class StudiesModel {
   constructor() {
     this.base_url = BASE_URL;
@@ -380,12 +385,8 @@ class StudiesModel {
 
     // We don't split words to provide 'AND' functionality (since it's not supported for Images)
     // let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
-    let regexes = [new RegExp(text, "i")];
+    let regex = new RegExp(escapeRegExp(text), "i");
 
-    function matchSome(kvp) {
-      return regexes.some((re) => re.test(kvp[1]));
-    }
-    const re = new RegExp(text, "i");
     return this.studies
       .map((study) => {
         // we want ALL the search tokens to match at least somewhere in kvp or Description
@@ -394,13 +395,11 @@ class StudiesModel {
           keyValuePairs = [...study.mapValues];
         }
         keyValuePairs.push(["Description", study.StudyDescription]);
-        let match = regexes.every((re) =>
-          keyValuePairs.some((kvp) => re.test(kvp[1]))
-        );
+        let match = keyValuePairs.some((kvp) => regex.test(kvp[1]));
         if (!match) return;
 
         // return [study, "key: value string showing matching text"]
-        let matches = keyValuePairs.filter(matchSome);
+        let matches = keyValuePairs.filter((kvp) => regex.test(kvp[1]));
         return [study, matches];
       })
       .filter(Boolean);

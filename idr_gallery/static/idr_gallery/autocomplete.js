@@ -75,12 +75,13 @@ function enableEnterGoesToResultsPage() {
 }
 
 function escapeRegExp(string) {
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
 
 function autoCompleteDisplayResults(queryVal, data) {
   // For showing the searchengine results in a panel
-  let queryRegex = new RegExp(queryVal, "ig"); // ignore-case, global
+  let queryRegex = new RegExp(escapeRegExp(queryVal), "ig"); // ignore-case, global
 
   // Search-engine results...
   let results = [...data.data];
@@ -271,9 +272,9 @@ function getMatchingStudiesHtml(text, highlightStudy) {
     .map((studyText, index) => {
       let [study, matchingStrings] = studyText;
 
-      let regex = new RegExp(text.trim(), "i");
+      let regex = new RegExp(escapeRegExp(text.trim()), "i");
       function markup(string) {
-        let marked = escapeRegExp(string).replace(regex, "<mark>$&</mark>");
+        let marked = string.replace(regex, "<mark>$&</mark>");
         // truncate to include <mark> and text either side
         let start = marked.indexOf("<mark>");
         let end = marked.lastIndexOf("</mark>");
