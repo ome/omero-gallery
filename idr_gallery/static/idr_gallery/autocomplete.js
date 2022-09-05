@@ -168,9 +168,11 @@ $("#maprQuery")
       let configId = document.getElementById("maprConfig").value;
       // Don't handle empty queries
       if (request.term.trim().length == 0) {
+        response();
         return;
       }
 
+      // Old filter-by-Study-Attribute, e.g. "Name"
       if (configId.indexOf("mapr_") != 0 && configId != "any") {
         let matches;
         if (configId === "Name") {
@@ -184,7 +186,7 @@ $("#maprQuery")
         return;
       }
 
-      // Auto-complete to filter by mapr...
+      // Auto-complete to filter by mapr, or use search-engine for 'any' key...
       configId = configId.replace("mapr_", "");
       let case_sensitive = false;
 
@@ -233,7 +235,7 @@ $("#maprQuery")
         },
       });
     },
-    minLength: 0,
+    minLength: 1,
     open: function () {},
     close: function () {
       return false;
@@ -249,8 +251,9 @@ $("#maprQuery")
         // 'any' auto-complete actions handled elsewhere
         return false;
       }
-      // show temp message in case loading search page is slow
-      $(this).val("loading search results...");
+      // show spinner in case loading search page is slow
+      showSpinner();
+
       // Load search page...
       document.location.href = `${GALLERY_HOME}search/?query=${configId}:${ui.item.value}`;
       return false;
