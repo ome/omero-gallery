@@ -318,7 +318,7 @@ class OmeroSearchForm {
             },
           });
         },
-        minLength: 3,
+        minLength: 1,
         open: function () {},
         close: function () {
           // $(this).val('');
