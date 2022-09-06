@@ -270,15 +270,15 @@ class OmeroSearchForm {
         source: function (request, response) {
           // Need to know what Attribute is of adjacent <select>
           key = $(".keyFields", $orClause).val();
-          let url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/?value=${encodeURI(
-            request.term
-          )}&resource=image`;
+          let data = { value: request.term };
+          let url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/`;
           if (key != "Any") {
             url = url += `&key=${encodeURI(key)}`;
           }
           // showSpinner();
           $.ajax({
             dataType: "json",
+            data,
             type: "GET",
             url: url,
             success: function (data) {
