@@ -273,7 +273,7 @@ class OmeroSearchForm {
           let data = { value: request.term };
           let url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/`;
           if (key != "Any") {
-            url = url += `&key=${encodeURI(key)}`;
+            data.key=key;
           }
           // showSpinner();
           $.ajax({
