@@ -265,7 +265,7 @@ class OmeroSearchForm {
     let key;
     $this
       .autocomplete({
-        autoFocus: false,
+        autoFocus: true,
         delay: 1000,
         source: function (request, response) {
           // Need to know what Attribute is of adjacent <select>
