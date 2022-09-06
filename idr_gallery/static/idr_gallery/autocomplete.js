@@ -108,7 +108,7 @@ function autoCompleteDisplayResults(queryVal, data) {
                       result["Number of images"]
                     } Images <span style="color:#bbb">matched</span> <span class="black">${
         result.Key
-      }:</span> ${escapeRegExp(result.Value).replace(
+      }:</span> ${result.Value.replace(
         queryRegex,
         "<mark>$&</mark>"
       )}
