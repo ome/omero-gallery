@@ -380,7 +380,7 @@ class StudiesModel {
 
   filterStudiesAnyText(text) {
     // Search for studies with text in their keys, values, or description.
-    // Returns a list of matching studies. Each study is returned along with kvps that matches text
+    // Returns a list of matching studies. Each study is returned along with kvps that match text
     // [study, [{key: value}, {Description: this study is great}]]
 
     // We don't split words to provide 'AND' functionality (since it's not supported for Images)

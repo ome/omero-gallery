@@ -273,7 +273,7 @@ class OmeroSearchForm {
           let data = { value: request.term };
           let url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/`;
           if (key != "Any") {
-            data.key=key;
+            data.key = key;
           }
           // showSpinner();
           $.ajax({
@@ -648,7 +648,7 @@ class OmeroSearchForm {
     const bookmark = data.results.bookmark;
     let html = imageList
       .map((img) => {
-        // Each humbnail links to image viewer. Hover menu links to viewer (eye) and webclient (i)
+        // Each thumbnail links to image viewer. Hover menu links to viewer (eye) and webclient (i)
         return `<li class="studyThumb">
           <a target="_blank" href="${BASE_URL}webclient/img_detail/${img.id}">
             <img title="${img.name}" src="${BASE_URL}webclient/render_thumbnail/${img.id}/" loading="lazy" />

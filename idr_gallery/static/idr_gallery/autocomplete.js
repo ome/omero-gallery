@@ -108,10 +108,7 @@ function autoCompleteDisplayResults(queryVal, data) {
                       result["Number of images"]
                     } Images <span style="color:#bbb">matched</span> <span class="black">${
         result.Key
-      }:</span> ${result.Value.replace(
-        queryRegex,
-        "<mark>$&</mark>"
-      )}
+      }:</span> ${result.Value.replace(queryRegex, "<mark>$&</mark>")}
                   </a></div>
                   `;
     })
@@ -199,7 +196,7 @@ $("#maprQuery")
         url = `${BASE_URL}searchengine/api/v1/resources/image/searchvalues/`;
         requestData = { value: request.term };
       } else {
-        // Use mapr to find auto-complete matches
+        // Use mapr to find auto-complete matches TODO: to be removed
         url = `${BASE_URL}mapr/api/autocomplete/${configId}/`;
         requestData.value = case_sensitive
           ? request.term
