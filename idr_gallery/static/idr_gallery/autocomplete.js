@@ -5,7 +5,7 @@ let SELECT_CLASS = "ui-state-active";
 let KNOWN_KEYS = {};
 
 // immediately load keys from search engine. Used for autocomplete sorting
-url = `${BASE_URL}searchengine/api/v1/resources/all/keys/?mode=searchterms`;
+url = `${SEARCH_ENGINE_URL}resources/all/keys/?mode=searchterms`;
 $.getJSON(url, function (data) {
   KNOWN_KEYS = data;
 });
@@ -193,7 +193,7 @@ $("#maprQuery")
       let url;
       if (configId === "any") {
         // Use searchengine...
-        url = `${BASE_URL}searchengine/api/v1/resources/image/searchvalues/`;
+        url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/`;
         requestData = { value: request.term };
       } else {
         // Use mapr to find auto-complete matches TODO: to be removed

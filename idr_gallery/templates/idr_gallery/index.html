@@ -16,6 +16,7 @@
   const IDR_STUDIES_URL = "{{ IDR_STUDIES_URL }}";
   const CATEGORY_QUERIES = {{ category_queries| safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category | safe }} {% endif %};
+  const SEARCH_ENGINE_URL = `${BASE_URL}searchengine/api/v1/`;
 </script>
 
 <script src="https://unpkg.com/@popperjs/core@2"></script>
