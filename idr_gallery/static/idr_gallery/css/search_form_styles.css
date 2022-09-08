@@ -1,0 +1,190 @@
+
+/* Hide form elements to simplify */
+.simpleForm #addAND, .simpleForm .addOR, .simpleForm .form-check-label {
+  display: none;
+}
+
+.and_clause {
+    border: solid #aaa 1px;
+    padding: 5px;
+    border-radius: 5px;
+    margin: 5px;
+    position: relative;
+    margin-top: 25px;
+  }
+  .and_clause * {
+    box-sizing: border-box;
+  }
+  .and_clause:before {
+    position: absolute;
+    content: "AND";
+    top: -19px;
+    font-size: 14px;
+    left: 0;
+    margin-left: 5px;
+  }
+  .and_clause:first-child {
+    margin-top: 5px;
+  }
+  .and_clause:first-child:before {
+    display: none;
+  }
+  .or_clause {
+    display: flex;
+    align-items: flex-end;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .or_clause > div {
+    flex: 1;
+  }
+  .or_clause:first-child .or {
+    visibility: hidden;
+  }
+  .or_clause label{
+    display: none;
+  }
+  .or_clause:first-child label{
+    display: block;
+  }
+  .or_clause .no_expand,
+  .or_clause .search_condition {
+    flex: 0;
+  }
+  select.condition {
+    width: fit-content;
+  }
+  .and_clause select.keyFields,
+  .and_clause input.valueFields {
+    width: 100%;
+  }
+  
+  /* Results list */
+  .resultsList {
+    margin-left: 0;
+  }
+  ul.resultsList>li:nth-child(even) {
+    background-color: #f1f1f1;
+  }
+  ul.resultsList>li:nth-child(odd) {
+    background-color: #ffffff;
+  }
+  ul.resultsList>li:hover {
+    background-color: #f4f5f9;
+  }
+  .resultsHeader {
+    font-weight: bold;
+  }
+  .studyRow {
+    display: block;
+  }
+  .studyColumns {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    cursor: pointer;
+  }
+  .studyColumns div {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+  }
+  .studyColumns .caret {
+    flex: 0 0 50px;
+  }
+  .studyColumns .studyId {
+    flex: 0 0 150px;
+  }
+  .studyColumns .count {
+    flex: 0 0 100px;
+  }
+  .studyColumns .studyName {
+    flex: 1 0 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fa-caret-right {
+    font-size: 25px;
+    transition: transform 0.2s;
+    transform-origin: 3px center;
+  }
+
+  .expanded .fa-caret-right {
+    transform: rotate(90deg)
+  }
+
+  .studyImages {
+    visibility: hidden;
+    height: 0;
+    transition: height 0.5s;  /* don't work to max-height */
+    overflow-y: auto;
+  }
+  .studyImages .loadingMsg {
+    color: #adb4b7;
+    padding: 5px 8px;
+  }
+  .expanded .studyImages {
+    visibility: visible;
+    height: auto;
+    max-height: 300px;
+  }
+
+  /* Results thumbnails */
+  .studyImages ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .studyThumb {
+    display: inline-block;
+    width: 96px;
+    height: 96px;
+    margin: 1px;
+    padding: 0;
+    position: relative;
+    background-color: #ddd;
+  }
+  .imgLinks {
+    position: absolute;
+    background: transparent;
+    visibility: hidden;
+    display: block;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    top: 0;
+    right: 0;
+  }
+  .studyThumb:hover .imgLinks {
+    visibility: visible;
+  }
+  .imgLinks li {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.7);
+    margin: 2px;
+    border-radius: 10px;
+    width: 25px;
+    text-align: center;
+  }
+  .imgLinks a {
+    font-weight: normal;
+    color: rgb(40, 40, 40);
+    width: 100%;
+    display: inline-block;
+  }
+
+  .studyImagesSpinner {
+    text-align: center;
+    color: #ddd;
+    visibility: hidden;
+  }
+  .loading .studyImagesSpinner {
+    visibility: visible;
+  }
+  .studyImagesSpinner svg {
+    width: 50px;
+    margin: 10px;
+  }

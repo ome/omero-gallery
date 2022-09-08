@@ -122,7 +122,7 @@ function render() {
     }
     let objType = study.objId.split("-")[0]; // 'screen' or 'project'
     studyContainers[idrId][objType].push(study);
-    studyContainers[idrId]["description"] = model.getStudyDescription(study);
+    studyContainers[idrId]["description"] = study["StudyDescription"];
     let pubmed = model.getStudyValue(study, "PubMed ID");
     if (pubmed) {
       studyContainers[idrId]["pubmed_id"] = pubmed.split(" ")[1];
@@ -211,10 +211,14 @@ function render() {
 
 // --------- Render utils -----------
 
-function imageCount(idrId) {
+function imageCount(idrId, container) {
+  // idrId e.g. "idr0001". container optional e.g. "experimentA"
   if (!model.studyStats) return "";
 
   let containers = model.studyStats[idrId];
+  if (container) {
+    containers.filter((c) => c.Container == container);
+  }
   if (!containers) return "";
 
   let imgCount = containers

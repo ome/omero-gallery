@@ -14,6 +14,11 @@
 //   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // NB: SOURCE FILES are under /src. Compiled files are under /static/
 
+function escapeRegExp(string) {
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
+
 class StudiesModel {
   constructor() {
     this.base_url = BASE_URL;
@@ -296,6 +301,12 @@ class StudiesModel {
 
     // Load Map Annotations
     await this.loadStudiesMapAnnotations();
+
+    // Generate StudyDescription (removes 'Publication Title' etc from project.Description)
+    this.studies.forEach((study) => {
+      study["StudyTitle"] = this.getStudyTitle(study);
+      study["StudyDescription"] = this.getStudyDescription(study);
+    });
   }
 
   loadStudiesThumbnails() {
@@ -369,32 +380,26 @@ class StudiesModel {
 
   filterStudiesAnyText(text) {
     // Search for studies with text in their keys, values, or description.
-    // Returns a list of matching studies. Each study is returned along with text matches
-    // [study, ["key: value", "description"]]
-    let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
-    function matchSome(str) {
-      return regexes.some((re) => re.test(str));
-    }
-    const re = new RegExp(text, "i");
+    // Returns a list of matching studies. Each study is returned along with kvps that match text
+    // [study, [{key: value}, {Description: this study is great}]]
+
+    // We don't split words to provide 'AND' functionality (since it's not supported for Images)
+    // let regexes = text.split(" ").map((token) => new RegExp(token, "i"));
+    let regex = new RegExp(escapeRegExp(text), "i");
+
     return this.studies
       .map((study) => {
-        let mapValues = [];
+        // we want ALL the search tokens to match at least somewhere in kvp or Description
+        let keyValuePairs = [];
         if (study.mapValues) {
-          mapValues = study.mapValues.map((kv) => kv.join(": "));
+          keyValuePairs = [...study.mapValues];
         }
-        let studyStrings = mapValues.concat([study.Description]);
-
-        // we want ALL the search tokens to match at least somewhere in studyStrings
-        let match = regexes.every((re) =>
-          studyStrings.some((str) => re.test(str))
-        );
+        keyValuePairs.push(["Description", study.StudyDescription]);
+        let match = keyValuePairs.some((kvp) => regex.test(kvp[1]));
         if (!match) return;
 
         // return [study, "key: value string showing matching text"]
-        let matches = mapValues.filter(matchSome);
-        if (matchSome(study.Description)) {
-          matches.push(study.Description);
-        }
+        let matches = keyValuePairs.filter((kvp) => regex.test(kvp[1]));
         return [study, matches];
       })
       .filter(Boolean);

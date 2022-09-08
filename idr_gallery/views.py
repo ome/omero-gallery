@@ -31,9 +31,38 @@ def index(request, super_category=None, conn=None, **kwargs):
     user-configured queries.
     """
 
-    category_queries = settings.CATEGORY_QUERIES
     # template is different for '/search' page
-    context = {'template': kwargs.get('template', "idr_gallery/index.html")}
+    template = "idr_gallery/index.html"
+    if "search" in request.path:
+        query = request.GET.get("query")
+        # TEMP: support deprecated ?query=K:V
+        if query:
+            template = "idr_gallery/mapr_search.html"
+        else:
+            template = "idr_gallery/search.html"
+    context = {'template': template}
+    context["idr_images"] = IDR_IMAGES
+    if super_category == "cell":
+        context["idr_images"] = CELL_IMAGES
+    elif super_category == "tissue":
+        context["idr_images"] = TISSUE_IMAGES
+    category = settings.SUPER_CATEGORIES.get(super_category)
+    if category is not None:
+        category['id'] = super_category
+        context['super_category'] = json.dumps(category)
+        context['category'] = super_category
+    context["TABS"] = TABS
+    context["VERSION"] = VERSION
+
+    settings_ctx = get_settings_as_context()
+    context = {**context, **settings_ctx}
+
+    return context
+
+
+def get_settings_as_context():
+    context = {}
+    category_queries = settings.CATEGORY_QUERIES
     context['favicon'] = settings.FAVICON
     context['gallery_title'] = settings.GALLERY_TITLE
     context['top_right_links'] = settings.TOP_RIGHT_LINKS
@@ -52,11 +81,6 @@ def index(request, super_category=None, conn=None, **kwargs):
     context['filter_mapr_keys'] = json.dumps(
         settings.FILTER_MAPR_KEYS)
     context['super_categories'] = settings.SUPER_CATEGORIES
-    category = settings.SUPER_CATEGORIES.get(super_category)
-    if category is not None:
-        category['id'] = super_category
-        context['super_category'] = json.dumps(category)
-        context['category'] = super_category
     base_url = reverse('index')
     if settings.BASE_URL is not None:
         base_url = settings.BASE_URL
@@ -65,13 +89,6 @@ def index(request, super_category=None, conn=None, **kwargs):
     if settings.GALLERY_INDEX is not None:
         context['gallery_index'] = settings.GALLERY_INDEX
     context['category_queries'] = json.dumps(category_queries)
-    context["idr_images"] = IDR_IMAGES
-    if super_category == "cell":
-        context["idr_images"] = CELL_IMAGES
-    elif super_category == "tissue":
-        context["idr_images"] = TISSUE_IMAGES
-    context["TABS"] = TABS
-    context["VERSION"] = VERSION
     return context
 
 

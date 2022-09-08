@@ -41,54 +41,56 @@
   .filterMessage strong {
     color: #1976d2;
   }
+  #results td, #results th {
+    text-align: center;
+  }
+  #filterCount {
+    clear: right;
+  }
+
+  /* 'Search' button hidden for now */
+  button[type='submit'] {
+    display: none;
+    background: #1976d2;
+    float: right;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 5px;
+  }
 </style>
 
-<hr class="whitespace" style="height: 0">
+<link rel="stylesheet" href="{% static 'idr_gallery/css/search_form_styles.css' %}?_={{VERSION}}" />
 
-<div class="row column text-center">
+<div class="row column">
+  <!-- Home button - bit painful to handle /cell/search etc -->
+  <a  {% if super_category %}
+        {% for c, data in super_categories.items %}
+          {% if c == category %} href="{% url 'gallery_super_category' super_category=c %}" {% endif %}
+        {% endfor %}
+      {% else %}
+        href="{% url 'idr_gallery_index' %}"
+      {% endif %}
+        style="background: #263238; border-radius: 10px; color: #eceff1; padding: 10px; margin:10px 5px 5px; display: inline-block; font-weight: normal;">
+    <i class="fa fa-caret-left"></i> Home
+  </a>
+</div>
+
+<div class="row column">
 
 <div class="small-12 small-centered medium-12 medium-centered columns">
 
-    <div id='search-form' class="row horizontal" style='display:none'>
+    <div class="row horizontal">
 
-      <div class="small-12 medium-12 large-2 columns">
-        <h2 class="search-by">Search by:</h2>
-      </div>
-      <div style="padding:0" class="small-12 medium-4 large-3 columns">
-        <select id="maprConfig">
-          <optgroup id="studyKeys" style='display:none' label="Study Attributes">
-            {% if filter_keys %}
-            <optgroup id="studyKeys" label="Study Attributes">
-              {% for key in filter_keys %}
-              <option value="{% if key.value %}{{ key.value }}{% else %}{{ key }}{% endif %}">
-                {% if key.label %}{{ key.label }}{% else %}{{ key }}{% endif %}
-              </option>`
-              {% endfor %}
-            </optgroup>
-            {% endif %}
-          <optgroup id="maprKeys" style='display:none' label="Image Attributes">
-          </optgroup>
-        </select>
-      </div>
-      <div style="position: relative" class="small-12 medium-8 large-7 columns">
-        <input id="maprQuery" type="text" placeholder="Type to filter values..." style="width: calc(100% - 40px)">
-        <svg id="spinner" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>
-        <a class="button"
-          title="Clear filter"
-          style="position: absolute; top: 0; right: 0; color: #bbb; border-radius: 15px; background: white; border: solid #bbb 1px;"
-          {% if category %}
-            href="{% url 'gallery_super_category' super_category=category %}"
-          {% else %}
-            href="{% url 'idr_gallery_index' %}"
-          {% endif %}
-          >X</a>
-      </div>
+      <form id="search_form">
+      </form>
 
-      <div id="filterCount" class="row horizontal">
+      <div id="filterCount" class="row horizontal text-center">
+        <!-- results message here -->
       </div>
     </div>
 
-    <div id="filterSpinner" class="row horizontal">
+    <div id="filterSpinner" class="row horizontal text-center">
       <div id="filterSpinnerMessage">
         <!-- Show a waiting... message here -->
       </div>
@@ -96,8 +98,9 @@
     </div>
 
     <div id="studies" class="row horizontal">
-      Loading Studies...
     </div>
+
+    <ul id="results" class="resultsList"></ul>
 </div>
 
 </div>
@@ -117,9 +120,69 @@
   var SUPER_CATEGORIES = {{ SUPER_CATEGORIES|safe }};
   var SUPER_CATEGORY {% if super_category %} = {{ super_category|safe }} {% endif %};
   var STATIC_DIR = "{% static 'gallery/' %}";
+  var SEARCH_ENGINE_URL = `${BASE_URL}searchengine/api/v1/`;
 </script>
 
-<script src="{% static 'idr_gallery/search.js' %}?_={{VERSION}}"></script>
-<script src="{% static 'idr_gallery/autocomplete.js' %}?_={{VERSION}}"></script>
+<script src="{% static 'idr_gallery/omero_search_form.js' %}?_={{VERSION}}"></script>
+
+<script>
+  const searchForm = new OmeroSearchForm("search_form", SEARCH_ENGINE_URL, "results");
+
+  // custom handling of search results, not handled by OmeroSearchForm
+  searchForm.on("results", function(event, data) {
+    console.log("on.results", event, data);
+    let studiesList = data.results.results;
+    let imgCount = studiesList.reduce((prev, study) => prev += study["image count"], 0);
+    let studies = studiesList.length === 1 ? 'study' : 'studies';
+    let searchQuery = searchForm.getHumanReadableQuery();
+    let msg = `<p class="filterMessage">
+      Search ${searchQuery} found <strong>${imgCount}</strong> images in <strong>${studiesList.length}</strong> ${studies}
+    </p>`;
+    document.getElementById("filterCount").innerHTML = msg;
+  });
+
+  searchForm.on("form_updated", function(event, data) {
+    // Update URL, adding to browser's history
+    let search_query = searchForm.getCurrentQuery();
+    // for now, we only support the first AND clause...
+    const clause = search_query.query_details.and_filters[0];
+    let params = new URLSearchParams();
+    params.append("key", clause.name);
+    params.append("value", clause.value);
+    params.append("operator", clause.operator);
+    history.pushState(null, "", "?" + params.toString());
+  });
+
+
+  function searchFromUrl() {
+    const searchParams = new URLSearchParams(window.location.search);
+    let key = searchParams.get("key");
+    let value = searchParams.get("value");
+    if (key && value) {
+      let operator = searchParams.get("operator", "equals");
+      searchForm.setKeyValueQuery({key, value, operator});
+      searchForm.submitSearch();
+    }
+    // 'hidden' support for ?advanced=true to show AND/OR buttons
+    let advanced = searchParams.get("advanced");
+    if (advanced) {
+      searchForm.setAdvanced(true);
+    } else {
+      searchForm.setAdvanced(false);
+    }
+  }
+
+
+  searchForm.on("ready", function(){
+    searchFromUrl();
+  });
+
+
+  window.onpopstate = (event) => {
+    console.log(`onpopstate location: ${document.location}, state: ${JSON.stringify(event.state)}`)
+    searchFromUrl();
+  }
+
+</script>
 
 {% endblock %}
