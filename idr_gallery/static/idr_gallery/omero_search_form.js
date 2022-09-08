@@ -222,12 +222,14 @@ class OmeroSearchForm {
     // Adds <option> to '.keyFields' for each item in pre-cached resources_data
     let $field = $(".keyFields", $orClause);
     let anyOption = `<option value="Any">Any</option>`;
-    // only show 'image' attributes
-    let imgKeys = this.resources_data.image;
-    imgKeys.sort();
-    let html = imgKeys
-      .map((value) => `<option value="${value}">${value}</option>`)
-      .join("\n");
+    // Show all
+    let html = Object.entries(this.resources_data).map((resourceValues) => {
+      let resource = resourceValues[0];
+      let values = resourceValues[1];
+      values.sort();
+      const options = values.map((value) => `<option value="${value}">${value}</option>`).join("\n");
+      return `<optgroup label="${resource}">${options}</optgroup>`
+    }).join("\n");
     $field.html(anyOption + html);
   }
 
@@ -235,7 +237,7 @@ class OmeroSearchForm {
     // returns a sort function based on the current query Value
     // NB: same logic in autocompleteSort() function used on front page
     queryVal = queryVal.toLowerCase();
-    const KNOWN_KEYS = this.resources_data;
+    const KNOWN_KEYS = [].concat(...Object.values(this.resources_data));
     return (a, b) => {
       // if exact match, show first
       let aMatch = queryVal == a.Value.toLowerCase();
@@ -244,8 +246,8 @@ class OmeroSearchForm {
         return aMatch ? -1 : 1;
       }
       // show all known Keys before unknown
-      let aKnown = KNOWN_KEYS.image.includes(a.Key);
-      let bKnown = KNOWN_KEYS.image.includes(b.Key);
+      let aKnown = KNOWN_KEYS.includes(a.Key);
+      let bKnown = KNOWN_KEYS.includes(b.Key);
       if (aKnown != bKnown) {
         return aKnown ? -1 : 1;
       }
@@ -269,7 +271,7 @@ class OmeroSearchForm {
           // Need to know what Attribute is of adjacent <select>
           key = $(".keyFields", $orClause).val();
           let data = { value: request.term };
-          let url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/`;
+          let url = `${SEARCH_ENGINE_URL}resources/all/searchvalues/`;
           if (key != "Any") {
             data.key = key;
           }
@@ -282,18 +284,24 @@ class OmeroSearchForm {
             success: function (data) {
               // hideSpinner();
               let results = [{ label: "No results found.", value: -1 }];
-              if (data.data.length > 0) {
+              // combine 'screen', 'project' and 'image' results - can ignore 'well', 'plate' etc.
+              let screenHits = data.screen.data.map(obj => {return {...obj, type: 'screen'}});
+              let projectHits = data.project.data.map(obj => {return {...obj, type: 'project'}});
+              let imageHits = data.image.data.map(obj => {return {...obj, type: 'image'}});
+              let data_results = [].concat(screenHits, projectHits, imageHits);
+              if (data_results.length > 0) {
                 // only try to show top 100 items...
                 let max_shown = 100;
-                let result_count = data.data.length;
-                let data_results = data.data;
+                let result_count = data_results.length;
                 // sort to put exact and 'known' matches first
                 data_results.sort(self.autocompleteSort(request.term));
                 results = data_results.slice(0, 100).map((result) => {
                   let showKey = key === "Any" ? `(${result.Key})` : "";
+                  let type = result.type;
+                  let count = result[`Number of ${type}s`]
                   return {
                     key: result.Key,
-                    label: `<b>${result.Value}</b> ${showKey} <span style="color:#bbb">${result["Number of images"]} images</span>`,
+                    label: `<b>${result.Value}</b> ${showKey} <span style="color:#bbb">${count} ${type}${count != 1 ? 's' : ''}</span>`,
                     value: `${result.Value}`,
                   };
                 });
