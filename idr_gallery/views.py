@@ -1,7 +1,10 @@
+
+from django.http import HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
 import json
 import logging
 import base64
+import urllib
 
 import omero
 from omero.rtypes import wrap, rlong
@@ -19,8 +22,24 @@ from .data.background_images import IDR_IMAGES, TISSUE_IMAGES, CELL_IMAGES
 from .data.tabs import TABS
 from .version import VERSION
 
+try:
+    from omero_mapr import mapr_settings
+except ImportError:
+    mapr_settings = None
+
 logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
+
+
+def redirect_with_params(viewname, **kwargs):
+    """
+    Redirect a view with params
+    """
+    rev = reverse(viewname)
+    params = urllib.parse.urlencode(kwargs)
+    if params:
+        rev = '{}?{}'.format(rev, params)
+    return HttpResponseRedirect(rev)
 
 
 @login_required()
@@ -35,8 +54,24 @@ def index(request, super_category=None, conn=None, **kwargs):
     template = "idr_gallery/index.html"
     if "search" in request.path:
         query = request.GET.get("query")
-        # TEMP: support deprecated ?query=K:V
+        # Handle old URLs e.g. ?query=mapr_gene:PAX7
         if query:
+            # if 'mapr' search, redirect to searchengine page
+            if query.startswith("mapr_"):
+                key_val = query.split(":")
+                mapr_key = key_val[0].replace("mapr_", "")
+                if mapr_settings and mapr_key in mapr_settings.MAPR_CONFIG:
+                    if len(key_val) > 0:
+                        # Key could be e.g. 'Gene Symbol' or 'Gene Identifier'
+                        # so we pick the default -> 'Gene Symbol'
+                        mapr_config = mapr_settings.MAPR_CONFIG
+                        mapann_key = mapr_config[mapr_key]["default"][0]
+                        # /search/?key=Gene+Symbol&value=pax6&operator=equals
+                        return redirect_with_params('idr_gallery_search',
+                                                    key=mapann_key,
+                                                    value=key_val[1],
+                                                    operator="equals")
+            # otherwise show filter studies page
             template = "idr_gallery/mapr_search.html"
         else:
             template = "idr_gallery/search.html"
