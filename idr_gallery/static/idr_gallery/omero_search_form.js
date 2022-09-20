@@ -597,7 +597,6 @@ class OmeroSearchForm {
 
   loadStudyImages($studyRow) {
     const studyName = $studyRow.data("name");
-    const bookmark = $studyRow.data("bookmark");
     if ($studyRow.hasClass("loading") || $studyRow.data("complete")) {
       return;
     }
@@ -612,9 +611,10 @@ class OmeroSearchForm {
       operator: "equals",
       resource: "project", // NB: this works for screens too!
     });
-    // if bookmark exists, we are loading next pages...
-    if (bookmark) {
-      query.bookmark = bookmark;
+    // if pagination data object exists, we are loading next pages...
+    const pagination = $studyRow.data("pagination");
+    if (pagination) {
+      query.pagination = pagination;
     }
     $studyRow.addClass("loading", true); // shows spinner
     $.ajax({
@@ -628,9 +628,10 @@ class OmeroSearchForm {
           alert(data["Error"]);
           return;
         }
-        let { page, total_pages, bookmark } = data.results;
-        if (bookmark && page < total_pages) {
-          $studyRow.data("bookmark", data.results.bookmark);
+        let { total_pages, pagination } = data.results;
+        let page = data.results.pagination.current_page;
+        if (pagination && page < total_pages) {
+          $studyRow.data("pagination", pagination);
         } else {
           $studyRow.data("complete", true);
         }
