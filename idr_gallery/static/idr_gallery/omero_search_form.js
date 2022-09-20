@@ -11,9 +11,7 @@ const AND_CLAUSE_HTML = `
         <label for="condition">Operator</label>
         <select id="condition" class="form-control condition">
           <option value="equals">equals</option>
-          <option value="not_equals">not equals</option>
           <option value="contains">contains</option>
-          <option value="not_contains">not contains</option>
         </select>
     </div>
     <div class="search_value" style="position: relative">
