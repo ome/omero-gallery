@@ -1,3 +1,8 @@
+3.7.0 (September 2022)
+----------------------
+
+- Support searching with `omero_search_engine` backend [#8](https://github.com/IDR/idr-gallery/pull/8), with updates in [#16](https://github.com/IDR/idr-gallery/pull/16) and [#18](https://github.com/IDR/idr-gallery/pull/18)
+
 3.6.2 (August 2022)
 -------------------
 
