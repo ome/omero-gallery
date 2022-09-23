@@ -216,10 +216,10 @@ function imageCount(idrId, container) {
   if (!model.studyStats) return "";
 
   let containers = model.studyStats[idrId];
+  if (!containers) return "";
   if (container) {
     containers.filter((c) => c.Container == container);
   }
-  if (!containers) return "";
 
   let imgCount = containers
     .map((row) => row["5D Images"])
