@@ -1,3 +1,9 @@
+
+3.7.1 (September 2022)
+----------------------
+
+- Fix handling of no studies.tsv containers for studyId [#19](https://github.com/IDR/idr-gallery/pull/19)
+
 3.7.0 (September 2022)
 ----------------------
 
