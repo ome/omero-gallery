@@ -150,6 +150,7 @@
     params.append("key", clause.name);
     params.append("value", clause.value);
     params.append("operator", clause.operator);
+    params.append("resource", clause.resource);
     history.pushState(null, "", "?" + params.toString());
   });
 
@@ -158,9 +159,10 @@
     const searchParams = new URLSearchParams(window.location.search);
     let key = searchParams.get("key");
     let value = searchParams.get("value");
+    let resource = searchParams.get("resource") || "image";
     if (key && value) {
-      let operator = searchParams.get("operator", "equals");
-      searchForm.setKeyValueQuery({key, value, operator});
+      let operator = searchParams.get("operator") || "equals";
+      searchForm.setKeyValueQuery({key, value, operator, resource});
       searchForm.submitSearch();
     }
     // 'hidden' support for ?advanced=true to show AND/OR buttons

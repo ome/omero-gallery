@@ -303,6 +303,7 @@ class OmeroSearchForm {
                     key: result.Key,
                     label: `<b>${result.Value}</b> ${showKey} <span style="color:#bbb">${count} ${type}${count != 1 ? 's' : ''}</span>`,
                     value: `${result.Value}`,
+                    dtype: type
                   };
                 });
                 if (result_count > max_shown) {
@@ -338,7 +339,7 @@ class OmeroSearchForm {
           }
           if (key == "Any") {
             // Use 'key' to update KeyField
-            self.setKeyField($orClause, ui.item.key);
+            self.setKeyField($orClause, ui.item.key, ui.item.dtype);
           }
           // We perform search with chosen value...
           setTimeout(() => {
@@ -355,11 +356,14 @@ class OmeroSearchForm {
     };
   }
 
-  setKeyField($parent, key) {
+  setKeyField($parent, key, resource) {
     // Adds the Key as an <option> to the <select> if not there;
     let $select = $(".keyFields", $parent);
     if ($(`option[value='${key}']`, $select).length == 0) {
-      $select.append($(`<option value="${key}">${key}</option>`));
+      // update this.resources_data and re-render <select>
+      this.resources_data[resource].push(key);
+      this.setKeyValues($parent);
+      $select = $(".keyFields", $parent);
     }
     $select.val(key);
   }
@@ -406,7 +410,7 @@ class OmeroSearchForm {
   }
 
   addAnd(query) {
-    // query is e.g. {key: "Antibody", value: "foo", operator?: "equals"}
+    // query is e.g. {key: "Antibody", value: "foo", operator?: "equals", resource: "image"}
     let $andClause = $(AND_CLAUSE_HTML);
     $(".clauses", this.$form).append($andClause);
 
@@ -416,7 +420,7 @@ class OmeroSearchForm {
 
     if (query?.key) {
       // add <option> if not there
-      this.setKeyField($andClause, query.key);
+      this.setKeyField($andClause, query.key, query.resource);
     }
     if (query?.value) {
       $(".valueFields", $andClause).val(query.value);
