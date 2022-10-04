@@ -55,30 +55,13 @@ def index(request, super_category=None, conn=None, **kwargs):
         if query:
             # if 'mapr' search, redirect to searchengine page
             if query.startswith("mapr_"):
-                key_val = query.split(":")
-                mapr_key = key_val[0].replace("mapr_", "")
-                mapr_value = key_val[1]
-                if mapr_settings and mapr_key in mapr_settings.MAPR_CONFIG:
-                    if len(key_val) > 0:
-                        # Key could be e.g. 'Gene Symbol' or 'Gene Identifier'
-                        mapr_config = mapr_settings.MAPR_CONFIG
-                        all_keys = mapr_config[mapr_key]["all"]
-                        default_key = mapr_config[mapr_key]["default"][0]
-                        # if multiple keys e.g. 'Gene Symbol' or 'Gene Identifier'
-                        if len(all _keys) > 1:
-                            # need to check which Key matches the Value...
-                            matching_keys = search_engine_keys(mapr_value)
-                            all_keys = [key for key in all_keys if key in matching_keys]
-                        if len(all_keys) > 1 and default_key in all_keys:
-                            mapann_key = default_key
-                        else:
-                            mapann_key = all_keys[0]
-
-                        # /search/?key=Gene+Symbol&value=pax6&operator=equals
-                        return redirect_with_params('idr_gallery_search',
-                                                    key=mapann_key,
-                                                    value=key_val[1],
-                                                    operator="equals")
+                keyval = find_mapr_key_value(query)
+                if keyval is not None:
+                    # /search/?key=Gene+Symbol&value=pax6&operator=equals
+                    return redirect_with_params('idr_gallery_search',
+                                                key=keyval[0],
+                                                value=keyval[1],
+                                                operator="equals")
             # otherwise show filter studies page
             template = "idr_gallery/mapr_search.html"
         else:
@@ -102,11 +85,36 @@ def index(request, super_category=None, conn=None, **kwargs):
 
     return context
 
+
+def find_mapr_key_value(query):
+    key_val = query.split(":")
+    mapr_key = key_val[0].replace("mapr_", "")
+    mapr_value = key_val[1]
+    if mapr_settings and mapr_key in mapr_settings.MAPR_CONFIG:
+        if len(key_val) > 0:
+            # Key could be e.g. 'Gene Symbol' or 'Gene Identifier'
+            mapr_config = mapr_settings.MAPR_CONFIG
+            all_keys = mapr_config[mapr_key]["all"]
+            default_key = mapr_config[mapr_key]["default"][0]
+            # if multiple keys e.g. 'Gene Symbol' or 'Gene Identifier'
+            if len(all_keys) > 1:
+                # need to check which Key matches the Value...
+                matching_keys = search_engine_keys(mapr_value)
+                all_keys = [key for key in all_keys if key in matching_keys]
+            if len(all_keys) > 1 and default_key in all_keys:
+                mapann_key = default_key
+            else:
+                mapann_key = all_keys[0]
+        return mapann_key, mapr_value
+    return None
+
+
 def search_engine_keys(value):
     # find keys that are match the given value
     base_url = get_settings_as_context()["base_url"]
-    search_url = f"{base_url}searchengine/api/v1/resources/image/searchvalues/?value={value}"
-    json_data = requests.get(search_url).json().get("data", [])
+    url = f"{base_url}searchengine/api/v1/resources/image/searchvalues/"
+    url += f"?value={value}"
+    json_data = requests.get(url).json().get("data", [])
     keys = [result.get("Key") for result in json_data]
     return keys
 
