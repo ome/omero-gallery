@@ -1,7 +1,10 @@
+
+from django.http import HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
 import json
 import logging
 import base64
+import urllib
 
 import omero
 from omero.rtypes import wrap, rlong
@@ -9,18 +12,31 @@ from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.api.decorators import login_required as api_login_required
 from omeroweb.api.api_settings import API_MAX_LIMIT
 
-try:
-    from omero_marshal import get_encoder
-except ImportError:
-    get_encoder = None
+import requests
 
 from . import gallery_settings as settings
 from .data.background_images import IDR_IMAGES, TISSUE_IMAGES, CELL_IMAGES
 from .data.tabs import TABS
 from .version import VERSION
 
+try:
+    from omero_mapr import mapr_settings
+except ImportError:
+    mapr_settings = None
+
 logger = logging.getLogger(__name__)
 MAX_LIMIT = max(1, API_MAX_LIMIT)
+
+
+def redirect_with_params(viewname, **kwargs):
+    """
+    Redirect a view with params
+    """
+    rev = reverse(viewname)
+    params = urllib.parse.urlencode(kwargs)
+    if params:
+        rev = '{}?{}'.format(rev, params)
+    return HttpResponseRedirect(rev)
 
 
 @login_required()
@@ -35,8 +51,18 @@ def index(request, super_category=None, conn=None, **kwargs):
     template = "idr_gallery/index.html"
     if "search" in request.path:
         query = request.GET.get("query")
-        # TEMP: support deprecated ?query=K:V
+        # Handle old URLs e.g. ?query=mapr_gene:PAX7
         if query:
+            # if 'mapr' search, redirect to searchengine page
+            if query.startswith("mapr_"):
+                keyval = find_mapr_key_value(request, query)
+                if keyval is not None:
+                    # /search/?key=Gene+Symbol&value=pax6&operator=equals
+                    return redirect_with_params('idr_gallery_search',
+                                                key=keyval[0],
+                                                value=keyval[1],
+                                                operator="equals")
+            # otherwise show filter studies page
             template = "idr_gallery/mapr_search.html"
         else:
             template = "idr_gallery/search.html"
@@ -58,6 +84,42 @@ def index(request, super_category=None, conn=None, **kwargs):
     context = {**context, **settings_ctx}
 
     return context
+
+
+def find_mapr_key_value(request, query):
+    key_val = query.split(":")
+    mapr_key = key_val[0].replace("mapr_", "")
+    mapr_value = key_val[1]
+    if mapr_settings and mapr_key in mapr_settings.MAPR_CONFIG:
+        if len(key_val) > 0:
+            # Key could be e.g. 'Gene Symbol' or 'Gene Identifier'
+            mapr_config = mapr_settings.MAPR_CONFIG
+            all_keys = mapr_config[mapr_key]["all"]
+            default_key = mapr_config[mapr_key]["default"][0]
+            # if multiple keys e.g. 'Gene Symbol' or 'Gene Identifier'
+            if len(all_keys) > 1:
+                # need to check which Key matches the Value...
+                matching_keys = search_engine_keys(request, mapr_value)
+                all_keys = [key for key in all_keys if key in matching_keys]
+            if len(all_keys) > 1 and default_key in all_keys:
+                mapann_key = default_key
+            else:
+                mapann_key = all_keys[0]
+        return mapann_key, mapr_value
+    return None
+
+
+def search_engine_keys(request, value):
+    # find keys that are match the given value
+    if settings.BASE_URL is not None:
+        base_url = settings.BASE_URL
+    else:
+        base_url = request.build_absolute_uri(reverse('index'))
+    url = f"{base_url}searchengine/api/v1/resources/image/searchvalues/"
+    url += f"?value={value}"
+    json_data = requests.get(url).json().get("data", [])
+    keys = [result.get("Key") for result in json_data]
+    return keys
 
 
 def get_settings_as_context():
