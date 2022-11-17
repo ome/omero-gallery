@@ -1,4 +1,9 @@
 
+3.8.0 (October 2022)
+--------------------
+
+- Redirect mapr search URLs to search-engine results page [#15](https://github.com/IDR/idr-gallery/pull/15)
+
 3.7.1 (September 2022)
 ----------------------
 
