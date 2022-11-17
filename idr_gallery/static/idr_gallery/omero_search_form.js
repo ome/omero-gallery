@@ -223,13 +223,17 @@ class OmeroSearchForm {
     let $field = $(".keyFields", $orClause);
     let anyOption = `<option value="Any">Any</option>`;
     // Show all
-    let html = Object.entries(this.resources_data).map((resourceValues) => {
-      let resource = resourceValues[0];
-      let values = resourceValues[1];
-      values.sort();
-      const options = values.map((value) => `<option value="${value}">${value}</option>`).join("\n");
-      return `<optgroup label="${resource}">${options}</optgroup>`
-    }).join("\n");
+    let html = Object.entries(this.resources_data)
+      .map((resourceValues) => {
+        let resource = resourceValues[0];
+        let values = resourceValues[1];
+        values.sort();
+        const options = values
+          .map((value) => `<option value="${value}">${value}</option>`)
+          .join("\n");
+        return `<optgroup label="${resource}">${options}</optgroup>`;
+      })
+      .join("\n");
     $field.html(anyOption + html);
   }
 
@@ -285,9 +289,15 @@ class OmeroSearchForm {
               // hideSpinner();
               let results = [{ label: "No results found.", value: -1 }];
               // combine 'screen', 'project' and 'image' results - can ignore 'well', 'plate' etc.
-              let screenHits = data.screen.data.map(obj => {return {...obj, type: 'screen'}});
-              let projectHits = data.project.data.map(obj => {return {...obj, type: 'project'}});
-              let imageHits = data.image.data.map(obj => {return {...obj, type: 'image'}});
+              let screenHits = data.screen.data.map((obj) => {
+                return { ...obj, type: "screen" };
+              });
+              let projectHits = data.project.data.map((obj) => {
+                return { ...obj, type: "project" };
+              });
+              let imageHits = data.image.data.map((obj) => {
+                return { ...obj, type: "image" };
+              });
               let data_results = [].concat(screenHits, projectHits, imageHits);
               if (data_results.length > 0) {
                 // only try to show top 100 items...
@@ -298,12 +308,16 @@ class OmeroSearchForm {
                 results = data_results.slice(0, 100).map((result) => {
                   let showKey = key === "Any" ? `(${result.Key})` : "";
                   let type = result.type;
-                  let count = result[`Number of ${type}s`]
+                  let count = result[`Number of ${type}s`];
                   return {
                     key: result.Key,
-                    label: `<b>${result.Value}</b> ${showKey} <span style="color:#bbb">${count} ${type}${count != 1 ? 's' : ''}</span>`,
+                    label: `<b>${
+                      result.Value
+                    }</b> ${showKey} <span style="color:#bbb">${count} ${type}${
+                      count != 1 ? "s" : ""
+                    }</span>`,
                     value: `${result.Value}`,
-                    dtype: type
+                    dtype: type,
                   };
                 });
                 if (result_count > max_shown) {
