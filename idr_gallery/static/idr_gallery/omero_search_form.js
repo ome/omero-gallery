@@ -59,6 +59,45 @@ const FILTER_ICON_SVG = `
 	C58.1,59.1,81.058,61.387,105.34,61.387c24.283,0,47.24-2.287,65.034-6.449L119.631,116.486z"/>
 </svg>`;
 
+// projects or screens might match Name or Description.
+function mapNames(rsp, type, searchTerm) {
+  // rsp is a list of [ {id, name, description}, ]
+  searchTerm = searchTerm.toLowerCase();
+  return rsp.map((resultObj) => {
+    let name = resultObj.name;
+    let desc = resultObj.description;
+    let attribute = name.toLowerCase().includes(searchTerm)
+      ? "Name (IDR number)"
+      : "Description";
+    let value = name;
+    if (attribute == "Description") {
+      // truncate Description around matching word...
+      let start = desc.toLowerCase().indexOf(searchTerm);
+      let targetLength = 80;
+      let padding = (targetLength - searchTerm.length) / 2;
+      if (start - padding < 0) {
+        start = 0;
+      } else {
+        start = start - padding;
+      }
+      let truncated = desc.substr(start, targetLength);
+      if (start > 0) {
+        truncated = "..." + truncated;
+      }
+      if (start + targetLength < desc.length) {
+        truncated = truncated + "...";
+      }
+      value = truncated;
+    }
+    return {
+      key: attribute,
+      label: `<b>${value}</b> (${attribute}) <span style="color:#bbb">1 ${type}</span>`,
+      value,
+      dtype: type,
+    };
+  });
+}
+
 const SPINNER_SVG = `<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>`;
 class OmeroSearchForm {
   constructor(formId, SEARCH_ENGINE_URL, resultsId) {
@@ -271,73 +310,95 @@ class OmeroSearchForm {
       .autocomplete({
         autoFocus: true,
         delay: 1000,
-        source: function (request, response) {
+        source: async function (request, response) {
           // Need to know what Attribute is of adjacent <select>
           key = $(".keyFields", $orClause).val();
-          let data = { value: request.term };
-          let url = `${SEARCH_ENGINE_URL}resources/all/searchvalues/`;
+          let params = { value: request.term };
           if (key != "Any") {
-            data.key = key;
+            params.key = key;
           }
-          // showSpinner();
-          $.ajax({
-            dataType: "json",
-            data,
-            type: "GET",
-            url: url,
-            success: function (data) {
-              // hideSpinner();
-              let results = [{ label: "No results found.", value: -1 }];
-              // combine 'screen', 'project' and 'image' results - can ignore 'well', 'plate' etc.
-              let screenHits = data.screen.data.map((obj) => {
-                return { ...obj, type: "screen" };
-              });
-              let projectHits = data.project.data.map((obj) => {
-                return { ...obj, type: "project" };
-              });
-              let imageHits = data.image.data.map((obj) => {
-                return { ...obj, type: "image" };
-              });
-              let data_results = [].concat(screenHits, projectHits, imageHits);
-              if (data_results.length > 0) {
-                // only try to show top 100 items...
-                let max_shown = 100;
-                let result_count = data_results.length;
-                // sort to put exact and 'known' matches first
-                data_results.sort(self.autocompleteSort(request.term));
-                results = data_results.slice(0, 100).map((result) => {
-                  let showKey = key === "Any" ? `(${result.Key})` : "";
-                  let type = result.type;
-                  let count = result[`Number of ${type}s`];
-                  return {
-                    key: result.Key,
-                    label: `<b>${
-                      result.Value
-                    }</b> ${showKey} <span style="color:#bbb">${count} ${type}${
-                      count != 1 ? "s" : ""
-                    }</span>`,
-                    value: `${result.Value}`,
-                    dtype: type,
-                  };
-                });
-                if (result_count > max_shown) {
-                  results.push({
-                    key: -1,
-                    label: `...and ${
-                      result_count - max_shown
-                    } more matches not shown`,
-                    value: -1,
-                  });
-                }
-              }
-              response(results);
-            },
-            error: function (data) {
-              console.log("ERROR", data);
-              // hideSpinner();
-              response([{ label: "Failed to load", value: -1 }]);
-            },
+          params = new URLSearchParams(params).toString();
+          console.log("params", params);
+          let kvp_url =
+            `${SEARCH_ENGINE_URL}resources/all/searchvalues/?` + params;
+          let urls = [kvp_url];
+
+          if (key == "Any") {
+            // Need to load data from 2 end-points
+            let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${request.term}&use_description=true`;
+            urls.push(names_url);
+          }
+
+          const promises = urls.map((p) => fetch(p).then((rsp) => rsp.json()));
+          const responses = await Promise.all(promises);
+          console.log("responses", responses);
+
+          const data = responses[0];
+
+          // hideSpinner();
+          let results;
+          // combine 'screen', 'project' and 'image' results - can ignore 'well', 'plate' etc.
+          let screenHits = data.screen.data.map((obj) => {
+            return { ...obj, type: "screen" };
           });
+          let projectHits = data.project.data.map((obj) => {
+            return { ...obj, type: "project" };
+          });
+          let imageHits = data.image.data.map((obj) => {
+            return { ...obj, type: "image" };
+          });
+          let data_results = [].concat(screenHits, projectHits, imageHits);
+          // sort to put exact and 'known' matches first
+          data_results.sort(self.autocompleteSort(request.term));
+
+          results = data_results.map((result) => {
+            let showKey = key === "Any" ? `(${result.Key})` : "";
+            let type = result.type;
+            let count = result[`Number of ${type}s`];
+            return {
+              key: result.Key,
+              label: `<b>${
+                result.Value
+              }</b> ${showKey} <span style="color:#bbb">${count} ${type}${
+                count != 1 ? "s" : ""
+              }</span>`,
+              value: `${result.Value}`,
+              dtype: type,
+            };
+          });
+          if (key == "Any") {
+            const projectNameHits = mapNames(
+              responses[1].project,
+              "project",
+              request.term
+            );
+            const screenNameHits = mapNames(
+              responses[1].screen,
+              "screen",
+              request.term
+            );
+            const nameHits = projectNameHits.concat(screenNameHits);
+            console.log("nameHits", nameHits);
+            // TODO: sort nameHits...
+            results = nameHits.concat(results);
+          }
+          let result_count = results.length;
+
+          const max_shown = 100;
+          if (result_count > max_shown) {
+            results = results.slice(0, max_shown);
+            results.push({
+              key: -1,
+              label: `...and ${
+                result_count - max_shown
+              } more matches not shown`,
+              value: -1,
+            });
+          } else if (result_count == 0) {
+            results = [{ label: "No results found.", value: -1 }];
+          }
+          console.log("results", results);
+          response(results);
         },
         minLength: 1,
         open: function () {},
