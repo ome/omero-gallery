@@ -59,16 +59,31 @@ const FILTER_ICON_SVG = `
 	C58.1,59.1,81.058,61.387,105.34,61.387c24.283,0,47.24-2.287,65.034-6.449L119.631,116.486z"/>
 </svg>`;
 
+const NAME = "Name (IDR number)"
+
 // projects or screens might match Name or Description.
-function mapNames(rsp, type, searchTerm) {
+function mapNames(rsp, type, key, searchTerm) {
   // rsp is a list of [ {id, name, description}, ]
   searchTerm = searchTerm.toLowerCase();
+
+  if (key == "Description") {
+    // results from resources/all/names/?use_description=true will include searches by name
+    // need to check they really match description
+    rsp = rsp.filter((resultObj) => {
+      return resultObj.description.toLowerCase().includes(searchTerm);
+    })
+  }
   return rsp.map((resultObj) => {
     let name = resultObj.name;
     let desc = resultObj.description;
-    let attribute = name.toLowerCase().includes(searchTerm)
-      ? "Name (IDR number)"
+    let attribute = key;
+    // If we searched for Any, show all results.
+    // "Attribute" form field will be filled (Name or Desc) if user picks item 
+    if (attribute == "Any") {
+      attribute = name.toLowerCase().includes(searchTerm)
+      ? NAME
       : "Description";
+    }
     let value = name;
     if (attribute == "Description") {
       // truncate Description around matching word...
@@ -87,11 +102,12 @@ function mapNames(rsp, type, searchTerm) {
       if (start + targetLength < desc.length) {
         truncated = truncated + "...";
       }
-      value = truncated;
+      value = desc;
+      name = truncated;
     }
     return {
       key: attribute,
-      label: `<b>${value}</b> (${attribute}) <span style="color:#bbb">1 ${type}</span>`,
+      label: `<b>${name}</b> (${attribute}) <span style="color:#bbb">1 ${type}</span>`,
       value,
       dtype: type,
     };
@@ -323,9 +339,12 @@ class OmeroSearchForm {
             `${SEARCH_ENGINE_URL}resources/all/searchvalues/?` + params;
           let urls = [kvp_url];
 
-          if (key == "Any") {
+          if (key == "Any" || key == "Description" || key == NAME) {
             // Need to load data from 2 end-points
-            let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${request.term}&use_description=true`;
+            let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${request.term}`;
+            if (key == "Any" || key == "Description") {
+              names_url += `&use_description=true`;
+            }
             urls.push(names_url);
           }
 
@@ -366,15 +385,18 @@ class OmeroSearchForm {
               dtype: type,
             };
           });
-          if (key == "Any") {
+          // If we searched the 2nd Name/Description endpoint, concat the results...
+          if (responses[1]) {
             const projectNameHits = mapNames(
               responses[1].project,
               "project",
+              key,
               request.term
             );
             const screenNameHits = mapNames(
               responses[1].screen,
               "screen",
+              key,
               request.term
             );
             const nameHits = projectNameHits.concat(screenNameHits);
@@ -691,7 +713,7 @@ class OmeroSearchForm {
     let self = this;
     query.query_details.and_filters.push({
       // TODO: api key should be 'name' not 'Name (IDR number)'
-      name: "Name (IDR number)",
+      name: NAME,
       value: studyName,
       operator: "equals",
       resource: "project", // NB: this works for screens too!
