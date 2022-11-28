@@ -59,7 +59,7 @@ const FILTER_ICON_SVG = `
 	C58.1,59.1,81.058,61.387,105.34,61.387c24.283,0,47.24-2.287,65.034-6.449L119.631,116.486z"/>
 </svg>`;
 
-const NAME = "Name (IDR number)"
+const NAME = "Name (IDR number)";
 
 // projects or screens might match Name or Description.
 function mapNames(rsp, type, key, searchTerm) {
@@ -71,18 +71,18 @@ function mapNames(rsp, type, key, searchTerm) {
     // need to check they really match description
     rsp = rsp.filter((resultObj) => {
       return resultObj.description.toLowerCase().includes(searchTerm);
-    })
+    });
   }
   return rsp.map((resultObj) => {
     let name = resultObj.name;
     let desc = resultObj.description;
     let attribute = key;
     // If we searched for Any, show all results.
-    // "Attribute" form field will be filled (Name or Desc) if user picks item 
+    // "Attribute" form field will be filled (Name or Desc) if user picks item
     if (attribute == "Any") {
       attribute = name.toLowerCase().includes(searchTerm)
-      ? NAME
-      : "Description";
+        ? NAME
+        : "Description";
     }
     let value = name;
     if (attribute == "Description") {
@@ -182,7 +182,7 @@ class OmeroSearchForm {
     for (let resource in this.resources_data) {
       if (this.resources_data[resource].includes(key)) {
         if (resource == "project" || resource == "screen") {
-          resource = "container"
+          resource = "container";
         }
         return resource;
       }
@@ -281,7 +281,10 @@ class OmeroSearchForm {
     let $field = $(".keyFields", $orClause);
     let anyOption = `<option value="Any">Any</option>`;
     // We combine 'project' and 'screen' into 'Study'
-    let menu = {'Study': this.resources_data.project.concat(this.resources_data.screen) ,'Image': this.resources_data.image}
+    let menu = {
+      Study: this.resources_data.project.concat(this.resources_data.screen),
+      Image: this.resources_data.image,
+    };
 
     let html = Object.entries(menu)
       .map((resourceValues) => {
