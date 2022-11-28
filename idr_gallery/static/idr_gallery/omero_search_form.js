@@ -181,6 +181,9 @@ class OmeroSearchForm {
     // e.g. find if 'Antibody' key comes from 'image', 'project' etc
     for (let resource in this.resources_data) {
       if (this.resources_data[resource].includes(key)) {
+        if (resource == "project" || resource == "screen") {
+          resource = "container"
+        }
         return resource;
       }
     }
@@ -277,8 +280,10 @@ class OmeroSearchForm {
     // Adds <option> to '.keyFields' for each item in pre-cached resources_data
     let $field = $(".keyFields", $orClause);
     let anyOption = `<option value="Any">Any</option>`;
-    // Show all
-    let html = Object.entries(this.resources_data)
+    // We combine 'project' and 'screen' into 'Study'
+    let menu = {'Study': this.resources_data.project.concat(this.resources_data.screen) ,'Image': this.resources_data.image}
+
+    let html = Object.entries(menu)
       .map((resourceValues) => {
         let resource = resourceValues[0];
         let values = resourceValues[1];
