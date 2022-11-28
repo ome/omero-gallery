@@ -466,6 +466,9 @@ class OmeroSearchForm {
     let $select = $(".keyFields", $parent);
     if ($(`option[value='${key}']`, $select).length == 0) {
       // update this.resources_data and re-render <select>
+      if (resource == "container") {
+        resource = "project";
+      }
       this.resources_data[resource].push(key);
       this.setKeyValues($parent);
       $select = $(".keyFields", $parent);
@@ -624,7 +627,6 @@ class OmeroSearchForm {
         self.hideSpinner();
         if (data["Error"] != "none") {
           alert(data["Error"]);
-          return;
         }
         // publish results to subscribers
         self.trigger("results", data);
@@ -739,10 +741,6 @@ class OmeroSearchForm {
       dataType: "json",
       data: JSON.stringify(query),
       success: function (data) {
-        if (data["Error"] != "none") {
-          alert(data["Error"]);
-          return;
-        }
         let { total_pages, pagination } = data.results;
         let page = data.results.pagination.current_page;
         if (pagination && page < total_pages) {
