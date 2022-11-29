@@ -343,7 +343,6 @@ class OmeroSearchForm {
             params.key = key;
           }
           params = new URLSearchParams(params).toString();
-          console.log("params", params);
           let kvp_url =
             `${SEARCH_ENGINE_URL}resources/all/searchvalues/?` + params;
           let urls = [kvp_url];
@@ -360,7 +359,6 @@ class OmeroSearchForm {
 
           const promises = urls.map((p) => fetch(p).then((rsp) => rsp.json()));
           const responses = await Promise.all(promises);
-          console.log("responses", responses);
 
           const data = responses[0];
 
@@ -410,10 +408,13 @@ class OmeroSearchForm {
               request.term
             );
             const nameHits = projectNameHits.concat(screenNameHits);
-            console.log("nameHits", nameHits);
             // TODO: sort nameHits...
             results = nameHits.concat(results);
           }
+
+          // filter to remove annotation.csv KV pairs
+          results = results.filter(item => !item.value.includes("annotation.csv"));
+
           let result_count = results.length;
 
           const max_shown = 100;
@@ -429,7 +430,6 @@ class OmeroSearchForm {
           } else if (result_count == 0) {
             results = [{ label: "No results found.", value: -1 }];
           }
-          console.log("results", results);
           response(results);
         },
         minLength: 1,
@@ -645,7 +645,7 @@ class OmeroSearchForm {
   }
 
   displayResults(data) {
-    let studyList = data.results.results;
+    let studyList = data.results?.results || [];
 
     let thead = `<li class="studyRow resultsHeader">
       <div class="studyColumns">
