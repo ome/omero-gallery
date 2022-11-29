@@ -66,13 +66,14 @@ function mapNames(rsp, type, key, searchTerm) {
   // rsp is a list of [ {id, name, description}, ]
   searchTerm = searchTerm.toLowerCase();
 
-  if (key == "Description") {
-    // results from resources/all/names/?use_description=true will include searches by name
-    // need to check they really match description
-    rsp = rsp.filter((resultObj) => {
-      return resultObj.description.toLowerCase().includes(searchTerm);
-    });
-  }
+  // use_description not enabled yet (see below)
+  // if (key == "Description") {
+  //   // results from resources/all/names/?use_description=true will include searches by name
+  //   // need to check they really match description.
+  //   rsp = rsp.filter((resultObj) => {
+  //     return resultObj.description.toLowerCase().includes(searchTerm);
+  //   });
+  // }
   return rsp.map((resultObj) => {
     let name = resultObj.name;
     let desc = resultObj.description;
@@ -350,9 +351,10 @@ class OmeroSearchForm {
           if (key == "Any" || key == "Description" || key == NAME) {
             // Need to load data from 2 end-points
             let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${request.term}`;
-            if (key == "Any" || key == "Description") {
-              names_url += `&use_description=true`;
-            }
+            // NB: Don't show auto-complete for Description yet (not supported for search yet)
+            // if (key == "Any" || key == "Description") {
+            //   names_url += `&use_description=true`;
+            // }
             urls.push(names_url);
           }
 
