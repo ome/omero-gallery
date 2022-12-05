@@ -59,7 +59,7 @@ const FILTER_ICON_SVG = `
 	C58.1,59.1,81.058,61.387,105.34,61.387c24.283,0,47.24-2.287,65.034-6.449L119.631,116.486z"/>
 </svg>`;
 
-const NAME = "Name (IDR number)";
+const NAME = "name";
 
 // projects or screens might match Name or Description.
 function mapNames(rsp, type, key, searchTerm) {
