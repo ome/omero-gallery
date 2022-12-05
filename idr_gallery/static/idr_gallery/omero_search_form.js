@@ -59,7 +59,9 @@ const FILTER_ICON_SVG = `
 	C58.1,59.1,81.058,61.387,105.34,61.387c24.283,0,47.24-2.287,65.034-6.449L119.631,116.486z"/>
 </svg>`;
 
-const NAME = "name";
+const NAME_KEY = "name";
+// display this on the keyFields <select> in place of "name" key
+const NAME_IDR_NUMBER = "Name (IDR number)";
 
 // projects or screens might match Name or Description.
 function mapNames(rsp, type, key, searchTerm) {
@@ -82,7 +84,7 @@ function mapNames(rsp, type, key, searchTerm) {
     // "Attribute" form field will be filled (Name or Desc) if user picks item
     if (attribute == "Any") {
       attribute = name.toLowerCase().includes(searchTerm)
-        ? NAME
+        ? NAME_KEY
         : "Description";
     }
     let value = name;
@@ -173,6 +175,12 @@ class OmeroSearchForm {
     this.resources_data = await fetch(url).then((response) => response.json());
     if (this.resources_data.error != undefined) {
       alert(this.resources_data.error);
+    }
+    // Remove key "Name (IDR number)", replace with "name"
+    if (this.resources_data["project"].includes(NAME_IDR_NUMBER)) {
+      this.resources_data["project"] = this.resources_data["project"].filter(k => k != NAME_IDR_NUMBER);
+      this.resources_data["project"].push(NAME_KEY);
+      this.resources_data["project"].sort();
     }
 
     return this.resources_data;
@@ -287,13 +295,21 @@ class OmeroSearchForm {
       Image: this.resources_data.image,
     };
 
+    const getDisplayValue = (value) => {
+      // UI shows "Name (IDR number)" instead of "name"
+      if (value == NAME_KEY) {
+        return NAME_IDR_NUMBER
+      }
+      return value
+    }
+
     let html = Object.entries(menu)
       .map((resourceValues) => {
         let resource = resourceValues[0];
         let values = resourceValues[1];
-        values.sort();
+        values.sort((a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : 1);
         const options = values
-          .map((value) => `<option value="${value}">${value}</option>`)
+          .map((value) => `<option value="${value}">${getDisplayValue(value)}</option>`)
           .join("\n");
         return `<optgroup label="${resource}">${options}</optgroup>`;
       })
@@ -347,7 +363,7 @@ class OmeroSearchForm {
             `${SEARCH_ENGINE_URL}resources/all/searchvalues/?` + params;
           let urls = [kvp_url];
 
-          if (key == "Any" || key == "Description" || key == NAME) {
+          if (key == "Any" || key == "Description" || key == NAME_KEY) {
             // Need to load data from 2 end-points
             let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${request.term}`;
             // NB: Don't show auto-complete for Description yet (not supported for search yet)
@@ -724,8 +740,7 @@ class OmeroSearchForm {
     let query = this.getPreviousSearchQuery();
     let self = this;
     query.query_details.and_filters.push({
-      // TODO: api key should be 'name' not 'Name (IDR number)'
-      name: NAME,
+      name: NAME_KEY,
       value: studyName,
       operator: "equals",
       resource: "project", // NB: this works for screens too!
