@@ -136,10 +136,8 @@ function autocompleteSort(queryVal, knownKeys = []) {
     if (aKnown != bKnown) {
       return aKnown ? -1 : 1;
     }
-    // Show highest Image counts first
-    let aCount = a["Number of images"];
-    let bCount = b["Number of images"];
-    return aCount > bCount ? -1 : aCount < bCount ? 1 : 0;
+    // Show highest counts first
+    return a.count > b.count ? -1 : a.count < b.count ? 1 : 0;
   };
 }
 
@@ -171,13 +169,13 @@ async function getAutoCompleteResults(key, query, knownKeys) {
   let results;
   // combine 'screen', 'project' and 'image' results - can ignore 'well', 'plate' etc.
   let screenHits = data.screen.data.map((obj) => {
-    return { ...obj, type: "screen" };
+    return { ...obj, type: "screen", count: obj["Number of screens"] };
   });
   let projectHits = data.project.data.map((obj) => {
-    return { ...obj, type: "project" };
+    return { ...obj, type: "project", count: obj["Number of projects"] };
   });
   let imageHits = data.image.data.map((obj) => {
-    return { ...obj, type: "image" };
+    return { ...obj, type: "image", count: obj["Number of images"] };
   });
   let data_results = [].concat(screenHits, projectHits, imageHits);
   // sort to put exact and 'known' matches first
