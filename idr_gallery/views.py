@@ -62,8 +62,16 @@ def index(request, super_category=None, conn=None, **kwargs):
                                                 key=keyval[0],
                                                 value=keyval[1],
                                                 operator="equals")
-            # otherwise show filter studies page
-            template = "idr_gallery/mapr_search.html"
+            # handle e.g. ?query=Publication%20Authors:smith
+            # ?key=Publication+Authors&value=Smith&operator=contains&resource=container
+            keyval = query.split(":", 1)
+            # search for studies ("containers") and use "contains"
+            # to match previous behaviour
+            return redirect_with_params('idr_gallery_search',
+                                        key=keyval[0],
+                                        value=keyval[1],
+                                        resource="container",
+                                        operator="contains")
         else:
             template = "idr_gallery/search.html"
     context = {'template': template}
