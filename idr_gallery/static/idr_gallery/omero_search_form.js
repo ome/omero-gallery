@@ -191,7 +191,7 @@ async function getAutoCompleteResults(key, query, knownKeys) {
   results = data_results.map((result) => {
     let showKey = key === "Any" ? `(${result.Key})` : "";
     let type = result.type;
-    let count = result[`Number of ${type}s`];
+    let count = result.count;
     return {
       key: result.Key,
       label: `<b>${
