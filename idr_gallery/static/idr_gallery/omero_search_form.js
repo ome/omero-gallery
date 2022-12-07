@@ -63,6 +63,12 @@ const NAME_KEY = "name";
 // display this on the keyFields <select> in place of "name" key
 const NAME_IDR_NUMBER = "Name (IDR number)";
 
+const displayTypes = {
+  "image": "image",
+  "project": "experiment",
+  "screen": "screen"
+}
+
 // projects or screens might match Name or Description.
 function mapNames(rsp, type, key, searchTerm) {
   // rsp is a list of [ {id, name, description}, ]
@@ -108,9 +114,10 @@ function mapNames(rsp, type, key, searchTerm) {
       value = desc;
       name = truncated;
     }
+
     return {
       key: attribute,
-      label: `<b>${name}</b> (${attribute}) <span style="color:#bbb">1 ${type}</span>`,
+      label: `<b>${name}</b> (${attribute}) <span style="color:#bbb">1 ${displayTypes[type]}</span>`,
       value,
       dtype: type,
     };
