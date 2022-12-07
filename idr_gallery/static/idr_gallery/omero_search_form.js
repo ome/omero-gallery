@@ -776,7 +776,7 @@ class OmeroSearchForm {
       name: NAME_KEY,
       value: studyName,
       operator: "equals",
-      resource: "project", // NB: this works for screens too!
+      resource: "container",
     });
     // if pagination data object exists, we are loading next pages...
     const pagination = $studyRow.data("pagination");
