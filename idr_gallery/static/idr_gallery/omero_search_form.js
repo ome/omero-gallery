@@ -64,10 +64,10 @@ const NAME_KEY = "name";
 const NAME_IDR_NUMBER = "Name (IDR number)";
 
 const displayTypes = {
-  "image": "image",
-  "project": "experiment",
-  "screen": "screen"
-}
+  image: "image",
+  project: "experiment",
+  screen: "screen",
+};
 
 // projects or screens might match Name or Description.
 function mapNames(rsp, type, key, searchTerm) {
@@ -219,6 +219,27 @@ async function getAutoCompleteResults(key, query, knownKeys) {
 
   // filter to remove annotation.csv KV pairs
   results = results.filter((item) => !item.value.includes("annotation.csv"));
+
+  // Generate Summary of [{key: "name", hits: 5, type: container}, {key: "Gene Symbol", hits: 1000, type: image}}
+  let keyCounts = {};
+  data_results.forEach((result) => {
+    if (!keyCounts[result.Key]) {
+      keyCounts[result.Key] = {
+        key: result.Key,
+        count: 0,
+        type: result.type,
+        matches: [],
+      };
+    }
+    keyCounts[result.Key].count += result.count;
+    keyCounts[result.Key].matches.push(result);
+  });
+  let keyCountsList = Object.values(keyCounts);
+  keyCountsList.sort((a, b) =>
+    a.count < b.count ? 1 : a.count > b.count ? -1 : a.key > b.key ? 1 : -1
+  );
+  // TODO: we don't use this summary yet... Display to user somehow??
+  console.log("keyCountsList", keyCountsList);
 
   let result_count = results.length;
 
