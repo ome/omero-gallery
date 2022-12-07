@@ -117,6 +117,121 @@ function mapNames(rsp, type, key, searchTerm) {
   });
 }
 
+function autocompleteSort(queryVal, knownKeys = []) {
+  // returns a sort function based on the current query Value
+  // knownKeys is list of common keys e.g. ["Gene Symbol", "Antibody"] etc.
+
+  queryVal = queryVal.toLowerCase();
+  // const KNOWN_KEYS = [].concat(...Object.values(this.resources_data));
+  return (a, b) => {
+    // if exact match, show first
+    let aMatch = queryVal == a.Value.toLowerCase();
+    let bMatch = queryVal == b.Value.toLowerCase();
+    if (aMatch != bMatch) {
+      return aMatch ? -1 : 1;
+    }
+    // show all known Keys before unknown
+    let aKnown = knownKeys.includes(a.Key);
+    let bKnown = knownKeys.includes(b.Key);
+    if (aKnown != bKnown) {
+      return aKnown ? -1 : 1;
+    }
+    // Show highest Image counts first
+    let aCount = a["Number of images"];
+    let bCount = b["Number of images"];
+    return aCount > bCount ? -1 : aCount < bCount ? 1 : 0;
+  };
+}
+
+async function getAutoCompleteResults(key, query, knownKeys) {
+  let params = { value: query };
+  if (key != "Any") {
+    params.key = key;
+  }
+  params = new URLSearchParams(params).toString();
+  let kvp_url = `${SEARCH_ENGINE_URL}resources/all/searchvalues/?` + params;
+  let urls = [kvp_url];
+
+  if (key == "Any" || key == "Description" || key == NAME_KEY) {
+    // Need to load data from 2 end-points
+    let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${query}`;
+    // NB: Don't show auto-complete for Description yet (not supported for search yet)
+    // if (key == "Any" || key == "Description") {
+    //   names_url += `&use_description=true`;
+    // }
+    urls.push(names_url);
+  }
+
+  const promises = urls.map((p) => fetch(p).then((rsp) => rsp.json()));
+  const responses = await Promise.all(promises);
+
+  const data = responses[0];
+
+  // hideSpinner();
+  let results;
+  // combine 'screen', 'project' and 'image' results - can ignore 'well', 'plate' etc.
+  let screenHits = data.screen.data.map((obj) => {
+    return { ...obj, type: "screen" };
+  });
+  let projectHits = data.project.data.map((obj) => {
+    return { ...obj, type: "project" };
+  });
+  let imageHits = data.image.data.map((obj) => {
+    return { ...obj, type: "image" };
+  });
+  let data_results = [].concat(screenHits, projectHits, imageHits);
+  // sort to put exact and 'known' matches first
+  data_results.sort(autocompleteSort(query, knownKeys));
+
+  results = data_results.map((result) => {
+    let showKey = key === "Any" ? `(${result.Key})` : "";
+    let type = result.type;
+    let count = result[`Number of ${type}s`];
+    return {
+      key: result.Key,
+      label: `<b>${
+        result.Value
+      }</b> ${showKey} <span style="color:#bbb">${count} ${type}${
+        count != 1 ? "s" : ""
+      }</span>`,
+      value: `${result.Value}`,
+      dtype: type,
+    };
+  });
+  // If we searched the 2nd Name/Description endpoint, concat the results...
+  if (responses[1]) {
+    const projectNameHits = mapNames(
+      responses[1].project,
+      "project",
+      key,
+      query
+    );
+    const screenNameHits = mapNames(responses[1].screen, "screen", key, query);
+    const nameHits = projectNameHits.concat(screenNameHits);
+    // TODO: sort nameHits...
+    results = nameHits.concat(results);
+  }
+
+  // filter to remove annotation.csv KV pairs
+  results = results.filter((item) => !item.value.includes("annotation.csv"));
+
+  let result_count = results.length;
+
+  const max_shown = 100;
+  if (result_count > max_shown) {
+    results = results.slice(0, max_shown);
+    results.push({
+      key: -1,
+      label: `...and ${result_count - max_shown} more matches not shown`,
+      value: -1,
+    });
+  } else if (result_count == 0) {
+    results = [{ label: "No results found.", value: -1 }];
+  }
+
+  return results;
+}
+
 const SPINNER_SVG = `<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>`;
 class OmeroSearchForm {
   constructor(formId, SEARCH_ENGINE_URL, resultsId) {
@@ -178,7 +293,9 @@ class OmeroSearchForm {
     }
     // Remove key "Name (IDR number)", replace with "name"
     if (this.resources_data["project"].includes(NAME_IDR_NUMBER)) {
-      this.resources_data["project"] = this.resources_data["project"].filter(k => k != NAME_IDR_NUMBER);
+      this.resources_data["project"] = this.resources_data["project"].filter(
+        (k) => k != NAME_IDR_NUMBER
+      );
       this.resources_data["project"].push(NAME_KEY);
       this.resources_data["project"].sort();
     }
@@ -298,18 +415,21 @@ class OmeroSearchForm {
     const getDisplayValue = (value) => {
       // UI shows "Name (IDR number)" instead of "name"
       if (value == NAME_KEY) {
-        return NAME_IDR_NUMBER
+        return NAME_IDR_NUMBER;
       }
-      return value
-    }
+      return value;
+    };
 
     let html = Object.entries(menu)
       .map((resourceValues) => {
         let resource = resourceValues[0];
         let values = resourceValues[1];
-        values.sort((a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : 1);
+        values.sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : 1));
         const options = values
-          .map((value) => `<option value="${value}">${getDisplayValue(value)}</option>`)
+          .map(
+            (value) =>
+              `<option value="${value}">${getDisplayValue(value)}</option>`
+          )
           .join("\n");
         return `<optgroup label="${resource}">${options}</optgroup>`;
       })
@@ -317,34 +437,10 @@ class OmeroSearchForm {
     $field.html(anyOption + html);
   }
 
-  autocompleteSort(queryVal) {
-    // returns a sort function based on the current query Value
-    // NB: same logic in autocompleteSort() function used on front page
-    queryVal = queryVal.toLowerCase();
-    const KNOWN_KEYS = [].concat(...Object.values(this.resources_data));
-    return (a, b) => {
-      // if exact match, show first
-      let aMatch = queryVal == a.Value.toLowerCase();
-      let bMatch = queryVal == b.Value.toLowerCase();
-      if (aMatch != bMatch) {
-        return aMatch ? -1 : 1;
-      }
-      // show all known Keys before unknown
-      let aKnown = KNOWN_KEYS.includes(a.Key);
-      let bKnown = KNOWN_KEYS.includes(b.Key);
-      if (aKnown != bKnown) {
-        return aKnown ? -1 : 1;
-      }
-      // Show highest Image counts first
-      let aCount = a["Number of images"];
-      let bCount = b["Number of images"];
-      return aCount > bCount ? -1 : aCount < bCount ? 1 : 0;
-    };
-  }
-
   initAutoComplete($orClause) {
     let self = this;
     let $this = $(".valueFields", $orClause);
+    const knownKeys = [].concat(...Object.values(this.resources_data));
     // key is updated when user starts typing, also used to handle response and select
     let key;
     $this
@@ -354,98 +450,9 @@ class OmeroSearchForm {
         source: async function (request, response) {
           // Need to know what Attribute is of adjacent <select>
           key = $(".keyFields", $orClause).val();
-          let params = { value: request.term };
-          if (key != "Any") {
-            params.key = key;
-          }
-          params = new URLSearchParams(params).toString();
-          let kvp_url =
-            `${SEARCH_ENGINE_URL}resources/all/searchvalues/?` + params;
-          let urls = [kvp_url];
+          const query = request.term;
 
-          if (key == "Any" || key == "Description" || key == NAME_KEY) {
-            // Need to load data from 2 end-points
-            let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${request.term}`;
-            // NB: Don't show auto-complete for Description yet (not supported for search yet)
-            // if (key == "Any" || key == "Description") {
-            //   names_url += `&use_description=true`;
-            // }
-            urls.push(names_url);
-          }
-
-          const promises = urls.map((p) => fetch(p).then((rsp) => rsp.json()));
-          const responses = await Promise.all(promises);
-
-          const data = responses[0];
-
-          // hideSpinner();
-          let results;
-          // combine 'screen', 'project' and 'image' results - can ignore 'well', 'plate' etc.
-          let screenHits = data.screen.data.map((obj) => {
-            return { ...obj, type: "screen" };
-          });
-          let projectHits = data.project.data.map((obj) => {
-            return { ...obj, type: "project" };
-          });
-          let imageHits = data.image.data.map((obj) => {
-            return { ...obj, type: "image" };
-          });
-          let data_results = [].concat(screenHits, projectHits, imageHits);
-          // sort to put exact and 'known' matches first
-          data_results.sort(self.autocompleteSort(request.term));
-
-          results = data_results.map((result) => {
-            let showKey = key === "Any" ? `(${result.Key})` : "";
-            let type = result.type;
-            let count = result[`Number of ${type}s`];
-            return {
-              key: result.Key,
-              label: `<b>${
-                result.Value
-              }</b> ${showKey} <span style="color:#bbb">${count} ${type}${
-                count != 1 ? "s" : ""
-              }</span>`,
-              value: `${result.Value}`,
-              dtype: type,
-            };
-          });
-          // If we searched the 2nd Name/Description endpoint, concat the results...
-          if (responses[1]) {
-            const projectNameHits = mapNames(
-              responses[1].project,
-              "project",
-              key,
-              request.term
-            );
-            const screenNameHits = mapNames(
-              responses[1].screen,
-              "screen",
-              key,
-              request.term
-            );
-            const nameHits = projectNameHits.concat(screenNameHits);
-            // TODO: sort nameHits...
-            results = nameHits.concat(results);
-          }
-
-          // filter to remove annotation.csv KV pairs
-          results = results.filter(item => !item.value.includes("annotation.csv"));
-
-          let result_count = results.length;
-
-          const max_shown = 100;
-          if (result_count > max_shown) {
-            results = results.slice(0, max_shown);
-            results.push({
-              key: -1,
-              label: `...and ${
-                result_count - max_shown
-              } more matches not shown`,
-              value: -1,
-            });
-          } else if (result_count == 0) {
-            results = [{ label: "No results found.", value: -1 }];
-          }
+          const results = await getAutoCompleteResults(key, query, knownKeys);
           response(results);
         },
         minLength: 1,
