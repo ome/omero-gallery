@@ -70,7 +70,7 @@ const displayTypes = {
 };
 
 // projects or screens might match Name or Description.
-function mapNames(rsp, type, key, searchTerm) {
+function mapNames(rsp, type, key, searchTerm, operator) {
   // rsp is a list of [ {id, name, description}, ]
   searchTerm = searchTerm.toLowerCase();
 
@@ -117,7 +117,7 @@ function mapNames(rsp, type, key, searchTerm) {
 
     return {
       key: attribute,
-      label: `<b>${name}</b> (${attribute}) <span style="color:#bbb">1 ${displayTypes[type]}</span>`,
+      label: `${attribute} <span style="color:#bbb">${operator}</span> <b>${name}</b> <span style="color:#bbb">(1 ${displayTypes[type]})</span>`,
       value,
       dtype: type,
     };
@@ -148,7 +148,7 @@ function autocompleteSort(queryVal, knownKeys = []) {
   };
 }
 
-async function getAutoCompleteResults(key, query, knownKeys) {
+async function getAutoCompleteResults(key, query, knownKeys, operator) {
   let params = { value: query };
   if (key != "Any") {
     params.key = key;
@@ -189,16 +189,15 @@ async function getAutoCompleteResults(key, query, knownKeys) {
   data_results.sort(autocompleteSort(query, knownKeys));
 
   results = data_results.map((result) => {
-    let showKey = key === "Any" ? `(${result.Key})` : "";
     let type = result.type;
     let count = result.count;
     return {
       key: result.Key,
-      label: `<b>${
+      label: `${result.Key} <span style="color:#bbb">${operator}</span> <b>${
         result.Value
-      }</b> ${showKey} <span style="color:#bbb">${count} ${type}${
+      }</b> <span style="color:#bbb">(${count} ${type}${
         count != 1 ? "s" : ""
-      }</span>`,
+      })</span>`,
       value: `${result.Value}`,
       dtype: type,
     };
@@ -209,7 +208,8 @@ async function getAutoCompleteResults(key, query, knownKeys) {
       responses[1].project,
       "project",
       key,
-      query
+      query,
+      operator
     );
     const screenNameHits = mapNames(responses[1].screen, "screen", key, query);
     const nameHits = projectNameHits.concat(screenNameHits);
@@ -253,6 +253,22 @@ async function getAutoCompleteResults(key, query, knownKeys) {
     });
   } else if (result_count == 0) {
     results = [{ label: "No results found.", value: -1 }];
+  }
+
+  // If not "Any", add an option to search for contains the currently typed query
+  if (key != "Any") {
+    let total = keyCounts[key].count;
+    let type = keyCounts[key].type;
+    const allOption = {
+      key: key,
+      label: `<span style="color:#bbb">${key} contains</span> <b>${query}</b> <span style="color:#bbb">${total} ${type}${
+        total != 1 ? "s" : ""
+      }</span>`,
+      value: query,
+      dtype: type,
+      operator: "contains",
+    };
+    results.unshift(allOption);
   }
 
   return results;
@@ -476,9 +492,18 @@ class OmeroSearchForm {
         source: async function (request, response) {
           // Need to know what Attribute is of adjacent <select>
           key = $(".keyFields", $orClause).val();
+          let operator = $(".condition", $orClause).val();
+          if (key != "Any") {
+            // if we know the key, we will switch to 'equals' (except for the first 'contains' option)
+            operator = "equals";
+          }
           const query = request.term;
-
-          const results = await getAutoCompleteResults(key, query, knownKeys);
+          const results = await getAutoCompleteResults(
+            key,
+            query,
+            knownKeys,
+            operator
+          );
           response(results);
         },
         minLength: 1,
@@ -496,6 +521,10 @@ class OmeroSearchForm {
           if (key == "Any") {
             // Use 'key' to update KeyField
             self.setKeyField($orClause, ui.item.key, ui.item.dtype);
+          } else {
+            const operator =
+              ui.item.operator == "contains" ? "contains" : "equals";
+            self.setOperator($orClause, operator);
           }
           // We perform search with chosen value...
           setTimeout(() => {
@@ -525,6 +554,12 @@ class OmeroSearchForm {
       $select = $(".keyFields", $parent);
     }
     $select.val(key);
+  }
+
+  setOperator($parent, operator) {
+    // Adds the Key as an <option> to the <select> if not there;
+    let $select = $(".condition", $parent);
+    $select.val(operator);
   }
 
   displayHideRemoveButtons() {
