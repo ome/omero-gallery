@@ -10,8 +10,8 @@ const AND_CLAUSE_HTML = `
     <div class="search_condition">
         <label for="condition">Operator</label>
         <select id="condition" class="form-control condition">
-          <option value="equals">equals</option>
           <option value="contains">contains</option>
+          <option value="equals">equals</option>
         </select>
     </div>
     <div class="search_value" style="position: relative">
