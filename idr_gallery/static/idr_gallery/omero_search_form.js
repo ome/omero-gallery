@@ -75,13 +75,18 @@ function mapNames(rsp, type, key, searchTerm, operator) {
   searchTerm = searchTerm.toLowerCase();
 
   // use_description not enabled yet (see below)
-  // if (key == "Description") {
+  // if (key == "description") {
   //   // results from resources/all/names/?use_description=true will include searches by name
   //   // need to check they really match description.
   //   rsp = rsp.filter((resultObj) => {
   //     return resultObj.description.toLowerCase().includes(searchTerm);
   //   });
   // }
+  // Need to filter out containers without images
+  rsp = rsp.filter((resultObj) => {
+    return !(resultObj.no_images === 0);
+  });
+
   return rsp.map((resultObj) => {
     let name = resultObj.name;
     let desc = resultObj.description;
@@ -91,10 +96,10 @@ function mapNames(rsp, type, key, searchTerm, operator) {
     if (attribute == "Any") {
       attribute = name.toLowerCase().includes(searchTerm)
         ? NAME_KEY
-        : "Description";
+        : "description";
     }
     let value = name;
-    if (attribute == "Description") {
+    if (attribute == "description") {
       // truncate Description around matching word...
       let start = desc.toLowerCase().indexOf(searchTerm);
       let targetLength = 80;
@@ -119,6 +124,7 @@ function mapNames(rsp, type, key, searchTerm, operator) {
       key: attribute,
       label: `${attribute} <span style="color:#bbb">${operator}</span> <b>${name}</b> <span style="color:#bbb">(1 ${displayTypes[type]})</span>`,
       value,
+      count: 1,
       dtype: type,
     };
   });
@@ -157,11 +163,11 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   let kvp_url = `${SEARCH_ENGINE_URL}resources/all/searchvalues/?` + params;
   let urls = [kvp_url];
 
-  if (key == "Any" || key == "Description" || key == NAME_KEY) {
+  if (key == "Any" || key == "description" || key == NAME_KEY) {
     // Need to load data from 2 end-points
     let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${query}`;
-    // NB: Don't show auto-complete for Description yet (not supported for search yet)
-    // if (key == "Any" || key == "Description") {
+    // NB: Don't show auto-complete for Description yet - issues with 'equals' search
+    // if (key == "Any" || key == "description") {
     //   names_url += `&use_description=true`;
     // }
     urls.push(names_url);
@@ -200,6 +206,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
       })</span>`,
       value: `${result.Value}`,
       dtype: type,
+      count,
     };
   });
   // If we searched the 2nd Name/Description endpoint, concat the results...
@@ -220,19 +227,20 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   // filter to remove annotation.csv KV pairs
   results = results.filter((item) => !item.value.includes("annotation.csv"));
 
-  // Generate Summary of [{key: "name", hits: 5, type: container}, {key: "Gene Symbol", hits: 1000, type: image}}
+  // Generate Summary of [{key: "name", count: 5, type: container, matches:[]} }
   let keyCounts = {};
-  data_results.forEach((result) => {
-    if (!keyCounts[result.Key]) {
-      keyCounts[result.Key] = {
-        key: result.Key,
+  results.forEach((result) => {
+    let key = result.key;
+    if (!keyCounts[key]) {
+      keyCounts[key] = {
+        key: key,
         count: 0,
-        type: result.type,
+        type: result.dtype,
         matches: [],
       };
     }
-    keyCounts[result.Key].count += result.count;
-    keyCounts[result.Key].matches.push(result);
+    keyCounts[key].count += result.count;
+    keyCounts[key].matches.push(result);
   });
   let keyCountsList = Object.values(keyCounts);
   keyCountsList.sort((a, b) =>
@@ -241,8 +249,8 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   // TODO: we don't use this summary yet... Display to user somehow??
   console.log("keyCountsList", keyCountsList);
 
+  // truncate list
   let result_count = results.length;
-
   const max_shown = 100;
   if (result_count > max_shown) {
     results = results.slice(0, max_shown);
@@ -256,7 +264,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   }
 
   // If not "Any", add an option to search for contains the currently typed query
-  if (key != "Any") {
+  if (key != "Any" && keyCounts[key]) {
     let total = keyCounts[key].count;
     let type = keyCounts[key].type;
     const allOption = {
