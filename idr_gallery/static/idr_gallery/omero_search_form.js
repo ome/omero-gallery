@@ -306,11 +306,11 @@ class OmeroSearchForm {
 
     // TODO: wait for loadResources()
     // then build form...
-    (async function () {
+    (async () => {
       await this.loadResources();
       this.addAnd();
       this.trigger("ready");
-    }.bind(this)());
+    })();
   }
 
   // pub/sub methods. see https://github.com/cowboy/jquery-tiny-pubsub
