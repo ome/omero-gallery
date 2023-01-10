@@ -68,8 +68,10 @@ def index(request, super_category=None, conn=None, **kwargs):
             keyval = query.split(":", 1)
             # search for studies ("containers") and use "contains"
             # to match previous behaviour
+            # NB: 'Name' needs to be 'name' for search-engine
+            key = "name" if keyval[0] == "Name" else keyval[0]
             return redirect_with_params('idr_gallery_search',
-                                        key=keyval[0],
+                                        key=key,
                                         value=keyval[1],
                                         resource="container",
                                         operator="contains")
