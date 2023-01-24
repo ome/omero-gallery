@@ -201,7 +201,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
       key: result.Key,
       label: `${result.Key} <span style="color:#bbb">${operator}</span> <b>${
         result.Value
-      }</b> <span style="color:#bbb">(${count} ${type}${
+      }</b> <span style="color:#bbb">(${count} ${displayTypes[type]}${
         count != 1 ? "s" : ""
       })</span>`,
       value: `${result.Value}`,
@@ -269,7 +269,8 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
     let type = keyCounts[key].type;
     const allOption = {
       key: key,
-      label: `<span style="color:#bbb">${key} contains</span> <b>${query}</b> <span style="color:#bbb">${total} ${type}${
+      label: `<span style="color:#bbb">${key} contains</span>
+        <b>${query}</b> <span style="color:#bbb">${total} ${displayTypes[type]}${
         total != 1 ? "s" : ""
       }</span>`,
       value: query,
