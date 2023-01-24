@@ -270,9 +270,9 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
     const allOption = {
       key: key,
       label: `<span style="color:#bbb">${key} contains</span>
-        <b>${query}</b> <span style="color:#bbb">${total} ${displayTypes[type]}${
-        total != 1 ? "s" : ""
-      }</span>`,
+        <b>${query}</b> <span style="color:#bbb">${total} ${
+        displayTypes[type]
+      }${total != 1 ? "s" : ""}</span>`,
       value: query,
       dtype: type,
       operator: "contains",
