@@ -218,7 +218,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
       query,
       operator
     );
-    const screenNameHits = mapNames(responses[1].screen, "screen", key, query);
+    const screenNameHits = mapNames(responses[1].screen, "screen", key, query, operator);
     const nameHits = projectNameHits.concat(screenNameHits);
     // TODO: sort nameHits...
     results = nameHits.concat(results);
