@@ -133,7 +133,7 @@
     console.log("on.results", event, data);
     let studiesList = data.results?.results || [];
     let imgCount = studiesList.reduce((prev, study) => prev += study["image count"], 0);
-    let studies = studiesList.length === 1 ? 'study' : 'studies';
+    let studies = studiesList.length === 1 ? DISPLAY_TYPES[studiesList[0].type] : 'experiments/screens';
     let searchQuery = searchForm.getHumanReadableQuery();
     let msg = `<p class="filterMessage">
       Search ${searchQuery} found <strong>${imgCount}</strong> images in <strong>${studiesList.length}</strong> ${studies}

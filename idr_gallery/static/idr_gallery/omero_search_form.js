@@ -63,7 +63,7 @@ const NAME_KEY = "name";
 // display this on the keyFields <select> in place of "name" key
 const NAME_IDR_NUMBER = "Name (IDR number)";
 
-const displayTypes = {
+const DISPLAY_TYPES = {
   image: "image",
   project: "experiment",
   screen: "screen",
@@ -122,7 +122,7 @@ function mapNames(rsp, type, key, searchTerm, operator) {
 
     return {
       key: attribute,
-      label: `${attribute} <span style="color:#bbb">${operator}</span> <b>${name}</b> <span style="color:#bbb">(1 ${displayTypes[type]})</span>`,
+      label: `${attribute} <span style="color:#bbb">${operator}</span> <b>${name}</b> <span style="color:#bbb">(1 ${DISPLAY_TYPES[type]})</span>`,
       value,
       count: 1,
       dtype: type,
@@ -201,7 +201,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
       key: result.Key,
       label: `${result.Key} <span style="color:#bbb">${operator}</span> <b>${
         result.Value
-      }</b> <span style="color:#bbb">(${count} ${displayTypes[type]}${
+      }</b> <span style="color:#bbb">(${count} ${DISPLAY_TYPES[type]}${
         count != 1 ? "s" : ""
       })</span>`,
       value: `${result.Value}`,
@@ -267,12 +267,13 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   if (key != "Any" && keyCounts[key]) {
     let total = keyCounts[key].count;
     let type = keyCounts[key].type;
+    // E.g. "Imaging Method contains light (16 experiments/screens)"
+    // Or "Imaging Method contains SPIM (1 experiment)"
     const allOption = {
       key: key,
       label: `<span style="color:#bbb">${key} contains</span>
-        <b>${query}</b> <span style="color:#bbb">${total} ${
-        displayTypes[type]
-      }${total != 1 ? "s" : ""}</span>`,
+        <b>${query}</b> <span style="color:#bbb">(${total}
+          ${total != 1 ? "experiments/screens" : DISPLAY_TYPES[type]})</span>`,
       value: query,
       dtype: type,
       operator: "contains",
@@ -743,7 +744,7 @@ class OmeroSearchForm {
     let thead = `<li class="studyRow resultsHeader">
       <div class="studyColumns">
         <div class="caret"></i></div>
-        <div class="studyId">Study ID</div>
+        <div title="Experiment or Screen ID" class="studyId">ID</div>
         <div class="count">Images</div>
         <div class="studyName">Publication Title</div>
       </div>
