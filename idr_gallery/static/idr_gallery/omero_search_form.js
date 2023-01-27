@@ -187,10 +187,25 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   let projectHits = data.project.data.map((obj) => {
     return { ...obj, type: "project", count: obj["Number of projects"] };
   });
+  // Need to combine 'screen' and 'project' results based on matching 'value', since any search
+  // we perform with selected auto-complete item will search for 'containers'
+  let projectScreenHits = {}
+  projectHits.concat(screenHits).forEach(obj => {
+    let id = obj.Key + "=" + obj.Value;
+    if (!projectScreenHits[id]) {
+      projectScreenHits[id] = obj;
+    } else {
+      // we have duplicate result for project & screen - simply add counts
+      console.log("Combining", obj, projectScreenHits[id]);
+      projectScreenHits[id].count = projectScreenHits[id].count + obj.count;
+    }
+  });
+  console.log("projectScreenHits", projectScreenHits);
+
   let imageHits = data.image.data.map((obj) => {
     return { ...obj, type: "image", count: obj["Number of images"] };
   });
-  let data_results = [].concat(screenHits, projectHits, imageHits);
+  let data_results = [].concat(Object.values(projectScreenHits), imageHits);
   // sort to put exact and 'known' matches first
   data_results.sort(autocompleteSort(query, knownKeys));
 
