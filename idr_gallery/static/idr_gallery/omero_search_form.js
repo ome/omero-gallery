@@ -298,7 +298,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
       key: key,
       label: `<span style="color:#bbb">${key} contains</span>
         <b>${query}</b> <span style="color:#bbb">(${total}
-          ${total != 1 ? "experiments/screens" : DISPLAY_TYPES[type]})</span>`,
+          ${DISPLAY_TYPES[type]}${total != 1 ? "s" : ""})</span>`,
       value: query,
       dtype: type,
       operator: "contains",
