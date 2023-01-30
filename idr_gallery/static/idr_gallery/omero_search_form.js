@@ -729,8 +729,42 @@ class OmeroSearchForm {
     this.previousSearchQuery = query;
   }
 
+  validateQuery(query) {
+    // If any keys are "Any", don't perform search...
+    console.log("validating query...", query)
+    let and_clauses = query?.query_details?.and_filters;
+    let or_clauses = query?.query_details?.or_filters.flatMap(c => c);
+
+    let clauses = [];
+    if (and_clauses) {
+      clauses = clauses.concat(and_clauses);
+    }
+    if (or_clauses) {
+      clauses = clauses.concat(or_clauses);
+    }
+    if (clauses.length == 0) {
+      return false;
+    }
+    // Invalid if name is "Any"
+    if (clauses.some(clause => clause.name == "Any")) {
+      console.log("Can't search for 'Any' key")
+      return false;
+    }
+    // Invalid if value is empty
+    if (clauses.some(clause => clause.value.length === 0)) {
+      console.log("Empty value field")
+      return false;
+    }
+    return true;
+  }
+
   submitSearch() {
+    console.log("Submit search...")
     let query = this.getCurrentQuery();
+    if (!this.validateQuery(query)) {
+      console.log("Form not valid");
+      return;
+    }
     query = this.modifyQueryCellTissue(query);
     this.setPreviousSearchQuery(query);
     let self = this;
