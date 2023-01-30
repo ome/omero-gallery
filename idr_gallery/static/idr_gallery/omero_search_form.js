@@ -264,6 +264,12 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
         matches: [],
       };
     }
+    // result.dtype can be 'project', 'screen', 'experiments/screens'
+    if (result.dtype == "project" || result.dtype == "screen") {
+      if (!keyCounts[key].type.includes(result.dtype)) {
+        keyCounts[key].type = "experiments/screens";
+      }
+    }
     keyCounts[key].count += result.count;
     keyCounts[key].matches.push(result);
   });
@@ -271,7 +277,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   keyCountsList.sort((a, b) =>
     a.count < b.count ? 1 : a.count > b.count ? -1 : a.key > b.key ? 1 : -1
   );
-  // TODO: we don't use this summary yet... Display to user somehow??
+  // NB: we only use the keyCounts[key] if key isn't "Any" below
   console.log("keyCountsList", keyCountsList);
 
   // truncate list
