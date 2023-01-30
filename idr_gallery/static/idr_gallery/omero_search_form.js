@@ -67,6 +67,7 @@ const DISPLAY_TYPES = {
   image: "image",
   project: "experiment",
   screen: "screen",
+  "experiments/screens": "experiments/screen",
 };
 
 // projects or screens might match Name or Description.
@@ -198,6 +199,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
       // we have duplicate result for project & screen - simply add counts
       console.log("Combining", obj, projectScreenHits[id]);
       projectScreenHits[id].count = projectScreenHits[id].count + obj.count;
+      projectScreenHits[id].type = "experiments/screens"
     }
   });
   console.log("projectScreenHits", projectScreenHits);
