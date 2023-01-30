@@ -190,8 +190,8 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   });
   // Need to combine 'screen' and 'project' results based on matching 'value', since any search
   // we perform with selected auto-complete item will search for 'containers'
-  let projectScreenHits = {}
-  projectHits.concat(screenHits).forEach(obj => {
+  let projectScreenHits = {};
+  projectHits.concat(screenHits).forEach((obj) => {
     let id = obj.Key + "=" + obj.Value;
     if (!projectScreenHits[id]) {
       projectScreenHits[id] = obj;
@@ -199,7 +199,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
       // we have duplicate result for project & screen - simply add counts
       console.log("Combining", obj, projectScreenHits[id]);
       projectScreenHits[id].count = projectScreenHits[id].count + obj.count;
-      projectScreenHits[id].type = "experiments/screens"
+      projectScreenHits[id].type = "experiments/screens";
     }
   });
   console.log("projectScreenHits", projectScreenHits);
@@ -215,7 +215,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
     let type = result.type;
     let count = result.count;
     // if we're using 'contains' show e.g. >10 results
-    let gt = (operator == "contains") ? "&#8805; " : "";
+    let gt = operator == "contains" ? "&#8805; " : "";
     return {
       key: result.Key,
       label: `${result.Key} <span style="color:#bbb">${operator}</span> <b>${
@@ -733,9 +733,9 @@ class OmeroSearchForm {
 
   validateQuery(query) {
     // If any keys are "Any", don't perform search...
-    console.log("validating query...", query)
+    console.log("validating query...", query);
     let and_clauses = query?.query_details?.and_filters;
-    let or_clauses = query?.query_details?.or_filters.flatMap(c => c);
+    let or_clauses = query?.query_details?.or_filters.flatMap((c) => c);
 
     let clauses = [];
     if (and_clauses) {
@@ -748,20 +748,20 @@ class OmeroSearchForm {
       return false;
     }
     // Invalid if name is "Any"
-    if (clauses.some(clause => clause.name == "Any")) {
-      console.log("Can't search for 'Any' key")
+    if (clauses.some((clause) => clause.name == "Any")) {
+      console.log("Can't search for 'Any' key");
       return false;
     }
     // Invalid if value is empty
-    if (clauses.some(clause => clause.value.length === 0)) {
-      console.log("Empty value field")
+    if (clauses.some((clause) => clause.value.length === 0)) {
+      console.log("Empty value field");
       return false;
     }
     return true;
   }
 
   submitSearch() {
-    console.log("Submit search...")
+    console.log("Submit search...");
     let query = this.getCurrentQuery();
     if (!this.validateQuery(query)) {
       console.log("Form not valid");
