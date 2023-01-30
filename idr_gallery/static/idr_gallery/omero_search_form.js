@@ -214,11 +214,13 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
   results = data_results.map((result) => {
     let type = result.type;
     let count = result.count;
+    // if we're using 'contains' show e.g. >10 results
+    let gt = (operator == "contains") ? "&#8805; " : "";
     return {
       key: result.Key,
       label: `${result.Key} <span style="color:#bbb">${operator}</span> <b>${
         result.Value
-      }</b> <span style="color:#bbb">(${count} ${DISPLAY_TYPES[type]}${
+      }</b> <span style="color:#bbb">(${gt}${count} ${DISPLAY_TYPES[type]}${
         count != 1 ? "s" : ""
       })</span>`,
       value: `${result.Value}`,
