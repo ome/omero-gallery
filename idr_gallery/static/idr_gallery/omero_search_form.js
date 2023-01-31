@@ -329,6 +329,12 @@ class OmeroSearchForm {
     this.$form.html(`<div class="clauses"></div>`);
     this.$form.append($(FORM_FOOTER_HTML));
 
+    // disable default form submission behaviour
+    // NB: Only needed on Safari
+    this.$form.on("submit", (event) => {
+      event.preventDefault();
+    });
+
     // If resultsId, create results element...
     if (resultsId) {
       this.$results = $(`#${resultsId}`);
