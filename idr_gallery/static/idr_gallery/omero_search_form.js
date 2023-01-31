@@ -580,6 +580,13 @@ class OmeroSearchForm {
         .append("<a style='font-size:14px; width:245px'>" + item.label + "</a>")
         .appendTo(ul);
     };
+    $this.on("keyup", (event) => {
+      if (!(event.which == 38 || event.which == 40)) {
+        // on any keystroke (except up/down arrows),
+        // hide auto-complete immediately to avoid selection of old results
+        $this.autocomplete("close");
+      }
+    });
   }
 
   setKeyField($parent, key, resource) {
