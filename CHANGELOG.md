@@ -1,4 +1,10 @@
 
+3.9.0 (February 2023)
+---------------------
+
+- Search page supports search for studies [#20](https://github.com/IDR/idr-gallery/pull/20)
+- Update logos [#23](https://github.com/IDR/idr-gallery/pull/23)
+
 3.8.0 (October 2022)
 --------------------
 
