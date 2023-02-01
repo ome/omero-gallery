@@ -57,13 +57,24 @@ def index(request, super_category=None, conn=None, **kwargs):
             if query.startswith("mapr_"):
                 keyval = find_mapr_key_value(request, query)
                 if keyval is not None:
-                    # /search/?key=Gene+Symbol&value=pax6&operator=equals
+                    # /search/?key=Gene+Symbol&value=pax6&operator=contains
+                    # Use "contains" to be consistent with studies search below
                     return redirect_with_params('idr_gallery_search',
                                                 key=keyval[0],
                                                 value=keyval[1],
-                                                operator="equals")
-            # otherwise show filter studies page
-            template = "idr_gallery/mapr_search.html"
+                                                operator="contains")
+            # handle e.g. ?query=Publication%20Authors:smith
+            # ?key=Publication+Authors&value=Smith&operator=contains&resource=container
+            keyval = query.split(":", 1)
+            # search for studies ("containers") and use "contains"
+            # to match previous behaviour
+            # NB: 'Name' needs to be 'name' for search-engine
+            key = "name" if keyval[0] == "Name" else keyval[0]
+            return redirect_with_params('idr_gallery_search',
+                                        key=key,
+                                        value=keyval[1],
+                                        resource="container",
+                                        operator="contains")
         else:
             template = "idr_gallery/search.html"
     context = {'template': template}

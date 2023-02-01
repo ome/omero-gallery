@@ -131,9 +131,9 @@
   // custom handling of search results, not handled by OmeroSearchForm
   searchForm.on("results", function(event, data) {
     console.log("on.results", event, data);
-    let studiesList = data.results.results;
+    let studiesList = data.results?.results || [];
     let imgCount = studiesList.reduce((prev, study) => prev += study["image count"], 0);
-    let studies = studiesList.length === 1 ? 'study' : 'studies';
+    let studies = studiesList.length === 1 ? DISPLAY_TYPES[studiesList[0].type] : 'experiments/screens';
     let searchQuery = searchForm.getHumanReadableQuery();
     let msg = `<p class="filterMessage">
       Search ${searchQuery} found <strong>${imgCount}</strong> images in <strong>${studiesList.length}</strong> ${studies}
@@ -150,6 +150,7 @@
     params.append("key", clause.name);
     params.append("value", clause.value);
     params.append("operator", clause.operator);
+    params.append("resource", clause.resource);
     history.pushState(null, "", "?" + params.toString());
   });
 
@@ -158,9 +159,10 @@
     const searchParams = new URLSearchParams(window.location.search);
     let key = searchParams.get("key");
     let value = searchParams.get("value");
+    let resource = searchParams.get("resource") || "image";
     if (key && value) {
-      let operator = searchParams.get("operator", "equals");
-      searchForm.setKeyValueQuery({key, value, operator});
+      let operator = searchParams.get("operator") || "equals";
+      searchForm.setKeyValueQuery({key, value, operator, resource});
       searchForm.submitSearch();
     }
     // 'hidden' support for ?advanced=true to show AND/OR buttons

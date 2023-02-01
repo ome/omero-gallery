@@ -379,7 +379,7 @@ class StudiesModel {
   }
 
   filterStudiesAnyText(text) {
-    // Search for studies with text in their keys, values, or description.
+    // Search for studies with text in their keys, values, name or description.
     // Returns a list of matching studies. Each study is returned along with kvps that match text
     // [study, [{key: value}, {Description: this study is great}]]
 
@@ -393,6 +393,13 @@ class StudiesModel {
         let keyValuePairs = [];
         if (study.mapValues) {
           keyValuePairs = [...study.mapValues];
+
+          // Don't want to find "annotation.csv" KVPs
+          keyValuePairs = keyValuePairs.filter(
+            (kvp) => !kvp[1].includes("annotation.csv")
+          );
+
+          keyValuePairs.push(["Name", study.Name]);
         }
         keyValuePairs.push(["Description", study.StudyDescription]);
         let match = keyValuePairs.some((kvp) => regex.test(kvp[1]));

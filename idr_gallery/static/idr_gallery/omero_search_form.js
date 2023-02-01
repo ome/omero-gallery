@@ -10,8 +10,8 @@ const AND_CLAUSE_HTML = `
     <div class="search_condition">
         <label for="condition">Operator</label>
         <select id="condition" class="form-control condition">
-          <option value="equals">equals</option>
           <option value="contains">contains</option>
+          <option value="equals">equals</option>
         </select>
     </div>
     <div class="search_value" style="position: relative">
@@ -59,6 +59,262 @@ const FILTER_ICON_SVG = `
 	C58.1,59.1,81.058,61.387,105.34,61.387c24.283,0,47.24-2.287,65.034-6.449L119.631,116.486z"/>
 </svg>`;
 
+const NAME_KEY = "name";
+// display this on the keyFields <select> in place of "name" key
+const NAME_IDR_NUMBER = "Name (IDR number)";
+
+const DISPLAY_TYPES = {
+  image: "image",
+  project: "experiment",
+  screen: "screen",
+  "experiments/screens": "experiments/screen",
+};
+
+// projects or screens might match Name or Description.
+function mapNames(rsp, type, key, searchTerm, operator) {
+  // rsp is a list of [ {id, name, description}, ]
+  searchTerm = searchTerm.toLowerCase();
+
+  // use_description not enabled yet (see below)
+  // if (key == "description") {
+  //   // results from resources/all/names/?use_description=true will include searches by name
+  //   // need to check they really match description.
+  //   rsp = rsp.filter((resultObj) => {
+  //     return resultObj.description.toLowerCase().includes(searchTerm);
+  //   });
+  // }
+  // Need to filter out containers without images
+  rsp = rsp.filter((resultObj) => {
+    return !(resultObj.no_images === 0);
+  });
+
+  return rsp.map((resultObj) => {
+    let name = resultObj.name;
+    let desc = resultObj.description;
+    let attribute = key;
+    // If we searched for Any, show all results.
+    // "Attribute" form field will be filled (Name or Desc) if user picks item
+    if (attribute == "Any") {
+      attribute = name.toLowerCase().includes(searchTerm)
+        ? NAME_KEY
+        : "description";
+    }
+    let value = name;
+    if (attribute == "description") {
+      // truncate Description around matching word...
+      let start = desc.toLowerCase().indexOf(searchTerm);
+      let targetLength = 80;
+      let padding = (targetLength - searchTerm.length) / 2;
+      if (start - padding < 0) {
+        start = 0;
+      } else {
+        start = start - padding;
+      }
+      let truncated = desc.substr(start, targetLength);
+      if (start > 0) {
+        truncated = "..." + truncated;
+      }
+      if (start + targetLength < desc.length) {
+        truncated = truncated + "...";
+      }
+      value = desc;
+      name = truncated;
+    }
+
+    return {
+      key: attribute,
+      label: `${attribute} <span style="color:#bbb">${operator}</span> <b>${name}</b> <span style="color:#bbb">(1 ${DISPLAY_TYPES[type]})</span>`,
+      value,
+      count: 1,
+      dtype: type,
+    };
+  });
+}
+
+function autocompleteSort(queryVal, knownKeys = []) {
+  // returns a sort function based on the current query Value
+  // knownKeys is list of common keys e.g. ["Gene Symbol", "Antibody"] etc.
+
+  queryVal = queryVal.toLowerCase();
+  // const KNOWN_KEYS = [].concat(...Object.values(this.resources_data));
+  return (a, b) => {
+    // if exact match, show first
+    let aMatch = queryVal == a.Value.toLowerCase();
+    let bMatch = queryVal == b.Value.toLowerCase();
+    if (aMatch != bMatch) {
+      return aMatch ? -1 : 1;
+    }
+    // show all known Keys before unknown
+    let aKnown = knownKeys.includes(a.Key);
+    let bKnown = knownKeys.includes(b.Key);
+    if (aKnown != bKnown) {
+      return aKnown ? -1 : 1;
+    }
+    // Show highest counts first
+    return a.count > b.count ? -1 : a.count < b.count ? 1 : 0;
+  };
+}
+
+async function getAutoCompleteResults(key, query, knownKeys, operator) {
+  let params = { value: query };
+  if (key != "Any") {
+    params.key = key;
+  }
+  params = new URLSearchParams(params).toString();
+  let kvp_url = `${SEARCH_ENGINE_URL}resources/all/searchvalues/?` + params;
+  let urls = [kvp_url];
+
+  if (key == "Any" || key == "description" || key == NAME_KEY) {
+    // Need to load data from 2 end-points
+    let names_url = `${SEARCH_ENGINE_URL}resources/all/names/?value=${query}`;
+    // NB: Don't show auto-complete for Description yet - issues with 'equals' search
+    // if (key == "Any" || key == "description") {
+    //   names_url += `&use_description=true`;
+    // }
+    urls.push(names_url);
+  }
+
+  const promises = urls.map((p) => fetch(p).then((rsp) => rsp.json()));
+  const responses = await Promise.all(promises);
+
+  const data = responses[0];
+
+  // hideSpinner();
+  let results;
+  // combine 'screen', 'project' and 'image' results - can ignore 'well', 'plate' etc.
+  let screenHits = data.screen.data.map((obj) => {
+    return { ...obj, type: "screen", count: obj["Number of screens"] };
+  });
+  let projectHits = data.project.data.map((obj) => {
+    return { ...obj, type: "project", count: obj["Number of projects"] };
+  });
+  // Need to combine 'screen' and 'project' results based on matching 'value', since any search
+  // we perform with selected auto-complete item will search for 'containers'
+  let projectScreenHits = {};
+  projectHits.concat(screenHits).forEach((obj) => {
+    let id = obj.Key + "=" + obj.Value;
+    if (!projectScreenHits[id]) {
+      projectScreenHits[id] = obj;
+    } else {
+      // we have duplicate result for project & screen - simply add counts
+      console.log("Combining", obj, projectScreenHits[id]);
+      projectScreenHits[id].count = projectScreenHits[id].count + obj.count;
+      projectScreenHits[id].type = "experiments/screens";
+    }
+  });
+  console.log("projectScreenHits", projectScreenHits);
+
+  let imageHits = data.image.data.map((obj) => {
+    return { ...obj, type: "image", count: obj["Number of images"] };
+  });
+  let data_results = [].concat(Object.values(projectScreenHits), imageHits);
+  // sort to put exact and 'known' matches first
+  data_results.sort(autocompleteSort(query, knownKeys));
+
+  results = data_results.map((result) => {
+    let type = result.type;
+    let count = result.count;
+    // if we're using 'contains' show e.g. >10 results
+    let gt = operator == "contains" ? "&#8805; " : "";
+    return {
+      key: result.Key,
+      label: `${result.Key} <span style="color:#bbb">${operator}</span> <b>${
+        result.Value
+      }</b> <span style="color:#bbb">(${gt}${count} ${DISPLAY_TYPES[type]}${
+        count != 1 ? "s" : ""
+      })</span>`,
+      value: `${result.Value}`,
+      dtype: type,
+      count,
+    };
+  });
+  // If we searched the 2nd Name/Description endpoint, concat the results...
+  if (responses[1]) {
+    const projectNameHits = mapNames(
+      responses[1].project,
+      "project",
+      key,
+      query,
+      operator
+    );
+    const screenNameHits = mapNames(
+      responses[1].screen,
+      "screen",
+      key,
+      query,
+      operator
+    );
+    const nameHits = projectNameHits.concat(screenNameHits);
+    // TODO: sort nameHits...
+    results = nameHits.concat(results);
+  }
+
+  // filter to remove annotation.csv KV pairs
+  results = results.filter((item) => !item.value.includes("annotation.csv"));
+
+  // Generate Summary of [{key: "name", count: 5, type: container, matches:[]} }
+  let keyCounts = {};
+  results.forEach((result) => {
+    let key = result.key;
+    if (!keyCounts[key]) {
+      keyCounts[key] = {
+        key: key,
+        count: 0,
+        type: result.dtype,
+        matches: [],
+      };
+    }
+    // result.dtype can be 'project', 'screen', 'experiments/screens'
+    if (result.dtype == "project" || result.dtype == "screen") {
+      if (!keyCounts[key].type.includes(result.dtype)) {
+        keyCounts[key].type = "experiments/screens";
+      }
+    }
+    keyCounts[key].count += result.count;
+    keyCounts[key].matches.push(result);
+  });
+  let keyCountsList = Object.values(keyCounts);
+  keyCountsList.sort((a, b) =>
+    a.count < b.count ? 1 : a.count > b.count ? -1 : a.key > b.key ? 1 : -1
+  );
+  // NB: we only use the keyCounts[key] if key isn't "Any" below
+  console.log("keyCountsList", keyCountsList);
+
+  // truncate list
+  let result_count = results.length;
+  const max_shown = 100;
+  if (result_count > max_shown) {
+    results = results.slice(0, max_shown);
+    results.push({
+      key: -1,
+      label: `...and ${result_count - max_shown} more matches not shown`,
+      value: -1,
+    });
+  } else if (result_count == 0) {
+    results = [{ label: "No results found.", value: -1 }];
+  }
+
+  // If not "Any", add an option to search for contains the currently typed query
+  if (key != "Any" && keyCounts[key]) {
+    let total = keyCounts[key].count;
+    let type = keyCounts[key].type;
+    // E.g. "Imaging Method contains light (16 experiments/screens)"
+    // Or "Imaging Method contains SPIM (1 experiment)"
+    const allOption = {
+      key: key,
+      label: `<span style="color:#bbb">${key} contains</span>
+        <b>${query}</b> <span style="color:#bbb">(${total}
+          ${DISPLAY_TYPES[type]}${total != 1 ? "s" : ""})</span>`,
+      value: query,
+      dtype: type,
+      operator: "contains",
+    };
+    results.unshift(allOption);
+  }
+
+  return results;
+}
+
 const SPINNER_SVG = `<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sync" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-sync fa-w-16 fa-spin fa-lg"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z" class=""></path></svg>`;
 class OmeroSearchForm {
   constructor(formId, SEARCH_ENGINE_URL, resultsId) {
@@ -73,6 +329,12 @@ class OmeroSearchForm {
     this.$form.html(`<div class="clauses"></div>`);
     this.$form.append($(FORM_FOOTER_HTML));
 
+    // disable default form submission behaviour
+    // NB: Only needed on Safari
+    this.$form.on("submit", (event) => {
+      event.preventDefault();
+    });
+
     // If resultsId, create results element...
     if (resultsId) {
       this.$results = $(`#${resultsId}`);
@@ -83,11 +345,11 @@ class OmeroSearchForm {
 
     // TODO: wait for loadResources()
     // then build form...
-    (async function () {
+    (async () => {
       await this.loadResources();
       this.addAnd();
       this.trigger("ready");
-    }.bind(this)());
+    })();
   }
 
   // pub/sub methods. see https://github.com/cowboy/jquery-tiny-pubsub
@@ -118,6 +380,14 @@ class OmeroSearchForm {
     if (this.resources_data.error != undefined) {
       alert(this.resources_data.error);
     }
+    // Remove key "Name (IDR number)", replace with "name"
+    if (this.resources_data["project"].includes(NAME_IDR_NUMBER)) {
+      this.resources_data["project"] = this.resources_data["project"].filter(
+        (k) => k != NAME_IDR_NUMBER
+      );
+      this.resources_data["project"].push(NAME_KEY);
+      this.resources_data["project"].sort();
+    }
 
     return this.resources_data;
   }
@@ -126,6 +396,9 @@ class OmeroSearchForm {
     // e.g. find if 'Antibody' key comes from 'image', 'project' etc
     for (let resource in this.resources_data) {
       if (this.resources_data[resource].includes(key)) {
+        if (resource == "project" || resource == "screen") {
+          resource = "container";
+        }
         return resource;
       }
     }
@@ -222,99 +495,63 @@ class OmeroSearchForm {
     // Adds <option> to '.keyFields' for each item in pre-cached resources_data
     let $field = $(".keyFields", $orClause);
     let anyOption = `<option value="Any">Any</option>`;
-    // only show 'image' attributes
-    let imgKeys = this.resources_data.image;
-    imgKeys.sort();
-    let html = imgKeys
-      .map((value) => `<option value="${value}">${value}</option>`)
+    // We combine 'project' and 'screen' into 'Study'
+    let menu = {
+      Study: this.resources_data.project.concat(this.resources_data.screen),
+      Image: this.resources_data.image,
+    };
+
+    const getDisplayValue = (value) => {
+      // UI shows "Name (IDR number)" instead of "name"
+      if (value == NAME_KEY) {
+        return NAME_IDR_NUMBER;
+      }
+      return value;
+    };
+
+    let html = Object.entries(menu)
+      .map((resourceValues) => {
+        let resource = resourceValues[0];
+        let values = resourceValues[1];
+        values.sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : 1));
+        const options = values
+          .map(
+            (value) =>
+              `<option value="${value}">${getDisplayValue(value)}</option>`
+          )
+          .join("\n");
+        return `<optgroup label="${resource}">${options}</optgroup>`;
+      })
       .join("\n");
     $field.html(anyOption + html);
-  }
-
-  autocompleteSort(queryVal) {
-    // returns a sort function based on the current query Value
-    // NB: same logic in autocompleteSort() function used on front page
-    queryVal = queryVal.toLowerCase();
-    const KNOWN_KEYS = this.resources_data;
-    return (a, b) => {
-      // if exact match, show first
-      let aMatch = queryVal == a.Value.toLowerCase();
-      let bMatch = queryVal == b.Value.toLowerCase();
-      if (aMatch != bMatch) {
-        return aMatch ? -1 : 1;
-      }
-      // show all known Keys before unknown
-      let aKnown = KNOWN_KEYS.image.includes(a.Key);
-      let bKnown = KNOWN_KEYS.image.includes(b.Key);
-      if (aKnown != bKnown) {
-        return aKnown ? -1 : 1;
-      }
-      // Show highest Image counts first
-      let aCount = a["Number of images"];
-      let bCount = b["Number of images"];
-      return aCount > bCount ? -1 : aCount < bCount ? 1 : 0;
-    };
   }
 
   initAutoComplete($orClause) {
     let self = this;
     let $this = $(".valueFields", $orClause);
+    const knownKeys = [].concat(...Object.values(this.resources_data));
     // key is updated when user starts typing, also used to handle response and select
     let key;
     $this
       .autocomplete({
         autoFocus: true,
         delay: 1000,
-        source: function (request, response) {
+        source: async function (request, response) {
           // Need to know what Attribute is of adjacent <select>
           key = $(".keyFields", $orClause).val();
-          let data = { value: request.term };
-          let url = `${SEARCH_ENGINE_URL}resources/image/searchvalues/`;
+          let operator = $(".condition", $orClause).val();
           if (key != "Any") {
-            data.key = key;
+            // if we know the key, we will switch to 'equals' (except for the first 'contains' option)
+            operator = "equals";
           }
-          // showSpinner();
-          $.ajax({
-            dataType: "json",
-            data,
-            type: "GET",
-            url: url,
-            success: function (data) {
-              // hideSpinner();
-              let results = [{ label: "No results found.", value: -1 }];
-              if (data.data.length > 0) {
-                // only try to show top 100 items...
-                let max_shown = 100;
-                let result_count = data.data.length;
-                let data_results = data.data;
-                // sort to put exact and 'known' matches first
-                data_results.sort(self.autocompleteSort(request.term));
-                results = data_results.slice(0, 100).map((result) => {
-                  let showKey = key === "Any" ? `(${result.Key})` : "";
-                  return {
-                    key: result.Key,
-                    label: `<b>${result.Value}</b> ${showKey} <span style="color:#bbb">${result["Number of images"]} images</span>`,
-                    value: `${result.Value}`,
-                  };
-                });
-                if (result_count > max_shown) {
-                  results.push({
-                    key: -1,
-                    label: `...and ${
-                      result_count - max_shown
-                    } more matches not shown`,
-                    value: -1,
-                  });
-                }
-              }
-              response(results);
-            },
-            error: function (data) {
-              console.log("ERROR", data);
-              // hideSpinner();
-              response([{ label: "Failed to load", value: -1 }]);
-            },
-          });
+          const query = request.term;
+          const results = await getAutoCompleteResults(
+            key,
+            query,
+            knownKeys,
+            operator
+          );
+          response(results);
         },
         minLength: 1,
         open: function () {},
@@ -330,7 +567,11 @@ class OmeroSearchForm {
           }
           if (key == "Any") {
             // Use 'key' to update KeyField
-            self.setKeyField($orClause, ui.item.key);
+            self.setKeyField($orClause, ui.item.key, ui.item.dtype);
+          } else {
+            const operator =
+              ui.item.operator == "contains" ? "contains" : "equals";
+            self.setOperator($orClause, operator);
           }
           // We perform search with chosen value...
           setTimeout(() => {
@@ -345,15 +586,34 @@ class OmeroSearchForm {
         .append("<a style='font-size:14px; width:245px'>" + item.label + "</a>")
         .appendTo(ul);
     };
+    $this.on("keyup", (event) => {
+      if (!(event.which == 38 || event.which == 40)) {
+        // on any keystroke (except up/down arrows),
+        // hide auto-complete immediately to avoid selection of old results
+        $this.autocomplete("close");
+      }
+    });
   }
 
-  setKeyField($parent, key) {
+  setKeyField($parent, key, resource) {
     // Adds the Key as an <option> to the <select> if not there;
     let $select = $(".keyFields", $parent);
     if ($(`option[value='${key}']`, $select).length == 0) {
-      $select.append($(`<option value="${key}">${key}</option>`));
+      // update this.resources_data and re-render <select>
+      if (resource == "container") {
+        resource = "project";
+      }
+      this.resources_data[resource].push(key);
+      this.setKeyValues($parent);
+      $select = $(".keyFields", $parent);
     }
     $select.val(key);
+  }
+
+  setOperator($parent, operator) {
+    // Adds the Key as an <option> to the <select> if not there;
+    let $select = $(".condition", $parent);
+    $select.val(operator);
   }
 
   displayHideRemoveButtons() {
@@ -398,7 +658,7 @@ class OmeroSearchForm {
   }
 
   addAnd(query) {
-    // query is e.g. {key: "Antibody", value: "foo", operator?: "equals"}
+    // query is e.g. {key: "Antibody", value: "foo", operator?: "equals", resource: "image"}
     let $andClause = $(AND_CLAUSE_HTML);
     $(".clauses", this.$form).append($andClause);
 
@@ -408,7 +668,7 @@ class OmeroSearchForm {
 
     if (query?.key) {
       // add <option> if not there
-      this.setKeyField($andClause, query.key);
+      this.setKeyField($andClause, query.key, query.resource);
     }
     if (query?.value) {
       $(".valueFields", $andClause).val(query.value);
@@ -490,8 +750,42 @@ class OmeroSearchForm {
     this.previousSearchQuery = query;
   }
 
+  validateQuery(query) {
+    // If any keys are "Any", don't perform search...
+    console.log("validating query...", query);
+    let and_clauses = query?.query_details?.and_filters;
+    let or_clauses = query?.query_details?.or_filters.flatMap((c) => c);
+
+    let clauses = [];
+    if (and_clauses) {
+      clauses = clauses.concat(and_clauses);
+    }
+    if (or_clauses) {
+      clauses = clauses.concat(or_clauses);
+    }
+    if (clauses.length == 0) {
+      return false;
+    }
+    // Invalid if name is "Any"
+    if (clauses.some((clause) => clause.name == "Any")) {
+      console.log("Can't search for 'Any' key");
+      return false;
+    }
+    // Invalid if value is empty
+    if (clauses.some((clause) => clause.value.length === 0)) {
+      console.log("Empty value field");
+      return false;
+    }
+    return true;
+  }
+
   submitSearch() {
+    console.log("Submit search...");
     let query = this.getCurrentQuery();
+    if (!this.validateQuery(query)) {
+      console.log("Form not valid");
+      return;
+    }
     query = this.modifyQueryCellTissue(query);
     this.setPreviousSearchQuery(query);
     let self = this;
@@ -507,7 +801,6 @@ class OmeroSearchForm {
         self.hideSpinner();
         if (data["Error"] != "none") {
           alert(data["Error"]);
-          return;
         }
         // publish results to subscribers
         self.trigger("results", data);
@@ -524,12 +817,12 @@ class OmeroSearchForm {
   }
 
   displayResults(data) {
-    let studyList = data.results.results;
+    let studyList = data.results?.results || [];
 
     let thead = `<li class="studyRow resultsHeader">
       <div class="studyColumns">
         <div class="caret"></i></div>
-        <div class="studyId">Study ID</div>
+        <div title="Experiment or Screen ID" class="studyId">ID</div>
         <div class="count">Images</div>
         <div class="studyName">Publication Title</div>
       </div>
@@ -603,11 +896,10 @@ class OmeroSearchForm {
     let query = this.getPreviousSearchQuery();
     let self = this;
     query.query_details.and_filters.push({
-      // TODO: api key should be 'name' not 'Name (IDR number)'
-      name: "Name (IDR number)",
+      name: NAME_KEY,
       value: studyName,
       operator: "equals",
-      resource: "project", // NB: this works for screens too!
+      resource: "container",
     });
     // if pagination data object exists, we are loading next pages...
     const pagination = $studyRow.data("pagination");
@@ -622,10 +914,6 @@ class OmeroSearchForm {
       dataType: "json",
       data: JSON.stringify(query),
       success: function (data) {
-        if (data["Error"] != "none") {
-          alert(data["Error"]);
-          return;
-        }
         let { total_pages, pagination } = data.results;
         let page = data.results.pagination.current_page;
         if (pagination && page < total_pages) {
