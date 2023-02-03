@@ -1,3 +1,7 @@
+3.9.1 (February 2023)
+---------------------
+
+- Fix selection of Experiments/Screens auto-complete item [#25](https://github.com/IDR/idr-gallery/pull/25)
 
 3.9.0 (February 2023)
 ---------------------

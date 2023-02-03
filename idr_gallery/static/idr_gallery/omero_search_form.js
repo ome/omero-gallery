@@ -63,11 +63,13 @@ const NAME_KEY = "name";
 // display this on the keyFields <select> in place of "name" key
 const NAME_IDR_NUMBER = "Name (IDR number)";
 
+const CONTAINER_TYPE = "container";
+
 const DISPLAY_TYPES = {
   image: "image",
   project: "experiment",
   screen: "screen",
-  "experiments/screens": "experiments/screen",
+  container: "experiments/screen",
 };
 
 // projects or screens might match Name or Description.
@@ -199,7 +201,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
       // we have duplicate result for project & screen - simply add counts
       console.log("Combining", obj, projectScreenHits[id]);
       projectScreenHits[id].count = projectScreenHits[id].count + obj.count;
-      projectScreenHits[id].type = "experiments/screens";
+      projectScreenHits[id].type = CONTAINER_TYPE;
     }
   });
   console.log("projectScreenHits", projectScreenHits);
@@ -267,7 +269,7 @@ async function getAutoCompleteResults(key, query, knownKeys, operator) {
     // result.dtype can be 'project', 'screen', 'experiments/screens'
     if (result.dtype == "project" || result.dtype == "screen") {
       if (!keyCounts[key].type.includes(result.dtype)) {
-        keyCounts[key].type = "experiments/screens";
+        keyCounts[key].type = CONTAINER_TYPE;
       }
     }
     keyCounts[key].count += result.count;
@@ -600,7 +602,7 @@ class OmeroSearchForm {
     let $select = $(".keyFields", $parent);
     if ($(`option[value='${key}']`, $select).length == 0) {
       // update this.resources_data and re-render <select>
-      if (resource == "container") {
+      if (resource == CONTAINER_TYPE) {
         resource = "project";
       }
       this.resources_data[resource].push(key);
