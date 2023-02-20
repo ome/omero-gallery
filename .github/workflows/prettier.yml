@@ -15,9 +15,8 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           # This is important to fetch the changes to the previous commit
           fetch-depth: 0
-
       - name: Prettify code
-        uses: creyD/prettier_action@v4.2
+        uses: creyD/prettier_action@v4.3
         with:
           dry: true
           # This part is also where you can pass other options, for example:
