@@ -50,6 +50,7 @@ def index(request, super_category=None, conn=None, **kwargs):
     # template is different for '/search' page
     template = "idr_gallery/index.html"
     if "search" in request.path:
+        template = "idr_gallery/search.html"
         query = request.GET.get("query")
         # Handle old URLs e.g. ?query=mapr_gene:PAX7
         if query:
@@ -66,17 +67,16 @@ def index(request, super_category=None, conn=None, **kwargs):
             # handle e.g. ?query=Publication%20Authors:smith
             # ?key=Publication+Authors&value=Smith&operator=contains&resource=container
             keyval = query.split(":", 1)
-            # search for studies ("containers") and use "contains"
-            # to match previous behaviour
-            # NB: 'Name' needs to be 'name' for search-engine
-            key = "name" if keyval[0] == "Name" else keyval[0]
-            return redirect_with_params('idr_gallery_search',
-                                        key=key,
-                                        value=keyval[1],
-                                        resource="container",
-                                        operator="contains")
-        else:
-            template = "idr_gallery/search.html"
+            if len(keyval) > 1 and len(keyval[1]) > 0:
+                # search for studies ("containers") and use "contains"
+                # to match previous behaviour
+                # NB: 'Name' needs to be 'name' for search-engine
+                key = "name" if keyval[0] == "Name" else keyval[0]
+                return redirect_with_params('idr_gallery_search',
+                                            key=key,
+                                            value=keyval[1],
+                                            resource="container",
+                                            operator="contains")
     context = {'template': template}
     context["idr_images"] = IDR_IMAGES
     if super_category == "cell":
