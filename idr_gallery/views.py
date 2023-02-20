@@ -1,5 +1,5 @@
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse, NoReverseMatch
 import json
 import logging
@@ -77,6 +77,7 @@ def index(request, super_category=None, conn=None, **kwargs):
                                             value=keyval[1],
                                             resource="container",
                                             operator="contains")
+            raise Http404("Query should be ?query=key:value format")
     context = {'template': template}
     context["idr_images"] = IDR_IMAGES
     if super_category == "cell":
