@@ -77,7 +77,8 @@ def index(request, super_category=None, conn=None, **kwargs):
                                             value=keyval[1],
                                             resource="container",
                                             operator="contains")
-            return HttpResponseBadRequest("Query should be ?query=key:value format")
+            return HttpResponseBadRequest(
+                "Query should be ?query=key:value format")
     context = {'template': template}
     context["idr_images"] = IDR_IMAGES
     if super_category == "cell":
