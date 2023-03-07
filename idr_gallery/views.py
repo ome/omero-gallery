@@ -114,8 +114,11 @@ def find_mapr_key_value(request, query):
                 all_keys = [key for key in all_keys if key in matching_keys]
             if len(all_keys) > 1 and default_key in all_keys:
                 mapann_key = default_key
-            else:
+            elif len(all_keys) == 1:
                 mapann_key = all_keys[0]
+            else:
+                # no matches -> use default
+                mapann_key = default_key
         return mapann_key, mapr_value
     return None
 
