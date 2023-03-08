@@ -100,7 +100,9 @@ def index(request, super_category=None, conn=None, **kwargs):
 
 
 def find_mapr_key_value(request, query):
-    key_val = query.split(":")
+    key_val = query.split(":", 1)
+    if len(key_val) < 2:
+        return None
     mapr_key = key_val[0].replace("mapr_", "")
     mapr_value = key_val[1]
     if mapr_settings and mapr_key in mapr_settings.MAPR_CONFIG:
