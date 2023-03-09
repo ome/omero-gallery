@@ -1,3 +1,8 @@
+3.9.2 (February 2023)
+---------------------
+
+- Handle invalid search URLs [#27](https://github.com/IDR/idr-gallery/pull/27)
+
 3.9.1 (February 2023)
 ---------------------
 
