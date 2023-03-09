@@ -1,4 +1,4 @@
 
 # This can be loaded via the app.
 # It will be updated by bumpversion
-VERSION = '3.9.2'
+VERSION = '3.9.3.dev0'
