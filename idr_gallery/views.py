@@ -1,5 +1,5 @@
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.urls import reverse, NoReverseMatch
 import json
 import logging
@@ -50,6 +50,7 @@ def index(request, super_category=None, conn=None, **kwargs):
     # template is different for '/search' page
     template = "idr_gallery/index.html"
     if "search" in request.path:
+        template = "idr_gallery/search.html"
         query = request.GET.get("query")
         # Handle old URLs e.g. ?query=mapr_gene:PAX7
         if query:
@@ -66,17 +67,18 @@ def index(request, super_category=None, conn=None, **kwargs):
             # handle e.g. ?query=Publication%20Authors:smith
             # ?key=Publication+Authors&value=Smith&operator=contains&resource=container
             keyval = query.split(":", 1)
-            # search for studies ("containers") and use "contains"
-            # to match previous behaviour
-            # NB: 'Name' needs to be 'name' for search-engine
-            key = "name" if keyval[0] == "Name" else keyval[0]
-            return redirect_with_params('idr_gallery_search',
-                                        key=key,
-                                        value=keyval[1],
-                                        resource="container",
-                                        operator="contains")
-        else:
-            template = "idr_gallery/search.html"
+            if len(keyval) > 1 and len(keyval[1]) > 0:
+                # search for studies ("containers") and use "contains"
+                # to match previous behaviour
+                # NB: 'Name' needs to be 'name' for search-engine
+                key = "name" if keyval[0] == "Name" else keyval[0]
+                return redirect_with_params('idr_gallery_search',
+                                            key=key,
+                                            value=keyval[1],
+                                            resource="container",
+                                            operator="contains")
+            return HttpResponseBadRequest(
+                "Query should be ?query=key:value format")
     context = {'template': template}
     context["idr_images"] = IDR_IMAGES
     if super_category == "cell":
@@ -98,7 +100,9 @@ def index(request, super_category=None, conn=None, **kwargs):
 
 
 def find_mapr_key_value(request, query):
-    key_val = query.split(":")
+    key_val = query.split(":", 1)
+    if len(key_val) < 2:
+        return None
     mapr_key = key_val[0].replace("mapr_", "")
     mapr_value = key_val[1]
     if mapr_settings and mapr_key in mapr_settings.MAPR_CONFIG:
@@ -114,8 +118,11 @@ def find_mapr_key_value(request, query):
                 all_keys = [key for key in all_keys if key in matching_keys]
             if len(all_keys) > 1 and default_key in all_keys:
                 mapann_key = default_key
-            else:
+            elif len(all_keys) == 1:
                 mapann_key = all_keys[0]
+            else:
+                # no matches -> use default
+                mapann_key = default_key
         return mapann_key, mapr_value
     return None
 
