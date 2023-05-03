@@ -74,7 +74,7 @@
             {% if group_owners %}
                 <optgroup label="Owners">
                 {% for user in group_owners %}
-                    <option value="{{ user.id }}" {% ifequal user.id ome.user_id %}selected{% endifequal %}>
+                    <option value="{{ user.id }}" {% if user.id == ome.user_id %}selected{% endif %}>
                         {{ user.getFullName }}
                     </option>
                 {% endfor %}
@@ -82,7 +82,7 @@
             {% if group_members %}
                 <optgroup label="Members">
                 {% for user in group_members %}
-                    <option value="{{ user.id }}" {% ifequal user.id ome.user_id %}selected{% endifequal %}>
+                    <option value="{{ user.id }}" {% if user.id == ome.user_id %}selected{% endif %}>
                         {{ user.getFullName }}
                     </option>
                 {% endfor %}
