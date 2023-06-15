@@ -1,3 +1,9 @@
+
+3.4.3 (June 2023)
+-----------------
+
+- Make app compatible with Django 4.0.x [#110](https://github.com/ome/omero-gallery/pull/110)
+
 3.4.2 (March 2021)
 ------------------
 
